@@ -15,18 +15,29 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
+        <PackageReference Include="MySql.Data" Version="9.3.0" />
         <PackageReference Include="Npgsql" Version="9.0.3" />
         <PackageReference Include="Serilog" Version="4.2.0" />
         <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+        <PackageReference Include="Shouldly" Version="4.3.0" />
+        <PackageReference Include="Testcontainers.MySql" Version="4.4.0" />
         <PackageReference Include="Testcontainers.PostgreSql" Version="4.4.0" />
         <PackageReference Include="xunit" Version="2.5.3"/>
         <PackageReference Include="Xunit.Extensions.Ordering" Version="1.4.5" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3"/>
     </ItemGroup>
+    
+    <ItemGroup>
+        <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
+    </ItemGroup>
 
     <ItemGroup>
         <Using Include="Xunit"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Flowsy.Db.Unity\Flowsy.Db.Unity.csproj" />
     </ItemGroup>
 
 </Project>
