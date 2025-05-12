@@ -48,4 +48,40 @@
     <data name="ConnectionStringCannotBeNullOrWhiteSpace" xml:space="preserve">
         <value>La cadena de conexión no puede ser nula o estar conformada por espacios en blanco.</value>
     </data>
+    <data name="ProviderMustBeSetBeforeConfiguringConventions" xml:space="preserve">
+        <value>El proveedor debe establecerse antes de configurar convenciones.</value>
+    </data>
+    <data name="TypeXIsNotAnEnumType" xml:space="preserve">
+        <value>El tipo {0} no es un tipo enum.</value>
+    </data>
+    <data name="ProviderXCanNotReturnATableFromRoutineOfTypeY" xml:space="preserve">
+        <value>El proveedor {0} no puede retornar una tabla a partir de una rutina de tipo {1}.</value>
+    </data>
+    <data name="ProviderXDoesNotSupportRoutineTypeY" xml:space="preserve">
+        <value>El proveedor {0} no soporta rutinas de tipo {1}.</value>
+    </data>
+    <data name="DatabaseTypeNameOrNameTranslatorMustBeProvided" xml:space="preserve">
+        <value>Debe proporcionarse el nombre del tipo en la base de datos o un traductor de nombre.</value>
+    </data>
+    <data name="TargetTypeListCannotBeEmpty" xml:space="preserve">
+        <value>La lista de tipos para mapeo no puede estar vacía.</value>
+    </data>
+    <data name="TypeMustBeAnEnum" xml:space="preserve">
+        <value>El tipo debe ser un enum.</value>
+    </data>
+    <data name="MustBeginWorkInvokingMethodX" xml:space="preserve">
+        <value>Debe iniciar el trabajo invocando el método {0}.</value>
+    </data>
+    <data name="TheWorkHasAlreadyBegunForThisUnit" xml:space="preserve">
+        <value>El trabajo ya ha sido iniciado para esta unidad.</value>
+    </data>
+    <data name="CouldNotResolveServiceProvider" xml:space="preserve">
+        <value>No se pudo resolver el proveedor de servicios.</value>
+    </data>
+    <data name="CouldNotFindImplementationForTypeX" xml:space="preserve">
+        <value>No se pudo encontrar una implementación para el tipo {0}.</value>
+    </data>
+    <data name="CouldNotFindConstructorForTypeX" xml:space="preserve">
+        <value>No se pudo encontrar un constructor para el tipo {0}.</value>
+    </data>
 </root>

@@ -1,4 +1,5 @@
 using Flowsy.Db.Unity.Test.Mock;
+using Flowsy.Db.Unity.Test.Scenarios;
 using Xunit.Extensions.Ordering;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
@@ -10,3 +11,5 @@ using Xunit.Extensions.Ordering;
 [assembly: TestCaseOrderer("Xunit.Extensions.Ordering.TestCaseOrderer", "Xunit.Extensions.Ordering")]
 
 [assembly: AssemblyFixture(typeof(ServiceHost))]
+
+[assembly: AssemblyFixture(typeof(GlobalModel))]

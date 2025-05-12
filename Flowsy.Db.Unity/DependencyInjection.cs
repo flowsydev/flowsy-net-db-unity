@@ -7,12 +7,10 @@ public static class DependencyInjection
 {
     public static DbUnityServiceBuilder AddDbUnity(this IServiceCollection services, Action<DbUnityOptions> configure)
     {
-        var serviceBuilder = new DbUnityServiceBuilder(services);
-        
-        var options = new DbUnityOptions(services, serviceBuilder);
+        var options = new DbUnityOptions(services);
         configure(options);
         options.RegisterServices();
 
-        return serviceBuilder;
+        return new DbUnityServiceBuilder(services);;
     }
 }

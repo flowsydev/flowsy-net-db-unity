@@ -1,12 +1,12 @@
-using Flowsy.Db.Unity.Configuration;
+using Flowsy.Core;
 
 namespace Flowsy.Db.Unity.Conventions;
 
 public class DbConventionSet
 {
-    public static DbConventionSet Default { get; set; } = new (DbProvider.Generic);
+    public static DbConventionSet Default { get; set; } = new (DbProviderDescriptor.Generic);
 
-    public DbConventionSet(DbProvider provider)
+    internal DbConventionSet(DbProviderDescriptor provider)
     {
         Provider = provider;
         if (ReferenceEquals(Default, null))
@@ -14,36 +14,54 @@ public class DbConventionSet
             Routines = new DbRoutineConvention(this);
             Parameters = new DbParameterConvention(this);
             Enums = new DbEnumConvention(this);
+            DateTime = new DbDateTimeConvention(this);
+            Commands = new DbCommandConvention(this);
         }
         else
         {
-            Routines = Default.Routines.Clone();
-            Parameters = Default.Parameters.Clone();
-            Enums = Default.Enums.Clone();   
+            Routines = Default.Routines.Clone(this);
+            Parameters = Default.Parameters.Clone(this);
+            Enums = Default.Enums.Clone(this);
+            DateTime = Default.DateTime.Clone(this);
+            Commands = Default.Commands.Clone(this);
         }
     }
 
-    public DbConventionSet(DbProvider provider, DbRoutineConvention routines, DbParameterConvention parameters, DbEnumConvention enums)
+    internal DbConventionSet(
+        DbProviderDescriptor provider,
+        DbRoutineConvention routines,
+        DbParameterConvention parameters,
+        DbEnumConvention enums,
+        DbDateTimeConvention dateTime,
+        DbJsonConvention json,
+        DbCommandConvention commands
+        )
     {
         Provider = provider;
         Routines = routines;
         Parameters = parameters;
         Enums = enums;
+        DateTime = dateTime;
+        Commands = commands;
     }
 
-    public DbProvider Provider { get; set; }
+    public DbProviderDescriptor Provider { get; set; }
+    public CaseStyle? DefaultCaseStyle { get; internal set; }
     public DbRoutineConvention Routines { get; internal set; }
-    
     public DbParameterConvention Parameters { get; internal set; }
-    
     public DbEnumConvention Enums { get; internal set; }
+    public DbDateTimeConvention DateTime { get; internal set; }
+    public DbCommandConvention Commands { get; internal set; }
 
     public void CopyTo(DbConventionSet other)
     {
         other.Provider = Provider;
+        other.DefaultCaseStyle = DefaultCaseStyle;
         Routines.CopyTo(other.Routines);
         Parameters.CopyTo(other.Parameters);
         Enums.CopyTo(other.Enums);
+        DateTime.CopyTo(other.DateTime);
+        Commands.CopyTo(other.Commands);
     }
     
     public DbConventionSet Clone()
@@ -53,5 +71,6 @@ public class DbConventionSet
         return clone;
     }
     
-    public static DbConventionSetBuilder CreateBuilder(DbProvider provider) => new (provider);
+    public static DbConventionSetBuilder CreateBuilder(DbProviderDescriptor provider) => new (provider);
+    public static DbConventionSetBuilder CreateBuilder(DbConventionSet conventions) => new (conventions);
 }

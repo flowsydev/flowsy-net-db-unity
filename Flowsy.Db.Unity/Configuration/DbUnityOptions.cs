@@ -1,20 +1,29 @@
+using Dapper;
+using Flowsy.Core;
+using Flowsy.Db.Unity.Conventions;
 using Flowsy.Db.Unity.Resources;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Flowsy.Db.Unity.Configuration;
 
 public class DbUnityOptions
 {
     private readonly IServiceCollection _services;
-    private readonly DbUnityServiceBuilder _serviceBuilder;
     
     private readonly Dictionary<string, DbConnectionOptionsBuilder> _connectionOptionsBuilders = new();
 
-    internal DbUnityOptions(IServiceCollection services, DbUnityServiceBuilder serviceBuilder)
+    internal DbUnityOptions(IServiceCollection services)
     {
         _services = services;
-        _serviceBuilder = serviceBuilder;
+    }
+
+    public DbUnityOptions UseDefaultConventions(Action<DbConventionSetBuilder> configure)
+    {
+        var builder = new DbConventionSetBuilder(DbConventionSet.Default.Clone());
+        configure(builder);
+        DbConventionSet.Default = builder.Build();
+
+        return this;
     }
 
     public DbConnectionOptionsBuilder UseConnection(string connectionKey)
@@ -26,6 +35,23 @@ public class DbUnityOptions
         var builder = new DbConnectionOptionsBuilder(options);
         _connectionOptionsBuilders[connectionKey] = builder;
         return builder;
+    }
+    
+    public DbUnityOptions MapTypes(Action<DbConventionTypeMapOptions> configure)
+    {
+        var options = new DbConventionTypeMapOptions();
+        configure(options);
+        
+        foreach (var group in options.TypeGroups.Values)
+        {
+            foreach (var type in group.Types)
+            {
+                SqlMapper.RemoveTypeMap(type);
+                SqlMapper.SetTypeMap(type, new DbConventionTypeMap(type, group.ColumnNaming, options.StrictMode));
+            }
+        }
+
+        return this;
     }
 
     internal void RegisterServices()

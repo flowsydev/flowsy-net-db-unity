@@ -48,4 +48,40 @@
     <data name="ConnectionStringCannotBeNullOrWhiteSpace" xml:space="preserve">
         <value>Connection string cannot be null or white space.</value>
     </data>
+    <data name="ProviderMustBeSetBeforeConfiguringConventions" xml:space="preserve">
+        <value>Provider must be set before configuring conventions.</value>
+    </data>
+    <data name="TypeXIsNotAnEnumType" xml:space="preserve">
+        <value>Type {0} is not an enum type.</value>
+    </data>
+    <data name="ProviderXCanNotReturnATableFromRoutineOfTypeY" xml:space="preserve">
+        <value>Provider {0} cannot return a table from a routine of type {1}.</value>
+    </data>
+    <data name="ProviderXDoesNotSupportRoutineTypeY" xml:space="preserve">
+        <value>Provider {0} does not support routines of type {1}.</value>
+    </data>
+    <data name="DatabaseTypeNameOrNameTranslatorMustBeProvided" xml:space="preserve">
+        <value>Database type name or name translator must be provided.</value>
+    </data>
+    <data name="TargetTypeListCannotBeEmpty" xml:space="preserve">
+        <value>Target type list cannot be empty.</value>
+    </data>
+    <data name="TypeMustBeAnEnum" xml:space="preserve">
+        <value>Type must be an enum.</value>
+    </data>
+    <data name="MustBeginWorkInvokingMethodX" xml:space="preserve">
+        <value>Must begin work by invoking method {0}.</value>
+    </data>
+    <data name="TheWorkHasAlreadyBegunForThisUnit" xml:space="preserve">
+        <value>The work has already begun for this unit.</value>
+    </data>
+    <data name="CouldNotResolveServiceProvider" xml:space="preserve">
+        <value>Could not resolve service provider.</value>
+    </data>
+    <data name="CouldNotFindImplementationForTypeX" xml:space="preserve">
+        <value>Could not find implementation for type {0}.</value>
+    </data>
+    <data name="CouldNotFindConstructorForTypeX" xml:space="preserve">
+        <value>Could not find constructor for type {0}.</value>
+    </data>
 </root>

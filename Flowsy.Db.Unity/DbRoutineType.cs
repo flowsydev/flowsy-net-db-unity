@@ -8,10 +8,10 @@ public enum DbRoutineType
     /// <summary>
     ///  A stored procedure.
     /// </summary>
-    Procedure,
+    StoredProcedure,
     
     /// <summary>
     ///  A stored function.
     /// </summary>
-    Function
+    StoredFunction
 }

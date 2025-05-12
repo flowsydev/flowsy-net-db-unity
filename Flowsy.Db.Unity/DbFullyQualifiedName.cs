@@ -2,7 +2,7 @@ namespace Flowsy.Db.Unity;
 
 public class DbFullyQualifiedName
 {
-    public DbFullyQualifiedName(DbProvider provider, params string[] parts)
+    public DbFullyQualifiedName(DbProviderDescriptor provider, params string[] parts)
     {
         Provider = provider;
         Parts = parts;
@@ -25,7 +25,7 @@ public class DbFullyQualifiedName
             Parent = new DbFullyQualifiedName(this, parentParts);
     }
 
-    public DbProvider Provider { get; }
+    public DbProviderDescriptor Provider { get; }
     public IEnumerable<string> Parts { get; }
     
     public string SimpleName => Parts.Last();

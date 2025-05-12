@@ -104,5 +104,77 @@ namespace Flowsy.Db.Unity.Resources {
                 return ResourceManager.GetString("ConnectionStringCannotBeNullOrWhiteSpace", resourceCulture);
             }
         }
+        
+        internal static string ProviderMustBeSetBeforeConfiguringConventions {
+            get {
+                return ResourceManager.GetString("ProviderMustBeSetBeforeConfiguringConventions", resourceCulture);
+            }
+        }
+        
+        internal static string TypeXIsNotAnEnumType {
+            get {
+                return ResourceManager.GetString("TypeXIsNotAnEnumType", resourceCulture);
+            }
+        }
+        
+        internal static string ProviderXCanNotReturnATableFromRoutineOfTypeY {
+            get {
+                return ResourceManager.GetString("ProviderXCanNotReturnATableFromRoutineOfTypeY", resourceCulture);
+            }
+        }
+        
+        internal static string ProviderXDoesNotSupportRoutineTypeY {
+            get {
+                return ResourceManager.GetString("ProviderXDoesNotSupportRoutineTypeY", resourceCulture);
+            }
+        }
+        
+        internal static string DatabaseTypeNameOrNameTranslatorMustBeProvided {
+            get {
+                return ResourceManager.GetString("DatabaseTypeNameOrNameTranslatorMustBeProvided", resourceCulture);
+            }
+        }
+        
+        internal static string TargetTypeListCannotBeEmpty {
+            get {
+                return ResourceManager.GetString("TargetTypeListCannotBeEmpty", resourceCulture);
+            }
+        }
+        
+        internal static string TypeMustBeAnEnum {
+            get {
+                return ResourceManager.GetString("TypeMustBeAnEnum", resourceCulture);
+            }
+        }
+        
+        internal static string MustBeginWorkInvokingMethodX {
+            get {
+                return ResourceManager.GetString("MustBeginWorkInvokingMethodX", resourceCulture);
+            }
+        }
+        
+        internal static string TheWorkHasAlreadyBegunForThisUnit {
+            get {
+                return ResourceManager.GetString("TheWorkHasAlreadyBegunForThisUnit", resourceCulture);
+            }
+        }
+        
+        internal static string CouldNotResolveServiceProvider {
+            get {
+                return ResourceManager.GetString("CouldNotResolveServiceProvider", resourceCulture);
+            }
+        }
+        
+        internal static string CouldNotFindImplementationForTypeX {
+            get {
+                return ResourceManager.GetString("CouldNotFindImplementationForTypeX", resourceCulture);
+            }
+        }
+        
+        internal static string CouldNotFindConstructorForTypeX {
+            get {
+                return ResourceManager.GetString("CouldNotFindConstructorForTypeX", resourceCulture);
+            }
+        }
     }
 }

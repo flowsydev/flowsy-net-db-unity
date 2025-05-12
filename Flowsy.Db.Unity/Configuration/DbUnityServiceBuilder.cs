@@ -1,4 +1,6 @@
+using System.Collections.ObjectModel;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -10,12 +12,13 @@ public class DbUnityServiceBuilder
 
     internal DbUnityServiceBuilder(IServiceCollection services)
     {
+        services.TryAddSingleton<IReadOnlyCollection<ServiceDescriptor>>(new ReadOnlyCollection<ServiceDescriptor>(services));
         _services = services;
     }
 
     public DbUnityServiceBuilder WithDefaultConnectionFactory()
     {
-        _services.AddSingleton<IDbConnectionFactory>(serviceProvider =>
+        _services.AddScoped<IDbConnectionFactory>(serviceProvider =>
         {
             var optionsSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<DbConnectionOptions>>();
             return new DbConnectionFactory(optionsSnapshot);
@@ -27,7 +30,7 @@ public class DbUnityServiceBuilder
         where TService : class, IDbConnectionFactory
         where TImplementation : DbConnectionFactory, TService
     {
-        _services.AddSingleton<TService, TImplementation>();
+        _services.AddScoped<TService, TImplementation>();
         return this;
     }
     

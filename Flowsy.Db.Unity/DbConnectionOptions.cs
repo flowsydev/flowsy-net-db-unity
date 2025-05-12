@@ -1,6 +1,7 @@
 using System.Data;
 using Flowsy.Db.Unity.Conventions;
 using Flowsy.Db.Unity.Resources;
+using Microsoft.Extensions.Logging;
 
 namespace Flowsy.Db.Unity;
 
@@ -17,7 +18,7 @@ public class DbConnectionOptions
 
     public string ConnectionKey { get; private set; } = string.Empty;
     
-    public DbProvider Provider { get; internal set; } = DbProvider.Generic;
+    public DbProviderDescriptor Provider { get; internal set; } = DbProviderDescriptor.Generic;
     
     public string ConnectionString { get; internal set; } = string.Empty;
     
@@ -30,6 +31,8 @@ public class DbConnectionOptions
     public Type UnitOfWorkType { get; internal set; } = typeof(DbUnitOfWork);
     
     public DbConventionSet? Conventions { get; internal set; }
+    
+    public LogLevel LogLevel { get; internal set; } = LogLevel.Information;
 
     public IDbConnection CreateConnection()
     {
@@ -47,6 +50,8 @@ public class DbConnectionOptions
         other.Provider = Provider;
         other.ConnectionString = ConnectionString;
         other.Default = Default;
+        other.Conventions = Conventions?.Clone();
+        other.LogLevel = LogLevel;
         other.ConnectionFactoryType = ConnectionFactoryType;
         other.AgentType = AgentType;
         other.UnitOfWorkType = UnitOfWorkType;
