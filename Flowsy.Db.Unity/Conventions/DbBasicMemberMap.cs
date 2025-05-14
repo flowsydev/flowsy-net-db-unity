@@ -92,13 +92,28 @@ public class DbBasicMemberMap : SqlMapper.IMemberMap
         Parameter = parameter;
     }
     
+    /// <summary>
+    /// Gets the name of the column in the database.
+    /// </summary>
     public string ColumnName { get; }
 
+    /// <summary>
+    /// Gets the type of the member.
+    /// </summary>
     public Type MemberType { get; }
 
+    /// <summary>
+    /// Gets the property information for the member, if applicable.
+    /// </summary>
     public PropertyInfo? Property { get; }
 
+    /// <summary>
+    /// Gets the field information for the member, if applicable.
+    /// </summary>
     public FieldInfo? Field { get; }
 
+    /// <summary>
+    /// Gets the parameter information for the member, if applicable.
+    /// </summary>
     public ParameterInfo? Parameter { get; }
 }

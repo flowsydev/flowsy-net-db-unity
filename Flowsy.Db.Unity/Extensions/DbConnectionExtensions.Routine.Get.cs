@@ -6,6 +6,37 @@ namespace Flowsy.Db.Unity.Extensions;
 
 public static partial class DbConnectionExtensions
 {
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and returns the result as an enumerable collection of type T.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="T">
+    /// The type of the result set returned by the routine. This type must be compatible with the result set returned by the routine.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of type T containing the result set returned by the routine.
+    /// </returns>
     public static IEnumerable<T> GetFromRoutine<T>(
         this IDbConnection connection,
         string routineName, 
@@ -25,6 +56,39 @@ public static partial class DbConnectionExtensions
             onExecuted
             );
         
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and returns the result as an enumerable collection of type T.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="T">
+    /// The type of the result set returned by the routine. This type must be compatible with the result set returned by the routine.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of type T containing the result set returned by the routine.
+    /// </returns>
     public static IEnumerable<T> GetFromRoutine<T>(
         this IDbConnection connection,
         string routineName,
@@ -42,7 +106,41 @@ public static partial class DbConnectionExtensions
         var result = connection.Query<T>(commandDefinition);
         return onExecuted is not null ? onExecuted(commandDefinition, result) : result;
     }
-    
+
+    /// <summary>
+    /// Asynchronously executes a database routine (stored procedure or function) and returns the result as an enumerable collection of type T.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// An optional cancellation token for the asynchronous operation.
+    /// </param>
+    /// <typeparam name="T">
+    /// The type of the result set returned by the routine. This type must be compatible with the result set returned by the routine.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of type T containing the result set returned by the routine.
+    /// </returns>
     public static Task<IEnumerable<T>> GetFromRoutineAsync<T>(
         this IDbConnection connection,
         string routineName, 
@@ -63,8 +161,44 @@ public static partial class DbConnectionExtensions
             onExecuted,
             cancellationToken
             );
-        
-    public async static Task<IEnumerable<T>> GetFromRoutineAsync<T>(
+
+    /// <summary>
+    /// Asynchronously executes a database routine (stored procedure or function) and returns the result as an enumerable collection of type T.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// An optional cancellation token for the asynchronous operation.
+    /// </param>
+    /// <typeparam name="T">
+    /// The type of the result set returned by the routine. This type must be compatible with the result set returned by the routine.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of type T containing the result set returned by the routine.
+    /// </returns>
+    public static async Task<IEnumerable<T>> GetFromRoutineAsync<T>(
         this IDbConnection connection,
         string routineName,
         DbRoutineType? routineType = null,

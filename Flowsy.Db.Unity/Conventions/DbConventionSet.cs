@@ -2,6 +2,10 @@ using Flowsy.Core;
 
 namespace Flowsy.Db.Unity.Conventions;
 
+/// <summary>
+/// Represents a set of conventions for database operations.
+/// A set of conventions defines naming preferences and other options to be used when executing database queries and commands.
+/// </summary>
 public class DbConventionSet
 {
     public static DbConventionSet Default { get; set; } = new (DbProviderDescriptor.Generic);

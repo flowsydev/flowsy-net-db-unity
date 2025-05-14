@@ -6,6 +6,39 @@ namespace Flowsy.Db.Unity.Extensions;
 
 public static partial class DbConnectionExtensions
 {
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and returns the first result as an instance of T.
+    /// If a primitive type is required (int, string, etc.), then the first column of the first row will be returned.
+    /// If no results are found, an exception will be thrown.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="T">
+    /// The type of the result to return. This can be a primitive type or a complex type.
+    /// </typeparam>
+    /// <returns>
+    /// The first result of the routine execution as an instance of T.
+    /// </returns>
     public static T GetFirstFromRoutine<T>(
         this IDbConnection connection,
         string routineName, 
@@ -24,7 +57,42 @@ public static partial class DbConnectionExtensions
             onExecuting,
             onExecuted
             );
-        
+
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and returns the first result as an instance of T.
+    /// If a primitive type is required (int, string, etc.), then the first column of the first row will be returned.
+    /// If no results are found, an exception will be thrown.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="T">
+    /// The type of the result to return. This can be a primitive type or a complex type.
+    /// </typeparam>
+    /// <returns>
+    /// The first result of the routine execution as an instance of T.
+    /// </returns>
     public static T GetFirstFromRoutine<T>(
         this IDbConnection connection,
         string routineName,
@@ -42,7 +110,43 @@ public static partial class DbConnectionExtensions
         var result = connection.QueryFirst<T>(commandDefinition);
         return onExecuted is not null ? onExecuted.Invoke(commandDefinition, result) : result;
     }
-    
+
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and returns the first result as an instance of T.
+    /// If a primitive type is required (int, string, etc.), then the first column of the first row will be returned.
+    /// If no results are found, an exception will be thrown.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// An optional cancellation token for the asynchronous operation.
+    /// </param>
+    /// <typeparam name="T">
+    /// The type of the result to return. This can be a primitive type or a complex type.
+    /// </typeparam>
+    /// <returns>
+    /// The first result of the routine execution as an instance of T.
+    /// </returns>
     public static Task<T> GetFirstFromRoutineAsync<T>(
         this IDbConnection connection,
         string routineName, 
@@ -63,8 +167,46 @@ public static partial class DbConnectionExtensions
             onExecuted,
             cancellationToken
             );
-        
-    public async static Task<T> GetFirstFromRoutineAsync<T>(
+    
+    /// <summary>
+    /// Asynchronously executes a database routine (stored procedure or function) and returns the first result as an instance of T.
+    /// If a primitive type is required (int, string, etc.), then the first column of the first row will be returned.
+    /// If no results are found, an exception will be thrown.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// An optional cancellation token for the asynchronous operation.
+    /// </param>
+    /// <typeparam name="T">
+    /// The type of the result to return. This can be a primitive type or a complex type.
+    /// </typeparam>
+    /// <returns>
+    /// The first result of the routine execution as an instance of T.
+    /// </returns>    
+    public static async Task<T> GetFirstFromRoutineAsync<T>(
         this IDbConnection connection,
         string routineName,
         DbRoutineType? routineType = null,

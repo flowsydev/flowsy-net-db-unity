@@ -1,5 +1,4 @@
 using Dapper;
-using Flowsy.Core;
 using Flowsy.Db.Unity.Conventions;
 using Flowsy.Db.Unity.Resources;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,17 +10,15 @@ namespace Flowsy.Db.Unity.Configuration;
 /// </summary>
 public class DbUnityOptions
 {
-    private readonly IServiceCollection _services;
-    
     private readonly Dictionary<string, DbConnectionOptionsBuilder> _connectionOptionsBuilders = new();
 
-    internal DbUnityOptions(IServiceCollection services)
+    internal DbUnityOptions()
     {
-        _services = services;
     }
 
     /// <summary>
     /// Allows to configure the default conventions for executing database queries and commands.
+    /// These conventions will be used for all database connections unless overriden by specific options.
     /// </summary>
     /// <param name="configure">
     /// The action to configure the default conventions.
@@ -41,7 +38,14 @@ public class DbUnityOptions
     /// <summary>
     /// Defines a key to uniquely identify a database connection.
     /// This connection can be associated with a set of options and conventions for database operations.
+    /// All options defined for this connection will be available for dependency injection as a named IOptions{DbConnectionOptions} instance where the name will be the provided connection key.
     /// </summary>
+    /// <code>
+    /// // Inject IOptionsSnapshot{DbConnectionOptions} to resolve options by connection key
+    /// var options = optionsSnapshot.Get("MyConnectionKey");
+    /// var connectionString = options.ConnectionString;
+    /// var conventions = options.Conventions;
+    /// </code>
     /// <param name="connectionKey">
     /// The unique key for the database connection.
     /// </param>
@@ -87,30 +91,11 @@ public class DbUnityOptions
 
         return this;
     }
-
-    internal void RegisterServices()
-    {
-        _services.AddScoped<IDbConnectionScope, DbConnectionScope>();
-
-        var unnamedOptionsRegistered = false;
-        var index = -1;
-        foreach (var (connectionKey, builder) in _connectionOptionsBuilders)
-        {
-            index++;
-            var connectionOptions = builder.Build();
-            
-            if (!unnamedOptionsRegistered && (connectionOptions.Default || index == 0))
-            {
-                _services.AddOptions<DbConnectionOptions>().Configure(options =>
-                {
-                    connectionOptions.CopyTo(options);
-                });
-                unnamedOptionsRegistered = true;
-            }
-            _services.AddOptions<DbConnectionOptions>(connectionKey).Configure(options =>
-            {
-                connectionOptions.CopyTo(options);
-            });
-        }
-    }
+    
+    /// <summary>
+    /// Builds the options for all configured database connections.
+    /// </summary>
+    /// <returns></returns>
+    internal IEnumerable<DbConnectionOptions> BuildConnectionOptions() =>
+        _connectionOptionsBuilders.Values.Select(b => b.Build()).ToList();
 }

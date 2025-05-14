@@ -176,5 +176,23 @@ namespace Flowsy.Db.Unity.Resources {
                 return ResourceManager.GetString("CouldNotFindConstructorForTypeX", resourceCulture);
             }
         }
+        
+        internal static string OnlyOneDefaultConnectionAllowed {
+            get {
+                return ResourceManager.GetString("OnlyOneDefaultConnectionAllowed", resourceCulture);
+            }
+        }
+        
+        internal static string ConnectionKeyMustBeUnique {
+            get {
+                return ResourceManager.GetString("ConnectionKeyMustBeUnique", resourceCulture);
+            }
+        }
+        
+        internal static string NoConnectionOptionsDefined {
+            get {
+                return ResourceManager.GetString("NoConnectionOptionsDefined", resourceCulture);
+            }
+        }
     }
 }

@@ -289,6 +289,66 @@ public static partial class DbConnectionExtensions
             onExecuted
             );
     
+    /// <summary>
+    /// Executes a stored procedure or function and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the stored procedure or function.
+    /// </param>
+    /// <param name="routineType">
+    /// A value of <see cref="DbRoutineType"/> indicating the type of routine (e.g., stored procedure or function).
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the stored procedure or function.
+    /// </param>
+    /// <param name="transaction">
+    /// The database transaction to use.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for invoking the routine.
+    /// </param>
+    /// <param name="onExecuting">
+    /// A callback function that is executed before the database command is invoked.
+    /// </param>
+    /// <param name="onExecuted">
+    /// A callback function that is executed after the database command is invoked.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFifth">
+    /// The type of the fifth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSixth">
+    /// The type of the sixth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSeventh">
+    /// The type of the seventh object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static IEnumerable<TReturn> GetFromRoutine<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -595,6 +655,66 @@ public static partial class DbConnectionExtensions
         onExecuted
         );
     
+    /// <summary>
+    /// Asynchronously executes a stored procedure or function and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the stored procedure or function.
+    /// </param>
+    /// <param name="routineType">
+    /// A value of <see cref="DbRoutineType"/> indicating the type of routine (e.g., stored procedure or function).
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the stored procedure or function.
+    /// </param>
+    /// <param name="transaction">
+    /// The database transaction to use.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for invoking the routine.
+    /// </param>
+    /// <param name="onExecuting">
+    /// A callback function that is executed before the database command is invoked.
+    /// </param>
+    /// <param name="onExecuted">
+    /// A callback function that is executed after the database command is invoked.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFifth">
+    /// The type of the fifth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSixth">
+    /// The type of the sixth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSeventh">
+    /// The type of the seventh object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static async Task<IEnumerable<TReturn>> GetFromRoutineAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
         this IDbConnection connection,
         string routineName,

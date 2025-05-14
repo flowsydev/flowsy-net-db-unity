@@ -84,4 +84,13 @@
     <data name="CouldNotFindConstructorForTypeX" xml:space="preserve">
         <value>Could not find constructor for type {0}.</value>
     </data>
+    <data name="OnlyOneDefaultConnectionAllowed" xml:space="preserve">
+        <value>Only one default connection is allowed.</value>
+    </data>
+    <data name="ConnectionKeyMustBeUnique" xml:space="preserve">
+        <value>Connection key must be unique.</value>
+    </data>
+    <data name="NoConnectionOptionsDefined" xml:space="preserve">
+        <value>No connection options defined.</value>
+    </data>
 </root>
