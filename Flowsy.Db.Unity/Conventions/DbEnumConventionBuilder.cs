@@ -37,9 +37,9 @@ public class DbEnumConventionBuilder : DbConventionBuilder
     }
     
     public DbEnumConventionBuilder UseNames(CaseStyle? memberNameCaseStyle = null, CaseStyle? typeNameCaseStyle = null)
-        => UseNames(new DbEnumNameTranslator(memberNameCaseStyle, typeNameCaseStyle));
+        => UseNames(!memberNameCaseStyle.HasValue && !typeNameCaseStyle.HasValue ? null : new DbEnumNameTranslator(memberNameCaseStyle, typeNameCaseStyle));
     
-    public DbEnumConventionBuilder UseNames(DbEnumNameTranslator nameTranslator)
+    public DbEnumConventionBuilder UseNames(DbEnumNameTranslator? nameTranslator)
     {
         Parent.Conventions.Enums.NameTranslator = nameTranslator;
         return this;

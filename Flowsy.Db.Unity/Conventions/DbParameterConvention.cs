@@ -7,14 +7,29 @@ using Flowsy.Db.Unity.Resources;
 
 namespace Flowsy.Db.Unity.Conventions;
 
+/// <summary>
+/// Represents a convention for database parameters.
+/// </summary>
 public class DbParameterConvention : DbConvention
 {
     internal DbParameterConvention(DbConventionSet conventions) : base(conventions)
     {
     }
 
+    /// <summary>
+    /// The naming convention for database parameters.
+    /// </summary>
     public DbObjectNameConvention Naming { get; internal set; } = new();
     
+    /// <summary>
+    /// Resolves the parameter name based on the runtime name and the naming convention.
+    /// </summary>
+    /// <param name="runtimeName">
+    /// The runtime name of the parameter.
+    /// </param>
+    /// <returns>
+    /// The resolved parameter name as must be passed to the database.
+    /// </returns>
     public string ResolveParameterName(string runtimeName)
     {
         var parameterNaming = Conventions.Parameters.Naming;
@@ -29,9 +44,31 @@ public class DbParameterConvention : DbConvention
         return $"{prefix}{nameInCaseStyle}{suffix}";
     }
 
+    /// <summary>
+    /// Builds a collection of <see cref="DbParameterDescriptor"/> instances for the specified properties.
+    /// </summary>
+    /// <param name="properties">
+    /// The properties to be used for building the descriptors.
+    /// The property names and types will be used to resolve the parameter names and database types.
+    /// </param>
+    /// <returns>
+    /// A collection of <see cref="DbParameterDescriptor"/> built from the specified properties.
+    /// These descriptors can be used to create database parameters passed to commands.
+    /// </returns>
     public IEnumerable<DbParameterDescriptor> BuildDescriptors(IEnumerable<PropertyInfo> properties)
         => (from p in properties select BuildDescriptor(p.Name, p.PropertyType)).ToArray();
     
+    /// <summary>
+    /// Builds a collection of <see cref="DbParameterDescriptor"/> instances for the specified parameters.
+    /// </summary>
+    /// <param name="parameters">
+    /// An object holding properties to be used for building parameter descriptors. This can be an anonymous object or a dictionary.
+    /// For anonymous objects, their properties (names and types) will be used to resolve the parameter names and database types.
+    /// For dictionaries, the keys will be used as parameter names and the values to resolve the database types.
+    /// </param>
+    /// <returns>
+    /// A collection of <see cref="DbParameterDescriptor"/> built from the specified parameters.
+    /// </returns>
     public IEnumerable<DbParameterDescriptor> BuildDescriptors(dynamic? parameters = null)
     {
         if (parameters is IDictionary<string, object?> dictionary)
@@ -52,12 +89,33 @@ public class DbParameterConvention : DbConvention
         ).ToArray();
     }
 
+    /// <summary>
+    /// Builds a <see cref="DbParameterDescriptor"/> for the specified key-value pair.
+    /// </summary>
+    /// <param name="keyValuePair">
+    /// The key-value pair representing the parameter name and its value.
+    /// </param>
+    /// <returns>
+    /// A <see cref="DbParameterDescriptor"/> built from the specified key-value pair.
+    /// </returns>
     public DbParameterDescriptor BuildDescriptor(KeyValuePair<string, object?> keyValuePair)
     {
         var (key, value) = keyValuePair;
         return BuildDescriptor(key, value?.GetType() ?? typeof(object));
     }
     
+    /// <summary>
+    /// Builds a <see cref="DbParameterDescriptor"/> for the specified runtime name and type.
+    /// </summary>
+    /// <param name="runtimeName">
+    /// The runtime name of the parameter.
+    /// </param>
+    /// <param name="runtimeType">
+    /// The runtime type of the parameter.
+    /// </param>
+    /// <returns>
+    /// A <see cref="DbParameterDescriptor"/> built from the specified runtime name and type.
+    /// </returns>
     public DbParameterDescriptor BuildDescriptor(string runtimeName, Type runtimeType)
     {
         var provider = Conventions.Provider;
@@ -90,8 +148,8 @@ public class DbParameterConvention : DbConvention
                 provider.GetDatabaseType(runtimeType)
             );
     }
-
-    public DbParameterDescriptor BuildDescriptorForEnum(string parameterName, Type runtimeType, bool asArray = false)
+    
+    private DbParameterDescriptor BuildDescriptorForEnum(string parameterName, Type runtimeType, bool asArray = false)
     {
         if (!runtimeType.IsEnum)
             throw new ArgumentException(Strings.TypeMustBeAnEnum, nameof(runtimeType));
@@ -113,6 +171,16 @@ public class DbParameterConvention : DbConvention
             );
     }
 
+    /// <summary>
+    /// Builds a <see cref="DynamicParameters"/> instance for the specified parameters.
+    /// The names of the parameters will be resolved using the naming convention.
+    /// </summary>
+    /// <param name="parameters">
+    /// The parameters to be passed to the command. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <returns>
+    /// A <see cref="DynamicParameters"/> instance that encapsulates the parameters and their values.
+    /// </returns>
     public DynamicParameters BuildDynamicParameters(dynamic? parameters = null)
     {
         object param = parameters ?? new { };
@@ -135,6 +203,19 @@ public class DbParameterConvention : DbConvention
         return dynamicParameters;
     }
     
+    /// <summary>
+    /// Builds a <see cref="DynamicParameters"/> instance for the specified parameter descriptors using the provided object to resolve the values.
+    /// The names of the parameters will be resolved using the naming convention.
+    /// </summary>
+    /// <param name="parameterDescriptors">
+    /// The parameter descriptors to be used for building the dynamic parameters.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to be passed to the command. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <returns>
+    /// A <see cref="DynamicParameters"/> instance that encapsulates the parameters and their values.
+    /// </returns>
     public DynamicParameters BuildDynamicParameters(IEnumerable<DbParameterDescriptor> parameterDescriptors, dynamic? parameters = null)
     {
         var dictionary = new Dictionary<string, object?>();
@@ -174,11 +255,26 @@ public class DbParameterConvention : DbConvention
         return dynamicParameters;
     }
     
+    /// <summary>
+    /// Copies the properties of this instance to another <see cref="DbParameterConvention"/> instance.
+    /// </summary>
+    /// <param name="other">
+    /// The other <see cref="DbParameterConvention"/> instance to copy properties to.
+    /// </param>
     public void CopyTo(DbParameterConvention other)
     {
         other.Naming = Naming;
     }
 
+    /// <summary>
+    /// Creates a clone of this <see cref="DbParameterConvention"/> instance.
+    /// </summary>
+    /// <param name="parentConventions">
+    /// The parent <see cref="DbConventionSet"/> instance to which the cloned convention will belong.
+    /// </param>
+    /// <returns>
+    /// A new <see cref="DbParameterConvention"/> instance that is a clone of this instance.
+    /// </returns>
     public DbParameterConvention Clone(DbConventionSet parentConventions)
     {
         var clone = new DbParameterConvention(parentConventions);

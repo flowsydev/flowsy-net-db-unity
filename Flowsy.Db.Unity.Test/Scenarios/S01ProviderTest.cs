@@ -12,21 +12,14 @@ using Xunit.Extensions.Ordering;
 namespace Flowsy.Db.Unity.Test.Scenarios;
 
 [Collection(Collections.ConventionSet), Order(1)]
-public class S01ProviderTest : IClassFixture<S01ProviderTest.LocalModel>
+public class S01ProviderTest
 {
-    public class LocalModel
-    {
-        public IList<DbRoutineDescriptor> Routines { get; } = [];
-    }
-    
     private readonly GlobalModel _globalModel;
-    private readonly LocalModel _localModel;
     private readonly ITestOutputHelper _output;
 
-    public S01ProviderTest(GlobalModel globalModel, LocalModel localModel, ITestOutputHelper output)
+    public S01ProviderTest(GlobalModel globalModel, ITestOutputHelper output)
     {
         _globalModel = globalModel;
-        _localModel = localModel;
         _output = output;
     }
 
@@ -195,9 +188,8 @@ public class S01ProviderTest : IClassFixture<S01ProviderTest.LocalModel>
         // Act
         foreach (var (routineName, routineType, returnsTable, parameters) in routines)
         {
-            var routineDescriptor = conventions.Routines.BuildDescriptor(routineName, routineType, null, returnsTable, parameters);
+            var routineDescriptor = conventions.Routines.BuildDescriptor(routineName, routineType, parameters, null, returnsTable);
             _output.Write(routineDescriptor);
-            _localModel.Routines.Add(routineDescriptor);
         }
     }
 }
