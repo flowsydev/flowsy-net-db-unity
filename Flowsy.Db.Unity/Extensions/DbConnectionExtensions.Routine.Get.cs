@@ -32,7 +32,7 @@ public static partial class DbConnectionExtensions
     /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
     /// </param>
     /// <typeparam name="T">
-    /// The type of the result set returned by the routine. This type must be compatible with the result set returned by the routine.
+    /// The type to map the results to.
     /// </typeparam>
     /// <returns>
     /// An enumerable collection of type T containing the result set returned by the routine.
@@ -84,7 +84,7 @@ public static partial class DbConnectionExtensions
     /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
     /// </param>
     /// <typeparam name="T">
-    /// The type of the result set returned by the routine. This type must be compatible with the result set returned by the routine.
+    /// The type to map the results to.
     /// </typeparam>
     /// <returns>
     /// An enumerable collection of type T containing the result set returned by the routine.
@@ -136,7 +136,7 @@ public static partial class DbConnectionExtensions
     /// An optional cancellation token for the asynchronous operation.
     /// </param>
     /// <typeparam name="T">
-    /// The type of the result set returned by the routine. This type must be compatible with the result set returned by the routine.
+    /// The type to map the results to.
     /// </typeparam>
     /// <returns>
     /// An enumerable collection of type T containing the result set returned by the routine.
@@ -193,7 +193,7 @@ public static partial class DbConnectionExtensions
     /// An optional cancellation token for the asynchronous operation.
     /// </param>
     /// <typeparam name="T">
-    /// The type of the result set returned by the routine. This type must be compatible with the result set returned by the routine.
+    /// The type to map the results to.
     /// </typeparam>
     /// <returns>
     /// An enumerable collection of type T containing the result set returned by the routine.

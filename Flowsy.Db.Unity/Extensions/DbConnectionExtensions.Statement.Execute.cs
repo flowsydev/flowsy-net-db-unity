@@ -6,6 +6,33 @@ namespace Flowsy.Db.Unity.Extensions;
 
 public static partial class DbConnectionExtensions
 {
+    /// <summary>
+    /// Executes a SQL statement with the specified text and parameters.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the statement.
+    /// </param>
+    /// <param name="commandText">
+    /// The text of the SQL statement to execute.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the statement. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the statement execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the statement execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the statement is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the statement is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <returns>
+    /// The number of rows affected by the statement execution.
+    /// </returns>
     public static int ExecuteStatement(
         this IDbConnection connection,
         string commandText,
@@ -24,6 +51,36 @@ public static partial class DbConnectionExtensions
         return onExecuted?.Invoke(commandDefinition, result) ?? result;
     }
     
+    /// <summary>
+    /// Asynchronously executes a SQL statement with the specified text and parameters.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the statement.
+    /// </param>
+    /// <param name="commandText">
+    /// The text of the SQL statement to execute.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the statement. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the statement execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the statement execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the statement is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the statement is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// An optional cancellation token for the asynchronous operation.
+    /// </param>
+    /// <returns>
+    /// The number of rows affected by the statement execution.
+    /// </returns>
     public static async Task<int> ExecuteStatementAsync(
         this IDbConnection connection,
         string commandText,
