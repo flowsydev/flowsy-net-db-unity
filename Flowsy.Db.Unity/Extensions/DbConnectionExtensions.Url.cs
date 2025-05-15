@@ -7,6 +7,15 @@ namespace Flowsy.Db.Unity.Extensions;
 
 public static partial class DbConnectionExtensions
 {
+    /// <summary>
+    /// Gets a representation of the database connection as a URL.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to convert to a URL.
+    /// </param>
+    /// <returns>
+    /// A string representing the database connection in URL format.
+    /// </returns>
     public static string GetDatabaseUrl(this IDbConnection connection)
     {
         var connectionStringBuilder = new DbConnectionStringBuilder
