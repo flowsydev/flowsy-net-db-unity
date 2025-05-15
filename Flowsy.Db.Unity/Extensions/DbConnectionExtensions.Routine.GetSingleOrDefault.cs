@@ -8,7 +8,7 @@ public static partial class DbConnectionExtensions
 {
     /// <summary>
     /// Executes a database routine (stored procedure or function) and returns a single result as an instance of T.
-    /// If a primitive type is required (int, string, etc.), then the first column of the single row found will be returned.
+    /// If a primitive type is required (int, string, etc.), then the first column of the single result found will be returned.
     /// If no results are found, the default value of T will be returned.
     /// If multiple results are found, an exception will be thrown.
     /// </summary>
@@ -61,7 +61,7 @@ public static partial class DbConnectionExtensions
         
     /// <summary>
     /// Executes a database routine (stored procedure or function) and returns a single result as an instance of T.
-    /// If a primitive type is required (int, string, etc.), then the first column of the single row found will be returned.
+    /// If a primitive type is required (int, string, etc.), then the first column of the single result found will be returned.
     /// If no results are found, the default value of T will be returned.
     /// If multiple results are found, an exception will be thrown.
     /// </summary>
@@ -115,7 +115,7 @@ public static partial class DbConnectionExtensions
     
     /// <summary>
     /// Executes a database routine (stored procedure or function) and returns a single result as an instance of T.
-    /// If a primitive type is required (int, string, etc.), then the first column of the single row found will be returned.
+    /// If a primitive type is required (int, string, etc.), then the first column of the single result found will be returned.
     /// If no results are found, the default value of T will be returned.
     /// If multiple results are found, an exception will be thrown.
     /// </summary>
@@ -173,7 +173,7 @@ public static partial class DbConnectionExtensions
         
     /// <summary>
     /// Asynchronously executes a database routine (stored procedure or function) and returns a single result as an instance of T.
-    /// If a primitive type is required (int, string, etc.), then the first column of the single row found will be returned.
+    /// If a primitive type is required (int, string, etc.), then the first column of the single result found will be returned.
     /// If no results are found, the default value of T will be returned.
     /// If multiple results are found, an exception will be thrown.
     /// </summary>

@@ -15,28 +15,28 @@ public static partial class DbConnectionExtensions
     /// The database connection to use for executing the statement.
     /// </param>
     /// <param name="commandText">
-    /// The SQL command text to execute.
+    /// The text of the SQL statement to execute.
     /// </param>
     /// <param name="parameters">
-    /// The parameters to pass to the command. This can be an anonymous object or a dictionary.
+    /// The parameters to pass to the statement. This can be an anonymous object or a dictionary.
     /// </param>
     /// <param name="transaction">
-    /// An optional transaction to use for the command execution.
+    /// An optional transaction to use for the statement execution.
     /// </param>
     /// <param name="conventions">
-    /// The conventions to use for the command execution. If null, the default conventions will be used.
+    /// The conventions to use for the statement execution. If null, the default conventions will be used.
     /// </param>
     /// <param name="onExecuting">
-    /// An optional action to execute before the command is executed. This can be used from services to raise events or log the command.
+    /// An optional action to execute before the statement is executed. This can be used from services to raise events or log the command.
     /// </param>
     /// <param name="onExecuted">
-    /// An optional action to execute after the command is executed. This can be used from services to raise events or log the command.
+    /// An optional action to execute after the statement is executed. This can be used from services to raise events or log the command.
     /// </param>
     /// <typeparam name="T">
     /// The type to map the result to.
     /// </typeparam>
     /// <returns>
-    /// The first result of the command execution as an instance of type T.
+    /// The first result of the statement execution as an instance of type T.
     /// </returns>
     public static T GetFirstFromStatement<T>(
         this IDbConnection connection,
@@ -65,22 +65,22 @@ public static partial class DbConnectionExtensions
     /// The database connection to use for executing the statement.
     /// </param>
     /// <param name="commandText">
-    /// The SQL command text to execute.
+    /// The text of the SQL statement to execute.
     /// </param>
     /// <param name="parameters">
-    /// The parameters to pass to the command. This can be an anonymous object or a dictionary.
+    /// The parameters to pass to the statement. This can be an anonymous object or a dictionary.
     /// </param>
     /// <param name="transaction">
-    /// An optional transaction to use for the command execution.
+    /// An optional transaction to use for the statement execution.
     /// </param>
     /// <param name="conventions">
-    /// The conventions to use for the command execution. If null, the default conventions will be used.
+    /// The conventions to use for the statement execution. If null, the default conventions will be used.
     /// </param>
     /// <param name="onExecuting">
-    /// An optional action to execute before the command is executed. This can be used from services to raise events or log the command.
+    /// An optional action to execute before the statement is executed. This can be used from services to raise events or log the command.
     /// </param>
     /// <param name="onExecuted">
-    /// An optional action to execute after the command is executed. This can be used from services to raise events or log the command.
+    /// An optional action to execute after the statement is executed. This can be used from services to raise events or log the command.
     /// </param>
     /// <param name="cancellationToken">
     /// An optional cancellation token for the asynchronous operation.
@@ -89,7 +89,7 @@ public static partial class DbConnectionExtensions
     /// The type to map the result to.
     /// </typeparam>
     /// <returns>
-    /// The first result of the command execution as an instance of type T.
+    /// The first result of the statement execution as an instance of type T.
     /// </returns>
     public static async Task<T> GetFirstFromStatementAsync<T>(
         this IDbConnection connection,

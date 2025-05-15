@@ -6,6 +6,49 @@ namespace Flowsy.Db.Unity.Extensions;
 
 public static partial class DbConnectionExtensions
 {
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static IEnumerable<TReturn> GetFromRoutine<TFirst, TSecond, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -28,7 +71,52 @@ public static partial class DbConnectionExtensions
             onExecuting,
             onExecuted
             );
-    
+
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static IEnumerable<TReturn> GetFromRoutine<TFirst, TSecond, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -57,7 +145,53 @@ public static partial class DbConnectionExtensions
             );
         return onExecuted is not null ? onExecuted(commandDefinition, result) : result;
     }
-    
+
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static IEnumerable<TReturn> GetFromRoutine<TFirst, TSecond, TThird, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -80,7 +214,55 @@ public static partial class DbConnectionExtensions
             onExecuting,
             onExecuted
             );
-    
+
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static IEnumerable<TReturn> GetFromRoutine<TFirst, TSecond, TThird, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -109,7 +291,56 @@ public static partial class DbConnectionExtensions
             );
         return onExecuted is not null ? onExecuted(commandDefinition, result) : result;
     }
-    
+
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static IEnumerable<TReturn> GetFromRoutine<TFirst, TSecond, TThird, TFourth, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -132,7 +363,58 @@ public static partial class DbConnectionExtensions
             onExecuting,
             onExecuted
             );
-    
+
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static IEnumerable<TReturn> GetFromRoutine<TFirst, TSecond, TThird, TFourth, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -161,7 +443,59 @@ public static partial class DbConnectionExtensions
             );
         return onExecuted is not null ? onExecuted(commandDefinition, result) : result;
     }
-    
+
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFifth">
+    /// The type of the fifth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static IEnumerable<TReturn> GetFromRoutine<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -184,7 +518,61 @@ public static partial class DbConnectionExtensions
             onExecuting,
             onExecuted
             );
-    
+
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFifth">
+    /// The type of the fifth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static IEnumerable<TReturn> GetFromRoutine<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -213,7 +601,62 @@ public static partial class DbConnectionExtensions
             );
         return onExecuted is not null ? onExecuted(commandDefinition, result) : result;
     }
-    
+
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFifth">
+    /// The type of the fifth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSixth">
+    /// The type of the sixth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static IEnumerable<TReturn> GetFromRoutine<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -236,7 +679,64 @@ public static partial class DbConnectionExtensions
             onExecuting,
             onExecuted
             );
-    
+
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFifth">
+    /// The type of the fifth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSixth">
+    /// The type of the sixth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static IEnumerable<TReturn> GetFromRoutine<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -265,7 +765,65 @@ public static partial class DbConnectionExtensions
             );
         return onExecuted is not null ? onExecuted(commandDefinition, result) : result;
     }
-    
+
+    /// <summary>
+    /// Executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFifth">
+    /// The type of the fifth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSixth">
+    /// The type of the sixth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSeventh">
+    /// The type of the seventh object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static IEnumerable<TReturn> GetFromRoutine<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -288,18 +846,18 @@ public static partial class DbConnectionExtensions
             onExecuting,
             onExecuted
             );
-    
+
     /// <summary>
-    /// Executes a stored procedure or function and maps the result to multiple objects.
+    /// Executes a database routine (stored procedure or function) and maps the result to multiple objects.
     /// </summary>
     /// <param name="connection">
-    /// The database connection.
+    /// The database connection to use for executing the routine.
     /// </param>
     /// <param name="routineName">
-    /// The name of the stored procedure or function.
+    /// The name of the routine to execute.
     /// </param>
     /// <param name="routineType">
-    /// A value of <see cref="DbRoutineType"/> indicating the type of routine (e.g., stored procedure or function).
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
     /// </param>
     /// <param name="splitOn">
     /// A comma-separated list of column names to split the result set on.
@@ -308,19 +866,19 @@ public static partial class DbConnectionExtensions
     /// A function that maps the result set to the desired object type.
     /// </param>
     /// <param name="parameters">
-    /// The parameters to pass to the stored procedure or function.
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
     /// </param>
     /// <param name="transaction">
-    /// The database transaction to use.
+    /// An optional transaction to use for the routine execution.
     /// </param>
     /// <param name="conventions">
-    /// The conventions to use for invoking the routine.
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
     /// </param>
     /// <param name="onExecuting">
-    /// A callback function that is executed before the database command is invoked.
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
     /// </param>
     /// <param name="onExecuted">
-    /// A callback function that is executed after the database command is invoked.
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
     /// </param>
     /// <typeparam name="TFirst">
     /// The type of the first object in the result set.
@@ -377,7 +935,50 @@ public static partial class DbConnectionExtensions
             );
         return onExecuted is not null ? onExecuted(commandDefinition, result) : result;
     }
-    
+
+    /// <summary>
+    /// Asynchronously executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static Task<IEnumerable<TReturn>> GetFromRoutineAsync<TFirst, TSecond, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -399,7 +1000,52 @@ public static partial class DbConnectionExtensions
         onExecuting,
         onExecuted
         );
-    
+
+    /// <summary>
+    /// Asynchronously executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static async Task<IEnumerable<TReturn>> GetFromRoutineAsync<TFirst, TSecond, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -428,7 +1074,53 @@ public static partial class DbConnectionExtensions
             );
         return onExecuted is not null ? await onExecuted(commandDefinition, result) : result;
     }
-    
+
+    /// <summary>
+    /// Asynchronously executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static Task<IEnumerable<TReturn>> GetFromRoutineAsync<TFirst, TSecond, TThird, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -450,7 +1142,55 @@ public static partial class DbConnectionExtensions
         onExecuting,
         onExecuted
         );
-    
+
+    /// <summary>
+    /// Asynchronously executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static async Task<IEnumerable<TReturn>> GetFromRoutineAsync<TFirst, TSecond, TThird, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -479,7 +1219,56 @@ public static partial class DbConnectionExtensions
             );
         return onExecuted is not null ? await onExecuted(commandDefinition, result) : result;
     }
-    
+
+    /// <summary>
+    /// Asynchronously executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static Task<IEnumerable<TReturn>> GetFromRoutineAsync<TFirst, TSecond, TThird, TFourth, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -501,7 +1290,58 @@ public static partial class DbConnectionExtensions
         onExecuting,
         onExecuted
         );
-    
+
+    /// <summary>
+    /// Asynchronously executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static async Task<IEnumerable<TReturn>> GetFromRoutineAsync<TFirst, TSecond, TThird, TFourth, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -530,7 +1370,59 @@ public static partial class DbConnectionExtensions
             );
         return onExecuted is not null ? await onExecuted(commandDefinition, result) : result;
     }
-    
+
+    /// <summary>
+    /// Asynchronously executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFifth">
+    /// The type of the fifth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static Task<IEnumerable<TReturn>> GetFromRoutineAsync<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -552,7 +1444,61 @@ public static partial class DbConnectionExtensions
         onExecuting,
         onExecuted
         );
-    
+
+    /// <summary>
+    /// Asynchronously executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFifth">
+    /// The type of the fifth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static async Task<IEnumerable<TReturn>> GetFromRoutineAsync<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -581,7 +1527,62 @@ public static partial class DbConnectionExtensions
             );
         return onExecuted is not null ? await onExecuted(commandDefinition, result) : result;
     }
-    
+
+    /// <summary>
+    /// Asynchronously executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFifth">
+    /// The type of the fifth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSixth">
+    /// The type of the sixth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static Task<IEnumerable<TReturn>> GetFromRoutineAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -603,7 +1604,64 @@ public static partial class DbConnectionExtensions
         onExecuting,
         onExecuted
         );
-    
+
+    /// <summary>
+    /// Asynchronously executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFifth">
+    /// The type of the fifth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSixth">
+    /// The type of the sixth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static async Task<IEnumerable<TReturn>> GetFromRoutineAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -632,7 +1690,65 @@ public static partial class DbConnectionExtensions
             );
         return onExecuted is not null ? await onExecuted(commandDefinition, result) : result;
     }
-    
+
+    /// <summary>
+    /// Asynchronously executes a database routine (stored procedure or function) and maps the result to multiple objects.
+    /// </summary>
+    /// <param name="connection">
+    /// The database connection to use for executing the routine.
+    /// </param>
+    /// <param name="routineName">
+    /// The name of the routine to execute.
+    /// The type of the routine (stored procedure or function) will be resolved from the provided conventions.
+    /// </param>
+    /// <param name="splitOn">
+    /// A comma-separated list of column names to split the result set on.
+    /// </param>
+    /// <param name="map">
+    /// A function that maps the result set to the desired object type.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="transaction">
+    /// An optional transaction to use for the routine execution.
+    /// </param>
+    /// <param name="conventions">
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
+    /// </param>
+    /// <param name="onExecuting">
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <param name="onExecuted">
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
+    /// </param>
+    /// <typeparam name="TFirst">
+    /// The type of the first object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The type of the second object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TThird">
+    /// The type of the third object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFourth">
+    /// The type of the fourth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TFifth">
+    /// The type of the fifth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSixth">
+    /// The type of the sixth object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TSeventh">
+    /// The type of the seventh object in the result set.
+    /// </typeparam>
+    /// <typeparam name="TReturn">
+    /// The type of the object to return.
+    /// </typeparam>
+    /// <returns>
+    /// An enumerable collection of the mapped objects.
+    /// </returns>
     public static Task<IEnumerable<TReturn>> GetFromRoutineAsync<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
         this IDbConnection connection,
         string routineName,
@@ -654,18 +1770,18 @@ public static partial class DbConnectionExtensions
         onExecuting,
         onExecuted
         );
-    
+
     /// <summary>
-    /// Asynchronously executes a stored procedure or function and maps the result to multiple objects.
+    /// Asynchronously executes a database routine (stored procedure or function) and maps the result to multiple objects.
     /// </summary>
     /// <param name="connection">
-    /// The database connection.
+    /// The database connection to use for executing the routine.
     /// </param>
     /// <param name="routineName">
-    /// The name of the stored procedure or function.
+    /// The name of the routine to execute.
     /// </param>
     /// <param name="routineType">
-    /// A value of <see cref="DbRoutineType"/> indicating the type of routine (e.g., stored procedure or function).
+    /// The type of the routine (stored procedure or function). If null, the type will be resolved from the provided conventions.
     /// </param>
     /// <param name="splitOn">
     /// A comma-separated list of column names to split the result set on.
@@ -674,19 +1790,19 @@ public static partial class DbConnectionExtensions
     /// A function that maps the result set to the desired object type.
     /// </param>
     /// <param name="parameters">
-    /// The parameters to pass to the stored procedure or function.
+    /// The parameters to pass to the routine. This can be an anonymous object or a dictionary.
     /// </param>
     /// <param name="transaction">
-    /// The database transaction to use.
+    /// An optional transaction to use for the routine execution.
     /// </param>
     /// <param name="conventions">
-    /// The conventions to use for invoking the routine.
+    /// The conventions to use for the routine execution. If null, the default conventions will be used.
     /// </param>
     /// <param name="onExecuting">
-    /// A callback function that is executed before the database command is invoked.
+    /// An optional action to execute before the routine is executed. This can be used from services to raise events or log the command.
     /// </param>
     /// <param name="onExecuted">
-    /// A callback function that is executed after the database command is invoked.
+    /// An optional action to execute after the routine is executed. This can be used from services to raise events or log the command.
     /// </param>
     /// <typeparam name="TFirst">
     /// The type of the first object in the result set.
