@@ -7,7 +7,7 @@ namespace Flowsy.Db.Unity.Extensions;
 public static partial class DbConnectionExtensions
 {
     /// <summary>
-    /// Asynchronously executes a database statement (SQL command) and returns a single result as an instance of T.
+    /// Executes a database statement (SQL command) and returns a single result as an instance of T.
     /// If a primitive type is required (int, string, etc.), then the first column of the single result found will be returned.
     /// If no results are found or more than one result is found, an exception will be thrown.
     /// </summary>

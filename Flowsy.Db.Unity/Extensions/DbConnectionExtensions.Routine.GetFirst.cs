@@ -8,7 +8,7 @@ public static partial class DbConnectionExtensions
 {
     /// <summary>
     /// Executes a database routine (stored procedure or function) and returns the first result as an instance of T.
-    /// If a primitive type is required (int, string, etc.), then the first column of the first row will be returned.
+    /// If a primitive type is required (int, string, etc.), then the first column of the first result will be returned.
     /// If no results are found, an exception will be thrown.
     /// </summary>
     /// <param name="connection">
@@ -60,7 +60,7 @@ public static partial class DbConnectionExtensions
 
     /// <summary>
     /// Executes a database routine (stored procedure or function) and returns the first result as an instance of T.
-    /// If a primitive type is required (int, string, etc.), then the first column of the first row will be returned.
+    /// If a primitive type is required (int, string, etc.), then the first column of the first result will be returned.
     /// If no results are found, an exception will be thrown.
     /// </summary>
     /// <param name="connection">
@@ -113,7 +113,7 @@ public static partial class DbConnectionExtensions
 
     /// <summary>
     /// Executes a database routine (stored procedure or function) and returns the first result as an instance of T.
-    /// If a primitive type is required (int, string, etc.), then the first column of the first row will be returned.
+    /// If a primitive type is required (int, string, etc.), then the first column of the first result will be returned.
     /// If no results are found, an exception will be thrown.
     /// </summary>
     /// <param name="connection">
@@ -170,7 +170,7 @@ public static partial class DbConnectionExtensions
     
     /// <summary>
     /// Asynchronously executes a database routine (stored procedure or function) and returns the first result as an instance of T.
-    /// If a primitive type is required (int, string, etc.), then the first column of the first row will be returned.
+    /// If a primitive type is required (int, string, etc.), then the first column of the first result will be returned.
     /// If no results are found, an exception will be thrown.
     /// </summary>
     /// <param name="connection">

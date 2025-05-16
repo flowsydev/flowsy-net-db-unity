@@ -8,7 +8,7 @@ public static partial class DbConnectionExtensions
 {
     /// <summary>
     /// Executes a database statement (SQL command) and returns the first result as type T.
-    /// If a primitive type is required (int, string, etc.), then the first column of the first row will be returned.
+    /// If a primitive type is required (int, string, etc.), then the first column of the first result will be returned.
     /// If no results are found, the default value of T will be returned.
     /// </summary>
     /// <param name="connection">
@@ -58,7 +58,7 @@ public static partial class DbConnectionExtensions
 
     /// <summary>
     /// Executes a database statement (SQL command) and returns the first result as type T.
-    /// If a primitive type is required (int, string, etc.), then the first column of the first row will be returned.
+    /// If a primitive type is required (int, string, etc.), then the first column of the first result will be returned.
     /// If no results are found, the default value of T will be returned.
     /// </summary>
     /// <param name="connection">

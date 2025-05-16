@@ -5,6 +5,18 @@ namespace Flowsy.Db.Unity;
 
 public partial class DbAgent
 {
+    /// <summary>
+    /// Executes a database statement (SQL command) that returns multiple result sets.
+    /// </summary>
+    /// <param name="commandText">
+    /// The text of the SQL statement to execute.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the statement. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <returns>
+    /// A <see cref="SqlMapper.GridReader"/> that contains the result sets returned by the statement.
+    /// </returns>
     public SqlMapper.GridReader GetMultipleFromStatement(string commandText, dynamic? parameters = null)
         => Connection.GetMultipleFromStatement(
             commandText,
@@ -19,6 +31,21 @@ public partial class DbAgent
             }
         );
 
+    /// <summary>
+    /// Asynchronously executes a database statement (SQL command) that returns multiple result sets.
+    /// </summary>
+    /// <param name="commandText">
+    /// The text of the SQL statement to execute.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the statement. This can be an anonymous object or a dictionary.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// An optional cancellation token for the asynchronous operation.
+    /// </param>
+    /// <returns>
+    /// A <see cref="SqlMapper.GridReader"/> that contains the result sets returned by the statement.
+    /// </returns>
     public Task<SqlMapper.GridReader> GetMultipleFromStatementAsync(string commandText, dynamic? parameters = null, CancellationToken cancellationToken = default)
         => Connection.GetMultipleFromStatementAsync(
             commandText,

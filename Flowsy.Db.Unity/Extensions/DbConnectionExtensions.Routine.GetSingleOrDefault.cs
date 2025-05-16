@@ -38,7 +38,7 @@ public static partial class DbConnectionExtensions
     /// The type of the result to return. This can be a primitive type or a complex type.
     /// </typeparam>
     /// <returns>
-    /// The first result of the routine execution as an instance of T.
+    /// The single result of the routine execution as an instance of T.
     /// </returns>
     public static T? GetSingleOrDefaultFromRoutine<T>(
         this IDbConnection connection,
@@ -93,7 +93,7 @@ public static partial class DbConnectionExtensions
     /// The type of the result to return. This can be a primitive type or a complex type.
     /// </typeparam>
     /// <returns>
-    /// The first result of the routine execution as an instance of T.
+    /// The single result of the routine execution as an instance of T.
     /// </returns>
     public static T? GetSingleOrDefaultFromRoutine<T>(
         this IDbConnection connection,
@@ -148,7 +148,7 @@ public static partial class DbConnectionExtensions
     /// The type of the result to return. This can be a primitive type or a complex type.
     /// </typeparam>
     /// <returns>
-    /// The first result of the routine execution as an instance of T.
+    /// The single result of the routine execution as an instance of T.
     /// </returns>
     public static Task<T?> GetSingleOrDefaultFromRoutineAsync<T>(
         this IDbConnection connection,
@@ -208,7 +208,7 @@ public static partial class DbConnectionExtensions
     /// The type of the result to return. This can be a primitive type or a complex type.
     /// </typeparam>
     /// <returns>
-    /// The first result of the routine execution as an instance of T.
+    /// The single result of the routine execution as an instance of T.
     /// </returns>
     public static async Task<T?> GetSingleOrDefaultFromRoutineAsync<T>(
         this IDbConnection connection,
