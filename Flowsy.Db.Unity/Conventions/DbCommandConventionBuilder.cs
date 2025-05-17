@@ -13,7 +13,7 @@ public class DbCommandConventionBuilder : DbConventionBuilder
     /// <param name="parent">
     /// The parent <see cref="DbConventionSetBuilder"/> instance.
     /// </param>
-    public DbCommandConventionBuilder(DbConventionSetBuilder parent) : base(parent)
+    internal DbCommandConventionBuilder(DbConventionSetBuilder parent) : base(parent)
     {
     }
 

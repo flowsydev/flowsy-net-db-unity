@@ -5,6 +5,12 @@ namespace Flowsy.Db.Unity.Conventions;
 /// </summary>
 public class DbRoutineNamingConvention : DbConvention
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DbRoutineNamingConvention"/> class.
+    /// </summary>
+    /// <param name="conventions">
+    /// The <see cref="DbConventionSet"/> to which this instance belongs.
+    /// </param>
     internal DbRoutineNamingConvention(DbConventionSet conventions) : base(conventions)
     {
     }

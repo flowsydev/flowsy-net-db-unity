@@ -5,6 +5,12 @@ namespace Flowsy.Db.Unity.Conventions;
 /// </summary>
 public class DbDateTimeConventionBuilder : DbConventionBuilder
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DbDateTimeConventionBuilder"/> class.
+    /// </summary>
+    /// <param name="parent">
+    /// The parent <see cref="DbConventionSetBuilder"/> instance. This is used to access the parent convention set and apply configurations.
+    /// </param>
     internal DbDateTimeConventionBuilder(DbConventionSetBuilder parent) : base(parent)
     {
     }

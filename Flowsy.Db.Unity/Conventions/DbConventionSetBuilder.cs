@@ -13,11 +13,23 @@ public class DbConventionSetBuilder
     private readonly DbDateTimeConventionBuilder _dateTimeConventionBuilder;
     private readonly DbCommandConventionBuilder _commandConventionBuilder;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DbConventionSetBuilder"/> class.
+    /// </summary>
+    /// <param name="provider">
+    /// The database provider descriptor to be used for the conventions.
+    /// </param>
     internal DbConventionSetBuilder(DbProviderDescriptor provider) : this(DbConventionSet.Default.Clone())
     {
         Conventions.Provider = provider;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DbConventionSetBuilder"/> class with an existing set of conventions.
+    /// </summary>
+    /// <param name="conventions">
+    /// The existing <see cref="DbConventionSet"/> to be used as a base for the builder.
+    /// </param>
     internal DbConventionSetBuilder(DbConventionSet conventions)
     {
         Conventions = conventions;

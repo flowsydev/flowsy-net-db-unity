@@ -10,7 +10,7 @@ public class DbObjectNameConvention
     /// <summary>
     /// Initializes a new instance of the <see cref="DbObjectNameConvention"/> class.
     /// </summary>
-    public DbObjectNameConvention()
+    internal DbObjectNameConvention()
     {
     }
 

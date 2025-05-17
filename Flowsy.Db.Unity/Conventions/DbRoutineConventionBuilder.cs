@@ -7,6 +7,12 @@ namespace Flowsy.Db.Unity.Conventions;
 /// </summary>
 public class DbRoutineConventionBuilder : DbConventionBuilder
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DbRoutineConventionBuilder"/> class.
+    /// </summary>
+    /// <param name="parent">
+    /// The parent <see cref="DbConventionSetBuilder"/> instance. This is used to access the parent convention set and apply configurations.
+    /// </param>
     internal DbRoutineConventionBuilder(DbConventionSetBuilder parent) : base(parent)
     {
     }

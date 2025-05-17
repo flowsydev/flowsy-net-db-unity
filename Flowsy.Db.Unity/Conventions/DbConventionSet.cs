@@ -13,6 +13,12 @@ public class DbConventionSet
     /// </summary>
     public static DbConventionSet Default { get; set; } = new (DbProviderDescriptor.Generic);
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DbConventionSet"/> class.
+    /// </summary>
+    /// <param name="provider">
+    /// The database provider descriptor for which the conventions are defined.
+    /// </param>
     internal DbConventionSet(DbProviderDescriptor provider)
     {
         Provider = provider;

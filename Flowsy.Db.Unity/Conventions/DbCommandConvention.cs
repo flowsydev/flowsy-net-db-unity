@@ -8,6 +8,12 @@ namespace Flowsy.Db.Unity.Conventions;
 /// </summary>
 public class DbCommandConvention : DbConvention
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DbCommandConvention"/> class.
+    /// </summary>
+    /// <param name="conventions">
+    /// The <see cref="DbConventionSet"/> to which this convention belongs.
+    /// </param>
     internal DbCommandConvention(DbConventionSet conventions) : base(conventions)
     {
     }

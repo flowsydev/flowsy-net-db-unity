@@ -12,6 +12,12 @@ namespace Flowsy.Db.Unity.Conventions;
 /// </summary>
 public class DbParameterConvention : DbConvention
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DbParameterConvention"/> class.
+    /// </summary>
+    /// <param name="conventions">
+    /// The parent <see cref="DbConventionSet"/> instance. This is used to access the parent convention set and apply configurations.
+    /// </param>
     internal DbParameterConvention(DbConventionSet conventions) : base(conventions)
     {
     }

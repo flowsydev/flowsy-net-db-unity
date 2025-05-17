@@ -14,6 +14,12 @@ public class DbRoutineConvention : DbConvention
 {
     private static readonly ConcurrentDictionary<string, DbRoutineDescriptor> RoutineCache = new();
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DbRoutineConvention"/> class.
+    /// </summary>
+    /// <param name="conventions">
+    /// The parent <see cref="DbConventionSet"/> instance. This is used to access the parent convention set and apply configurations.
+    /// </param>
     internal DbRoutineConvention(DbConventionSet conventions) : base(conventions)
     {
         Procedures = new DbRoutineNamingConvention(conventions);
