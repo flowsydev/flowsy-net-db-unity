@@ -5,11 +5,26 @@ using Flowsy.Db.Unity.Resources;
 
 namespace Flowsy.Db.Unity;
 
+/// <summary>
+/// Represents a database provider descriptor.
+/// </summary>
 public class DbProviderDescriptor
 {
     public static readonly DbProviderDescriptor Generic = new (DbProviderFamily.Generic);
     private static readonly ConcurrentDictionary<DbProviderFamily, ConcurrentDictionary<Type, DbType>> TypeMappings = [];
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DbProviderDescriptor"/> class.
+    /// </summary>
+    /// <param name="family">
+    /// The family of the database provider (e.g., Postgres, MySql, etc.).
+    /// </param>
+    /// <param name="invariantName">
+    /// The invariant name of the implementation of the database provider.
+    /// </param>
+    /// <param name="factory">
+    /// The factory for creating database connections.
+    /// </param>
     public DbProviderDescriptor(DbProviderFamily family, string? invariantName = null, DbProviderFactory? factory = null)
     {
         Family = family;
@@ -66,10 +81,27 @@ public class DbProviderDescriptor
         }
     }
 
+    /// <summary>
+    /// The family of the database provider (e.g., Postgres, MySql, etc.).
+    /// </summary>
     public DbProviderFamily Family { get; }
+    
+    /// <summary>
+    /// The invariant name of the implementation of the database provider.
+    /// </summary>
     public string? InvariantName { get; }
+    
+    /// <summary>
+    /// The factory for creating database connections.
+    /// </summary>
     public DbProviderFactory? Factory { get; }
 
+    /// <summary>
+    /// The value used by the database provider to separate objects in a fully qualified name.
+    /// </summary>
+    /// <exception cref="NotSupportedException">
+    /// Thrown when the provider family is not supported.
+    /// </exception>
     public string ObjectSeparator => Family switch
     {
         DbProviderFamily.Generic => ".",
@@ -82,50 +114,71 @@ public class DbProviderDescriptor
     };
     
     /// <summary>
-    /// Gets the default port for the provider.
+    /// The default port for the provider.
     /// </summary>
     public int DefaultPort { get; }
     
     /// <summary>
-    /// Gets the default database name for the provider.
+    /// The default database name for the provider.
     /// </summary>
     public string? DefaultDatabaseName { get; }
     
     /// <summary>
-    /// Gets the default schema for the provider.
+    /// The default schema for the provider.
     /// </summary>
     public string? DefaultSchemaName { get; }
     
     /// <summary>
-    /// Gets the parameter prefix for a statement.
+    /// The parameter prefix for a statement.
     /// </summary>
     public string ParameterPrefixForStatement { get; }
     
     /// <summary>
-    /// Gets a value indicating whether the provider supports schemas.
+    /// A value indicating whether the provider supports schemas.
     /// </summary>
     public bool SupportsSchemas { get; }
     
     /// <summary>
-    /// Gets a value indicating whether the provider supports named parameters.
+    /// A value indicating whether the provider supports named parameters.
     /// </summary>
     public bool SupportsNamedParameters { get; }
     
     /// <summary>
-    /// Gets a value indicating whether the provider supports enums.
+    /// A value indicating whether the provider supports enums.
     /// </summary>
     public bool SupportsEnums { get; }
     
     /// <summary>
-    /// Gets a value indicating whether the provider supports enums as custom types.
+    /// A value indicating whether the provider supports enums as custom types.
     /// </summary>
     public bool SupportsEnumsAsCustomTypes { get; }
     
+    /// <summary>
+    /// A value indicating whether the provider supports arrays.
+    /// </summary>
     public bool SupportsArrays { get; }
     
+    /// <summary>
+    /// Gets a value indicating whether the provider supports the specified routine type.
+    /// </summary>
+    /// <param name="routineType">
+    /// The type of the routine (e.g., stored procedure, stored function).
+    /// </param>
+    /// <returns>
+    /// True if the provider supports the specified routine type; otherwise, false.
+    /// </returns>
     public bool SupportsRoutineType(DbRoutineType routineType)
         => Family != DbProviderFamily.Sqlite || routineType != DbRoutineType.StoredProcedure;
     
+    /// <summary>
+    /// Gets a value indicating whether the provider can return a table from the specified routine type.
+    /// </summary>
+    /// <param name="routineType">
+    /// The type of the routine (e.g., stored procedure, stored function).
+    /// </param>
+    /// <returns>
+    /// True if the provider can return a table from the specified routine type; otherwise, false.
+    /// </returns>
     public bool RoutineCanReturnTable(DbRoutineType routineType)
         => routineType == DbRoutineType.StoredProcedure || Family switch
         {
@@ -137,21 +190,18 @@ public class DbProviderDescriptor
             _ => false
         };
     
-    public string FormatCasting(string expression, string type)
-        => Family switch
-        {
-            DbProviderFamily.Postgres => $"{expression}::{type}",
-            _ => $"CAST({expression} AS {type})"
-        };
-    
-    public string FormatNamedParameter(string parameterName, string valueExpression)
-        => Family switch
-        {
-            DbProviderFamily.Postgres => $"{parameterName} => {valueExpression}",
-            DbProviderFamily.SqlServer => $"{parameterName} = {valueExpression}",
-            _ => $"{ParameterPrefixForStatement}{parameterName}",
-        };
-
+    /// <summary>
+    /// Parses an object name into a fully qualified name.
+    /// </summary>
+    /// <param name="name">
+    /// The object name to parse.
+    /// </param>
+    /// <param name="transform">
+    /// An optional function to transform each part of the name during parsing.
+    /// </param>
+    /// <returns>
+    /// A <see cref="DbFullyQualifiedName"/> representing the parsed object name.
+    /// </returns>
     public DbFullyQualifiedName ParseObjectName(string name, Func<string, int, int, string>? transform = null)
     {
         var parts = name.Split(ObjectSeparator, StringSplitOptions.RemoveEmptyEntries);
@@ -169,10 +219,109 @@ public class DbProviderDescriptor
 
         return new DbFullyQualifiedName(this, parts);
     }
+    
+    /// <summary>
+    /// Casts the given expression to the specified type using the appropriate syntax for the provider.
+    /// </summary>
+    /// <param name="expression">
+    /// The expression to cast.
+    /// </param>
+    /// <param name="type">
+    /// The type to cast to.
+    /// </param>
+    /// <returns>
+    /// The formatted casting expression.
+    /// </returns>
+    public string FormatCasting(string expression, string type)
+        => Family switch
+        {
+            DbProviderFamily.Postgres => $"{expression}::{type}",
+            _ => $"CAST({expression} AS {type})"
+        };
+    
+    /// <summary>
+    /// Builds an expression for a named parameter using the appropriate syntax for the provider.
+    /// </summary>
+    /// <param name="parameterName">
+    /// The name of the parameter.
+    /// </param>
+    /// <param name="valueExpression">
+    /// The expression for the value of the parameter.
+    /// </param>
+    /// <returns>
+    /// The formatted named parameter expression.
+    /// </returns>
+    public string FormatNamedParameter(string parameterName, string valueExpression)
+        => Family switch
+        {
+            DbProviderFamily.Postgres => $"{parameterName} => {valueExpression}",
+            DbProviderFamily.SqlServer => $"{parameterName} = {valueExpression}",
+            _ => $"{ParameterPrefixForStatement}{parameterName}",
+        };
+    
+    /// <summary>
+    /// Gets the database type for the specified runtime type.
+    /// </summary>
+    /// <param name="runtimeType">
+    /// The runtime type to get the database type for.
+    /// </param>
+    /// <returns>
+    /// The database type corresponding to the runtime type, or null if cannot be determined.
+    /// </returns>
+    public DbType? GetDatabaseType(Type runtimeType)
+    {
+        var mappings = TypeMappings.GetOrAdd(Family, CreateDefaultTypeMappings);
+        return mappings?.TryGetValue(runtimeType, out var dbType) ?? false ? dbType : null;
+    }
 
+    /// <summary>
+    /// Builds the expression for an array type using the appropriate syntax for the provider.
+    /// </summary>
+    /// <param name="databaseCustomType">
+    /// The database custom type to format as an array.
+    /// </param>
+    /// <returns>
+    /// The formatted array type expression, or null if the provider does not support arrays.
+    /// </returns>
+    public string? FormatArrayType(string? databaseCustomType)
+        => Family == DbProviderFamily.Postgres ? $"{databaseCustomType}[]" : null;
+
+    /// <summary>
+    /// Builds the SQL statement for calling the specified routine using the appropriate syntax for the provider.
+    /// </summary>
+    /// <param name="routine">
+    /// The routine descriptor containing information about the routine.
+    /// </param>
+    /// <returns>
+    /// The formatted SQL statement for calling the routine.
+    /// </returns>
     public string FormatRoutineCall(DbRoutineDescriptor routine)
         => FormatRoutineCall(routine.FullyQualifiedName.ToString(), routine.Type, routine.UseNamedParameters, routine.ReturnsTable, routine.Parameters.ToArray());
     
+    /// <summary>
+    /// Builds the SQL statement for calling the specified routine using the appropriate syntax for the provider.
+    /// </summary>
+    /// <param name="fullyQualifiedName">
+    /// The fully qualified name of the routine.
+    /// </param>
+    /// <param name="routineType">
+    /// The type of the routine (e.g., stored procedure, stored function).
+    /// </param>
+    /// <param name="useNamedParameters">
+    /// A value indicating whether to use named parameters in the call.
+    /// </param>
+    /// <param name="returnsTable">
+    /// A value indicating whether the routine returns a table.
+    /// </param>
+    /// <param name="parameters">
+    /// The parameters to pass to the routine.
+    /// </param>
+    /// <returns>
+    /// The formatted SQL statement for calling the routine.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// Thrown when the provider family does not support the specified routine type or when the routine type cannot return a table.
+    /// </exception>
     public string FormatRoutineCall(string fullyQualifiedName, DbRoutineType routineType, bool useNamedParameters = false, bool returnsTable = false, params DbParameterDescriptor[] parameters)
     {
         if (returnsTable && !RoutineCanReturnTable(routineType))
@@ -283,13 +432,4 @@ public class DbProviderDescriptor
 
         return map;
     }
-    
-    public DbType? GetDatabaseType(Type runtimeType)
-    {
-        var mappings = TypeMappings.GetOrAdd(Family, CreateDefaultTypeMappings);
-        return mappings?.TryGetValue(runtimeType, out var dbType) ?? false ? dbType : null;
-    }
-
-    public string? FormatArrayType(string? databaseCustomType)
-        => Family == DbProviderFamily.Postgres ? $"{databaseCustomType}[]" : null;
 }

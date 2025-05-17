@@ -8,7 +8,7 @@ namespace Flowsy.Db.Unity;
 /// <summary>
 /// Represents a database agent that performs operations on a database.
 /// </summary>
-public partial class DbAgent : IDbAgent
+public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
 {
     private readonly IDbConnectionScope? _connectionScope;
     private IDbConnection? _connection;
@@ -49,29 +49,6 @@ public partial class DbAgent : IDbAgent
         _logger = logger;
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DbAgent"/> class with the specified unit of work and optional logger.
-    /// </summary>
-    /// <param name="unitOfWork">
-    /// The unit of work to use for database operations.
-    /// A unit of work is a pattern that allows you to group multiple database operations into a single transaction.
-    /// </param>
-    /// <param name="logger">
-    /// An optional logger for logging database operations.
-    /// </param>
-    /// <exception cref="ArgumentException">
-    /// Thrown when the provided unit of work is not of type <see cref="DbUnitOfWork"/>.
-    /// </exception>
-    public DbAgent(IDbUnitOfWork unitOfWork, ILogger? logger = null)
-    {
-        if (unitOfWork is not DbUnitOfWork dbUnitOfWork)
-            throw new ArgumentException(string.Format(Strings.InvalidUnitOfWorkTypeX, nameof(DbUnitOfWork)), nameof(unitOfWork));
-        
-        ConnectionOptions = dbUnitOfWork.ConnectionOptions;
-        UnitOfWork = unitOfWork;
-        _logger = logger;
-    }
-
     ~DbAgent() => Dispose(false);
 
     /// <summary>
@@ -86,18 +63,17 @@ public partial class DbAgent : IDbAgent
     /// <summary>
     /// Releases the resources used by the <see cref="DbAgent"/> instance.
     /// </summary>
-    /// <param name="disposing"></param>
+    /// <param name="disposing">
+    /// Indicates whether the method was called directly or by the garbage collector.
+    /// </param>
     protected virtual void Dispose(bool disposing)
     {
         if (_disposed) return;
         
-        if (disposing)
+        if (disposing && MustDisposeConnection)
         {
-            if (MustDisposeConnection)
-            {
-                _connection?.Dispose();
-                _connection = null;
-            }
+            _connection?.Dispose();
+            _connection = null;
         }
         
         _disposed = true;
@@ -106,27 +82,28 @@ public partial class DbAgent : IDbAgent
     /// <summary>
     /// Releases the resources used by the <see cref="DbAgent"/> instance.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// A task that represents the asynchronous dispose operation.
+    /// </returns>
     public ValueTask DisposeAsync() => DisposeAsync(true);
 
     /// <summary>
     /// Asynchronously releases the resources used by the <see cref="DbAgent"/> instance.
     /// </summary>
-    /// <param name="disposing"></param>
+    /// <param name="disposing">
+    /// Indicates whether the method was called directly or by the garbage collector.
+    /// </param>
     protected virtual async ValueTask DisposeAsync(bool disposing)
     {
         if (_disposed) return;
         
-        if (disposing)
+        if (disposing && MustDisposeConnection)
         {
-            if (MustDisposeConnection)
-            {
-                if (_connection is IAsyncDisposable asyncDisposable)
-                    await asyncDisposable.DisposeAsync();
-                else
-                    _connection?.Dispose();
-                _connection = null;
-            }
+            if (_connection is IAsyncDisposable asyncDisposable)
+                await asyncDisposable.DisposeAsync();
+            else
+                _connection?.Dispose();
+            _connection = null;
         }
         
         _disposed = true;
@@ -136,29 +113,41 @@ public partial class DbAgent : IDbAgent
     /// The connection options to use for database operations.
     /// </summary>
     protected DbConnectionOptions ConnectionOptions { get; }
-    
+
     /// <summary>
     /// The database connection associated with this agent.
     /// </summary>
     /// <exception cref="InvalidOperationException">
     /// Thrown when the connection cannot be resolved.
     /// </exception>
-    public IDbConnection Connection => _connection ??= 
-        UnitOfWork?.Connection ??
-        _connectionScope?.GetConnection(ConnectionOptions.ConnectionString) ??
-        ConnectionOptions.CreateConnection() ??
-        throw new InvalidOperationException(string.Format(Strings.CouldNotResolveConnectionForKeyX, ConnectionOptions.ConnectionKey));
-    
-    /// <summary>
-    /// An optional unit of work associated with this agent.
-    /// A unit of work is a pattern that allows you to group multiple database operations into a single transaction.
-    /// </summary>
-    public IDbUnitOfWork? UnitOfWork { get; }
-    
+    public IDbConnection Connection
+    {
+        get
+        {
+            if (_connection is not null)
+                return _connection;
+            
+            if (UnitOfWork is not null)
+            {
+                _connection = UnitOfWork.Connection;
+                return _connection;
+            }
+            
+            if (_connectionScope is not null)
+            {
+                _connection = _connectionScope.GetConnection(ConnectionOptions.ConnectionKey);
+                return _connection;
+            }
+            
+            _connection = ConnectionOptions.CreateConnection();
+            return _connection;
+        }
+    } 
+
     /// <summary>
     /// Indicates whether the connection should be disposed when this agent is disposed.
     /// </summary>
-    protected bool MustDisposeConnection => UnitOfWork is null && _connectionScope is null;
+    private bool MustDisposeConnection => !IsInvolvedInWork && _connectionScope is null;
     
     /// <summary>
     /// Raised when a command is about to be executed.
@@ -225,5 +214,21 @@ public partial class DbAgent : IDbAgent
             }
         }
         CommandExecuted?.Invoke(this, e);
+    }
+
+    public override void JoinWork(IDbUnitOfWork unitOfWork)
+    {
+        if (MustDisposeConnection)
+        {
+            _connection?.Dispose();
+            _connection = null;
+        }
+        base.JoinWork(unitOfWork);
+    }
+
+    public override void DetachFromWork()
+    {
+        base.DetachFromWork();
+        _connection = null;
     }
 }

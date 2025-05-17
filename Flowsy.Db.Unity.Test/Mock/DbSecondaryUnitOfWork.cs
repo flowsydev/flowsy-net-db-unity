@@ -7,12 +7,8 @@ public interface IDbSecondaryUnitOfWork : IDbUnitOfWork;
 
 public class DbSecondaryUnitOfWork : DbUnitOfWork, IDbSecondaryUnitOfWork
 {
-    public DbSecondaryUnitOfWork(
-        IOptionsSnapshot<DbConnectionOptions> optionsSnapshot,
-        IServiceProvider serviceProvider,
-        ILogger<DbSecondaryUnitOfWork> logger
-    )
-        : base(optionsSnapshot.Get("Secondary"), serviceProvider, logger)
+    public DbSecondaryUnitOfWork(IOptionsSnapshot<DbConnectionOptions> optionsSnapshot, IDbConnectionScope connectionScope, ILogger<DbSecondaryUnitOfWork> logger)
+        : base(optionsSnapshot.Get("Secondary"), connectionScope, logger)
     {
     }
 }

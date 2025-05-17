@@ -131,15 +131,11 @@ public class DbUnityServiceBuilder
     /// <typeparam name="TService">
     /// The type of the service to be registered.
     /// </typeparam>
-    /// <typeparam name="TImplementation">
-    /// The type of the implementation to be registered.
-    /// </typeparam>
     /// <returns></returns>
-    public DbUnityServiceBuilder WithAgent<TService, TImplementation>(Func<IServiceProvider, TImplementation> implementationFactory)
+    public DbUnityServiceBuilder WithAgent<TService>(Func<IServiceProvider, TService> implementationFactory)
         where TService : class, IDbAgent
-        where TImplementation : DbAgent, TService
     {
-        _services.AddTransient<TService>(implementationFactory);
+        _services.AddTransient(implementationFactory);
         return this;
     }
 
@@ -161,8 +157,9 @@ public class DbUnityServiceBuilder
         {
             var optionsSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<DbConnectionOptions>>();
             var options = optionsSnapshot.Get(connectionKey);
+            var connectionScope = serviceProvider.GetRequiredService<IDbConnectionScope>();
             var logger = serviceProvider.GetService<ILogger<DbUnitOfWork>>();
-            return new DbUnitOfWork(options, serviceProvider, logger);
+            return new DbUnitOfWork(options, connectionScope, logger);
         });
         return this;
     }
@@ -198,17 +195,13 @@ public class DbUnityServiceBuilder
     /// <typeparam name="TService">
     /// The type of the service to be registered.
     /// </typeparam>
-    /// <typeparam name="TImplementation">
-    /// The type of the implementation to be registered.
-    /// </typeparam>
     /// <returns>
     /// The current instance of the <see cref="DbUnityServiceBuilder"/> class.
     /// </returns>
-    public DbUnityServiceBuilder WithUnitOfWork<TService, TImplementation>(Func<IServiceProvider, TImplementation> implementationFactory)
+    public DbUnityServiceBuilder WithUnitOfWork<TService>(Func<IServiceProvider, TService> implementationFactory)
         where TService : class, IDbUnitOfWork
-        where TImplementation : DbUnitOfWork, TService
     {
-        _services.AddScoped<TService>(implementationFactory);
+        _services.AddScoped(implementationFactory);
         return this;
     }
 }

@@ -17,6 +17,6 @@ public interface IDbConnectionFactory
     /// <param name="open">
     /// A value indicating whether the connection should be opened.
     /// </param>
-    /// <returns>A database connection</returns>
+    /// <returns>A database connection.</returns>
     IDbConnection GetConnection(string connectionKey, bool open = false);
 }

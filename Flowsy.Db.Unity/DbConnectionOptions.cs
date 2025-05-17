@@ -50,18 +50,22 @@ public class DbConnectionOptions
     public bool Default { get; internal set; }
     
     /// <summary>
-    /// The type of the connection factory to use for creating database connections.
+    /// The set of conventions to be used for this connection.
     /// </summary>
-    public Type ConnectionFactoryType { get; internal set; } = typeof(DbConnectionFactory);
-    
-    public Type AgentType { get; internal set; } = typeof(DbAgent);
-    
-    public Type UnitOfWorkType { get; internal set; } = typeof(DbUnitOfWork);
-    
     public DbConventionSet? Conventions { get; internal set; }
     
+    /// <summary>
+    /// The logging level for database operations.
+    /// </summary>
     public LogLevel LogLevel { get; internal set; } = LogLevel.Information;
 
+    /// <summary>
+    /// Creates a new database connection using the specified provider and connection string.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the provider factory is not available or the connection cannot be created.
+    /// </exception>
     public IDbConnection CreateConnection()
     {
         var connection = Provider.Factory?.CreateConnection();
@@ -72,6 +76,12 @@ public class DbConnectionOptions
         return connection;
     }
 
+    /// <summary>
+    /// Copies the current connection options to another instance of <see cref="DbConnectionOptions"/>.
+    /// </summary>
+    /// <param name="other">
+    /// The other instance of <see cref="DbConnectionOptions"/> to copy to.
+    /// </param>
     public void CopyTo(DbConnectionOptions other)
     {
         other.ConnectionKey = ConnectionKey;
@@ -80,8 +90,18 @@ public class DbConnectionOptions
         other.Default = Default;
         other.Conventions = Conventions?.Clone();
         other.LogLevel = LogLevel;
-        other.ConnectionFactoryType = ConnectionFactoryType;
-        other.AgentType = AgentType;
-        other.UnitOfWorkType = UnitOfWorkType;
+    }
+
+    /// <summary>
+    /// Creates a clone of the current <see cref="DbConnectionOptions"/> instance.
+    /// </summary>
+    /// <returns>
+    /// A new instance of <see cref="DbConnectionOptions"/> with the same properties as the current instance.
+    /// </returns>
+    public DbConnectionOptions Clone()
+    {
+        var other = new DbConnectionOptions(ConnectionKey);
+        CopyTo(other);
+        return other;
     }
 }

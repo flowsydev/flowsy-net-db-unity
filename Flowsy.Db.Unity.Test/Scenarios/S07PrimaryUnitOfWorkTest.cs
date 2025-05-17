@@ -1,7 +1,9 @@
+using Flowsy.Db.Unity.Extensions;
 using Flowsy.Db.Unity.Test.Extensions;
 using Flowsy.Db.Unity.Test.Mock;
 using Flowsy.Db.Unity.Test.Mock.Model;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Shouldly;
 using Xunit.Abstractions;
 using Xunit.Extensions.Ordering;
@@ -24,46 +26,51 @@ public class S07PrimaryUnitOfWorkTest
     public async Task T01_Should_Involve_PrimaryAgent()
     {
         // Arrange
-        await using var scope = _serviceHost.ServiceProvider.CreateAsyncScope();
-        var unitOfWork = scope.ServiceProvider.GetRequiredService<IDbPrimaryUnitOfWork>();
-        _output.Subscribe(unitOfWork);
-        
+        Exception? exception = null;
         
         // Act
-        Exception? exception = null;
         try
         {
-            var agent = unitOfWork.InvolveService<IDbPrimaryAgent>();
-            _output.Subscribe(agent);
+            await using var scope = _serviceHost.ServiceProvider.CreateAsyncScope();
+
+            var optionsSnapshot = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<DbConnectionOptions>>();
+            var connectionOptions = optionsSnapshot.Get("Primary");
+            
+            var unitOfWork = scope.ServiceProvider.GetRequiredService<IDbPrimaryUnitOfWork>();
+            _output.Subscribe(unitOfWork);
+            
+            var customerRepository = scope.ServiceProvider.GetRequiredService<IPrimaryCustomerRepository>();
+            _output.Subscribe(customerRepository.Agent);
             
             unitOfWork.BeginWork();
-
-            await agent.ExecuteRoutineAsync("crm.cst_create", new
+            
+            unitOfWork.Involve(customerRepository);
+            await customerRepository.CreateCustomerAsync("John Lennon", "john.lennon@thebeatles.com", DateTimeOffset.Now);
+            await customerRepository.CreateCustomerAsync("Paul McCartney", "paul.mccartney@thebeatles.com", DateTimeOffset.Now);
+            
+            await unitOfWork.InvolveAsync(async (c, t, ct) =>
             {
-                Name = "John Lennon",
-                Email = "john.lennon@thebeatles.com",
-                CreatedAt = DateTimeOffset.Now,
-            });
-
-            await agent.ExecuteRoutineAsync("crm.cst_create", new
-            {
-                Name = "Paul McCartney",
-                Email = "paul.mccartney@thebeatles.com",
-                CreatedAt = DateTimeOffset.Now,
-            });
-
-            await agent.ExecuteRoutineAsync("crm.cst_create", new
-            {
-                Name = "George Harrison",
-                Email = "george.harrison@thebeatles.com",
-                CreatedAt = DateTimeOffset.Now,
-            });
-
-            await agent.ExecuteRoutineAsync("crm.cst_create", new
-            {
-                Name = "Ringo Starr",
-                Email = "ringo.starr@thebeatles.com",
-                CreatedAt = DateTimeOffset.Now,
+                await c.ExecuteRoutineAsync("crm.cst_create", new
+                    {
+                        Name = "George Harrison",
+                        Email = "george.harrison@thebeatles.com",
+                        CreatedAt = DateTimeOffset.Now,
+                    },
+                    t,
+                    conventions: connectionOptions.Conventions,
+                    cancellationToken: ct
+                    );
+                
+                await c.ExecuteRoutineAsync("crm.cst_create", new
+                    {
+                        Name = "Ringo Starr",
+                        Email = "ringo.starr@thebeatles.com",
+                        CreatedAt = DateTimeOffset.Now,
+                    },
+                    t,
+                    conventions: connectionOptions.Conventions,
+                    cancellationToken: ct
+                    );
             });
         
             await unitOfWork.CompleteWorkAsync();

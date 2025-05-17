@@ -108,6 +108,18 @@ public sealed class DbParameterDescriptor : DbObjectDescriptor
     /// </summary>
     public byte? Scale { get; }
 
+    /// <summary>
+    /// Transforms the runtime value to value that can be used in database operations.
+    /// </summary>
+    /// <param name="runtimeValue">
+    /// The runtime value.
+    /// </param>
+    /// <param name="conventions">
+    /// The database conventions used to resolve the database value.
+    /// </param>
+    /// <returns>
+    /// A value that can be used in database operations.
+    /// </returns>
     public object? ResolveDatabaseValue(object? runtimeValue, DbConventionSet? conventions = null)
     {
         if (runtimeValue is null)

@@ -5,6 +5,10 @@ using Microsoft.Extensions.Options;
 
 namespace Flowsy.Db.Unity;
 
+/// <summary>
+/// Obtains database connections based on the provided configuration.
+/// Consumers of this service must dispose of the connections when no longer needed.
+/// </summary>
 public class DbConnectionFactory : IDbConnectionFactory
 {
     private readonly ConcurrentDictionary<string, DbConnectionOptions> _optionsDictionary = new();
@@ -14,12 +18,25 @@ public class DbConnectionFactory : IDbConnectionFactory
     {
     }
     
+    /// <summary>
+    /// Creates a new instance of the DbConnectionFactory class.
+    /// </summary>
+    /// <param name="optionsList">
+    /// A list of DbConnectionOptions to register with the factory.
+    /// </param>
     public DbConnectionFactory(IEnumerable<DbConnectionOptions> optionsList)
     {
         foreach (var options in optionsList)
             RegisterOptions(options);
     }
     
+    /// <summary>
+    /// Creates a new instance of the DbConnectionFactory class.
+    /// </summary>
+    /// <param name="optionsSnapshot">
+    /// An IOptionsSnapshot of DbConnectionOptions to register with the factory.
+    /// Each named option is expected to have a name matching the connection key of its corresponding DbConnectionOptions instance.
+    /// </param>
     public DbConnectionFactory(IOptionsSnapshot<DbConnectionOptions> optionsSnapshot)
     {
         _optionsSnapshot = optionsSnapshot;
@@ -48,7 +65,7 @@ public class DbConnectionFactory : IDbConnectionFactory
     /// <param name="open">
     /// A value indicating whether the connection should be opened.
     /// </param>
-    /// <returns>A database connection</returns>
+    /// <returns>A database connection.</returns>
     public IDbConnection GetConnection(string connectionKey, bool open = false)
     {
         _optionsDictionary.TryGetValue(connectionKey, out var options);

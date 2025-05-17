@@ -1,9 +1,11 @@
 using System.Reflection;
 using Flowsy.Core;
-using Flowsy.Db.Unity.Conventions;
 using Flowsy.Db.Unity.Test.Mock.Model;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MySql.Data.MySqlClient;
 using Npgsql;
 using Serilog;
@@ -123,6 +125,8 @@ public class ServiceHost : IDisposable
                     .WithUnitOfWork<IDbPrimaryUnitOfWork, DbPrimaryUnitOfWork>()
                     .WithAgent<IDbSecondaryAgent, DbSecondaryAgent>()
                     .WithUnitOfWork<IDbSecondaryUnitOfWork, DbSecondaryUnitOfWork>();
+                
+                services.AddScoped<IPrimaryCustomerRepository, PrimaryCustomerRepository>();
             })
             .UseSerilog()
             .Build();

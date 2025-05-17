@@ -35,9 +35,6 @@ public class S04ConnectionOptionsTest
         _output.WriteLine("Provider.Family: {0}", options.Provider.Family);
         _output.WriteLine("Provider.InvariantName: {0}", options.Provider.InvariantName);
         _output.WriteLine("Provider.Factory: {0}", options.Provider.Factory?.GetType().Name);
-        _output.WriteLine("ConnectionFactoryType: {0}", options.ConnectionFactoryType.FullName);
-        _output.WriteLine("AgentType: {0}", options.AgentType.FullName);
-        _output.WriteLine("UnitOfWorkType: {0}", options.UnitOfWorkType.FullName);
         
         // Assert
         options.ShouldNotBeNull();
@@ -60,9 +57,6 @@ public class S04ConnectionOptionsTest
         _output.WriteLine("Provider.Family: {0}", options.Provider.Family);
         _output.WriteLine("Provider.InvariantName: {0}", options.Provider.InvariantName);
         _output.WriteLine("Provider.Factory: {0}", options.Provider.Factory?.GetType().Name);
-        _output.WriteLine("ConnectionFactoryType: {0}", options.ConnectionFactoryType.FullName);
-        _output.WriteLine("AgentType: {0}", options.AgentType.FullName);
-        _output.WriteLine("UnitOfWorkType: {0}", options.UnitOfWorkType.FullName);
         
         // Assert
         options.ShouldNotBeNull();
