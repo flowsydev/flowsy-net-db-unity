@@ -1,6 +1,7 @@
 using System.Reflection;
 using Dapper;
 using Flowsy.Core;
+using Flowsy.Db.Unity.Resources;
 
 namespace Flowsy.Db.Unity.Conventions;
 
@@ -14,8 +15,6 @@ public class DbConventionTypeMap : SqlMapper.ITypeMap
     
     private readonly Type _type;
     private readonly DbObjectNameConvention _columnNaming;
-    
-    // TODO: Add support for strict mode
     private readonly bool _strictMode;
 
     /// <summary>
@@ -50,9 +49,19 @@ public class DbConventionTypeMap : SqlMapper.ITypeMap
     /// Matching constructor or default one.
     /// </returns>
     public ConstructorInfo? FindConstructor(string[] names, Type[] types)
-        => _type
+    {
+        var constructor = _type
             .GetConstructors()
             .FirstOrDefault(c => IsConstructorMatch(c, names, types));
+        
+        if (constructor is not null)
+            return constructor;
+        
+        if (_strictMode)
+            throw new InvalidOperationException(string.Format(Strings.NoMatchingConstructorFoundForTypeX, _type.Name));
+
+        return null;
+    }
 
     /// <summary>
     /// Returns a constructor which should *always* be used.
@@ -61,10 +70,20 @@ public class DbConventionTypeMap : SqlMapper.ITypeMap
     /// </summary>
     /// <returns></returns>
     public ConstructorInfo? FindExplicitConstructor()
-        => _type
+    {
+        var constructor = _type
             .GetConstructors()
             .OrderBy(c => c.GetParameters().Length)
             .FirstOrDefault();
+        
+        if (constructor is not null)
+            return constructor;
+        
+        if (_strictMode)
+            throw new InvalidOperationException(string.Format(Strings.NoMatchingConstructorFoundForTypeX, _type.Name));
+        
+        return null;
+    }
 
     /// <summary>
     /// Gets mapping for constructor parameter.
@@ -130,12 +149,17 @@ public class DbConventionTypeMap : SqlMapper.ITypeMap
             .GetRuntimeFields()
             .FirstOrDefault(f => ToColumnName(f.Name) == columnName);
 
-        if (field is null)
-            return null;
+        if (field is not null)
+        {
+            memberMap = new DbBasicMemberMap(columnName, field.FieldType, field);
+            _memberMappings[columnName] = memberMap;
+            return memberMap;
+        }
 
-        memberMap = new DbBasicMemberMap(columnName, field.FieldType, field);
-        _memberMappings[columnName] = memberMap;
-        return memberMap;
+        if (_strictMode)
+            throw new InvalidOperationException(string.Format(Strings.NoMemberFoundForColumnXInTypeY, columnName, _type.Name));
+        
+        return null;
     }
     
     private string ToColumnName(string memberName)

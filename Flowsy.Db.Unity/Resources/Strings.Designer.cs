@@ -194,5 +194,17 @@ namespace Flowsy.Db.Unity.Resources {
                 return ResourceManager.GetString("NoConnectionOptionsDefined", resourceCulture);
             }
         }
+        
+        internal static string NoMemberFoundForColumnXInTypeY {
+            get {
+                return ResourceManager.GetString("NoMemberFoundForColumnXInTypeY", resourceCulture);
+            }
+        }
+        
+        internal static string NoMatchingConstructorFoundForTypeX {
+            get {
+                return ResourceManager.GetString("NoMatchingConstructorFoundForTypeX", resourceCulture);
+            }
+        }
     }
 }

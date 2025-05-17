@@ -115,7 +115,7 @@ public class ServiceHost : IDisposable
                                 .Where(t => readModelInterfaceType.IsAssignableFrom(t) && t is {IsAbstract: false, IsInterface: false});
                             
                             o.AddTypeGroup(CaseStyle.LowerSnakeCase, readModelTypes.ToArray());
-                            o.StrictMode = true;
+                            o.StrictMode = false;
                         });
                     })
                     .WithDefaultConnectionFactory()

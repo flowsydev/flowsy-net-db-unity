@@ -93,4 +93,10 @@
     <data name="NoConnectionOptionsDefined" xml:space="preserve">
         <value>No connection options defined.</value>
     </data>
+    <data name="NoMemberFoundForColumnXInTypeY" xml:space="preserve">
+        <value>No member found for column {0} in type {1}.</value>
+    </data>
+    <data name="NoMatchingConstructorFoundForTypeX" xml:space="preserve">
+        <value>No matching constructor found for type {0}.</value>
+    </data>
 </root>
