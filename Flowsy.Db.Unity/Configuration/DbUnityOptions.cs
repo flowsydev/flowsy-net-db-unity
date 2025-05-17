@@ -81,14 +81,9 @@ public class DbUnityOptions
         configure(options);
         
         foreach (var group in options.TypeGroups)
-        {
             foreach (var type in group.Types)
-            {
-                SqlMapper.RemoveTypeMap(type);
-                SqlMapper.SetTypeMap(type, new DbConventionTypeMap(type, group.ColumnNaming, options.StrictMode));
-            }
-        }
-
+                DbConventionTypeMap.Register(type, group.ColumnNaming, options.StrictMode);
+        
         return this;
     }
     

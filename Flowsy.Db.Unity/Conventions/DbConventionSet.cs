@@ -121,6 +121,14 @@ public class DbConventionSet
     /// <summary>
     /// Creates a new <see cref="DbConventionSetBuilder"/> instance for configuring a set of conventions.
     /// </summary>
+    /// <returns>
+    /// A <see cref="DbConventionSetBuilder"/> instance for configuring the conventions.
+    /// </returns>
+    public static DbConventionSetBuilder CreateBuilder() => new (DbConventionSet.Default.Clone());
+    
+    /// <summary>
+    /// Creates a new <see cref="DbConventionSetBuilder"/> instance for configuring a set of conventions.
+    /// </summary>
     /// <param name="provider">
     /// The database provider descriptor for which the conventions are defined.
     /// </param>

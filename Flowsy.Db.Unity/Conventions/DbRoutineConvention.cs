@@ -96,8 +96,15 @@ public class DbRoutineConvention : DbConvention
         Func<string, int, int, string>? transform = caseStyle.HasValue
             ? (part, index, length) =>
             {
-                var simpleName = !part.MatchesCaseStyle(caseStyle.Value) ? part.ApplyCaseStyle(caseStyle.Value) : part;
-                return index < length - 1 ? simpleName : $"{prefix}{simpleName}{suffix}";
+                var objectName = !part.MatchesCaseStyle(caseStyle.Value) ? part.ApplyCaseStyle(caseStyle.Value) : part;
+                if (index != length - 1) return objectName;
+                
+                if (!objectName.StartsWith(prefix))
+                    objectName = $"{prefix}{objectName}";
+                if (!objectName.EndsWith(suffix))
+                    objectName = $"{objectName}{suffix}";
+
+                return objectName;
             }
             : null;  
         var fullyQualifiedName = Conventions.Provider.ParseObjectName(routineName, transform);

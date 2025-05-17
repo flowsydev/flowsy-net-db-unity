@@ -78,7 +78,8 @@ public class DbUnitOfWork : IDbUnitOfWork
         if (disposing)
         {
             TryRollbackTransaction();
-            _connection?.Dispose();
+            if (OwnsConnection && _connection is not null)
+                _connection.Dispose();
         }
 
         _disposed = true;
@@ -107,10 +108,13 @@ public class DbUnitOfWork : IDbUnitOfWork
         if (disposing)
         {
             await TryRollbackTransactionAsync(CancellationToken.None);
-            if (_connection is DbConnection dbConnection)
-                await dbConnection.DisposeAsync();
-            else
-                _connection?.Dispose();
+            if (OwnsConnection)
+            {
+                if (_connection is DbConnection dbConnection)
+                    await dbConnection.DisposeAsync();
+                else
+                    _connection?.Dispose();
+            }
         }
         
         _disposed = true;
@@ -119,17 +123,36 @@ public class DbUnitOfWork : IDbUnitOfWork
     /// <summary>
     /// The connection options associated with this unit of work.
     /// </summary>
-    protected internal DbConnectionOptions ConnectionOptions { get; }
-    
+    protected DbConnectionOptions ConnectionOptions { get; }
+
     /// <summary>
     /// The database connection associated with this unit of work.
     /// </summary>
     /// <exception cref="InvalidOperationException">
     /// Thrown when the connection cannot be resolved for the specified connection key.
     /// </exception>
-    public IDbConnection Connection => _connection ??=
-        _connectionScope?.GetConnection(ConnectionOptions.ConnectionKey) ??
-        throw new InvalidOperationException(string.Format(Strings.CouldNotResolveConnectionForKeyX, ConnectionOptions.ConnectionKey));
+    public IDbConnection Connection
+    {
+        get
+        {
+            if (_connection is not null)
+                return _connection;
+
+            if (_connectionScope is not null)
+            {
+                _connection = _connectionScope.GetConnection(ConnectionOptions.ConnectionKey);
+                return _connection;
+            }
+            
+            _connection = ConnectionOptions.CreateConnection();
+            return _connection;
+        }
+    }
+    
+    /// <summary>
+    /// Indicates whether this service owns the connection and must dispose of it when destroyed.
+    /// </summary>
+    protected bool OwnsConnection => _connectionScope is null;
 
     /// <summary>
     /// The underlying database transaction, if any.
@@ -212,7 +235,7 @@ public class DbUnitOfWork : IDbUnitOfWork
     /// </param>
     public void Involve(IDbUnitOfWorkParticipant participant)
     {
-        participant.JoinWork(this);
+        participant.Join(this);
     }
 
     /// <summary>

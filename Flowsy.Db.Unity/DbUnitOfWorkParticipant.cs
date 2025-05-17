@@ -15,7 +15,7 @@ public abstract class DbUnitOfWorkParticipant : IDbUnitOfWorkParticipant
     /// <summary>
     /// Indicates whether this service is involved in a unit of work.
     /// </summary>
-    public bool IsInvolvedInWork => UnitOfWork is not null;
+    public bool IsParticipating => UnitOfWork is not null;
 
     /// <summary>
     /// Joins the specified unit of work, allowing this service to participate in the same transaction.
@@ -23,7 +23,7 @@ public abstract class DbUnitOfWorkParticipant : IDbUnitOfWorkParticipant
     /// <param name="unitOfWork">
     /// The unit of work to join.
     /// </param>
-    public virtual void JoinWork(IDbUnitOfWork unitOfWork)
+    public virtual void Join(IDbUnitOfWork unitOfWork)
     {
         UnitOfWork = unitOfWork;
     }
@@ -31,7 +31,7 @@ public abstract class DbUnitOfWorkParticipant : IDbUnitOfWorkParticipant
     /// <summary>
     /// Detaches this service from the current unit of work, if any.
     /// </summary>
-    public virtual void DetachFromWork()
+    public virtual void Leave()
     {
         UnitOfWork = null;
     }
@@ -45,6 +45,6 @@ public abstract class DbUnitOfWorkParticipant : IDbUnitOfWorkParticipant
     /// <returns>
     /// True if this service belongs to the specified unit of work; otherwise, false.
     /// </returns>
-    public bool BelongsToWork(IDbUnitOfWork unitOfWork)
+    public bool BelongsTo(IDbUnitOfWork unitOfWork)
         => UnitOfWork?.Equals(unitOfWork) ?? false;
 }

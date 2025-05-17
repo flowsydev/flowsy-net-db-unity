@@ -96,6 +96,7 @@ public class ServiceHost : IDisposable
                             .WithConventions()
                             .ForRoutines()
                             .UseFunctions(prefix: "fun_")
+                            .UseProcedureNames(prefix: "pro_")
                             .ForEnums()
                             .UseMapping<Currency>("kernel.currency");
 

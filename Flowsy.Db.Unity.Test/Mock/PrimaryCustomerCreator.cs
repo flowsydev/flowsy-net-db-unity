@@ -25,7 +25,7 @@ public class PrimaryCustomerRepository : DbUnitOfWorkParticipant, IPrimaryCustom
 
     public override IDbUnitOfWork? UnitOfWork => Agent.UnitOfWork;
 
-    public override void JoinWork(IDbUnitOfWork unitOfWork) => Agent.JoinWork(unitOfWork);
+    public override void Join(IDbUnitOfWork unitOfWork) => Agent.Join(unitOfWork);
 
-    public override void DetachFromWork() => Agent.DetachFromWork();
+    public override void Leave() => Agent.Leave();
 }

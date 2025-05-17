@@ -70,7 +70,7 @@ public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
     {
         if (_disposed) return;
         
-        if (disposing && MustDisposeConnection)
+        if (disposing && OwnsConnection)
         {
             _connection?.Dispose();
             _connection = null;
@@ -97,7 +97,7 @@ public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
     {
         if (_disposed) return;
         
-        if (disposing && MustDisposeConnection)
+        if (disposing && OwnsConnection)
         {
             if (_connection is IAsyncDisposable asyncDisposable)
                 await asyncDisposable.DisposeAsync();
@@ -145,9 +145,9 @@ public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
     } 
 
     /// <summary>
-    /// Indicates whether the connection should be disposed when this agent is disposed.
+    /// Indicates whether this service owns the connection and must dispose of it when destroyed.
     /// </summary>
-    private bool MustDisposeConnection => !IsInvolvedInWork && _connectionScope is null;
+    protected bool OwnsConnection => !IsParticipating && _connectionScope is null;
     
     /// <summary>
     /// Raised when a command is about to be executed.
@@ -216,19 +216,19 @@ public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
         CommandExecuted?.Invoke(this, e);
     }
 
-    public override void JoinWork(IDbUnitOfWork unitOfWork)
+    public override void Join(IDbUnitOfWork unitOfWork)
     {
-        if (MustDisposeConnection)
+        if (OwnsConnection)
         {
             _connection?.Dispose();
             _connection = null;
         }
-        base.JoinWork(unitOfWork);
+        base.Join(unitOfWork);
     }
 
-    public override void DetachFromWork()
+    public override void Leave()
     {
-        base.DetachFromWork();
+        base.Leave();
         _connection = null;
     }
 }

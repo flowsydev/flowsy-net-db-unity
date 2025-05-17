@@ -77,6 +77,7 @@ public class S03MySqlConventionTest : IClassFixture<S03MySqlConventionTest.Local
         options.Conventions.Parameters.Naming.Prefix.ShouldBe("p_");
         
         options.Conventions.Enums.ValueFormat.ShouldBe(DbEnumFormat.Name);
+        options.Conventions.Enums.NameTranslator.ShouldNotBeNull();
         options.Conventions.Enums.NameTranslator.MemberNameCaseStyle.ShouldBe(CaseStyle.UpperSnakeCase);
         
         _localModel.ConnectionOptions = options;

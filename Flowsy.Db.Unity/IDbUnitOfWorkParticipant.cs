@@ -15,7 +15,7 @@ public interface IDbUnitOfWorkParticipant
     /// <summary>
     /// Indicates whether this service is involved in a unit of work.
     /// </summary>
-    bool IsInvolvedInWork { get; }
+    bool IsParticipating { get; }
     
     /// <summary>
     /// Joins the specified unit of work, allowing this service to participate in the same transaction.
@@ -23,12 +23,12 @@ public interface IDbUnitOfWorkParticipant
     /// <param name="unitOfWork">
     /// The unit of work to join.
     /// </param>
-    void JoinWork(IDbUnitOfWork unitOfWork);
+    void Join(IDbUnitOfWork unitOfWork);
     
     /// <summary>
     /// Detaches this service from the current unit of work, if any.
     /// </summary>
-    void DetachFromWork();
+    void Leave();
     
     /// <summary>
     /// Checks if this service belongs to the specified unit of work.
@@ -39,5 +39,5 @@ public interface IDbUnitOfWorkParticipant
     /// <returns>
     /// True if this service belongs to the specified unit of work; otherwise, false.
     /// </returns>
-    bool BelongsToWork(IDbUnitOfWork unitOfWork);
+    bool BelongsTo(IDbUnitOfWork unitOfWork);
 }

@@ -114,6 +114,7 @@ public class DbEnumConventionBuilder : DbConventionBuilder
     /// </returns>
     public DbEnumConventionBuilder UseNames(DbEnumNameTranslator? nameTranslator)
     {
+        Parent.Conventions.Enums.ValueFormat = DbEnumFormat.Name;
         Parent.Conventions.Enums.NameTranslator = nameTranslator;
         return this;
     }

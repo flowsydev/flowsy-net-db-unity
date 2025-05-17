@@ -191,4 +191,58 @@ public class DbConventionTypeMap : SqlMapper.ITypeMap
 
         return true;
     }
+
+    /// <summary>
+    /// Registers a type map using the given naming convention.
+    /// </summary>
+    /// <param name="targetType">
+    /// The type to register the map for.
+    /// </param>
+    /// <param name="columnNaming">
+    /// The naming convention to use for the columns.
+    /// </param>
+    /// <param name="strictMode">
+    /// Whether to use strict mode. In strict mode, all the columns from query results must have a corresponding member in the given type.
+    /// </param>
+    public static void Register(Type targetType, DbObjectNameConvention columnNaming, bool strictMode = false)
+    {
+        SqlMapper.RemoveTypeMap(targetType);
+        SqlMapper.SetTypeMap(targetType, new DbConventionTypeMap(targetType, columnNaming, strictMode));
+    }
+    
+    /// <summary>
+    /// Registers a type map using the given naming convention.
+    /// </summary>
+    /// <param name="targetType">
+    /// The type to register the map for.
+    /// </param>
+    /// <param name="caseStyle">
+    /// The case style to use for the columns.
+    /// </param>
+    /// <param name="strictMode">
+    /// Whether to use strict mode. In strict mode, all the columns from query results must have a corresponding member in the given type.
+    /// </param>
+    public static void Register(Type targetType, CaseStyle? caseStyle, bool strictMode = false)
+        => Register(targetType, new DbObjectNameConvention(caseStyle, null, null), strictMode);
+
+    /// <summary>
+    /// Registers a type map using the given naming convention.
+    /// </summary>
+    /// <param name="targetType">
+    /// The type to register the map for.
+    /// </param>
+    /// <param name="caseStyle">
+    /// The case style to use for the columns.
+    /// </param>
+    /// <param name="prefix">
+    /// The prefix to use for the columns.
+    /// </param>
+    /// <param name="suffix">
+    /// The suffix to use for the columns.
+    /// </param>
+    /// <param name="strictMode">
+    /// Whether to use strict mode. In strict mode, all the columns from query results must have a corresponding member in the given type.
+    /// </param>
+    public static void Register(Type targetType, CaseStyle? caseStyle, string? prefix = null, string? suffix = null, bool strictMode = false)
+        => Register(targetType, new DbObjectNameConvention(caseStyle, prefix, suffix), strictMode);
 }

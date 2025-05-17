@@ -85,6 +85,8 @@ public class S02PostgresConventionTest : IClassFixture<S02PostgresConventionTest
         options.Conventions.Parameters.Naming.Prefix.ShouldBe("p_");
         
         options.Conventions.Enums.ValueFormat.ShouldBe(DbEnumFormat.Name);
+        
+        options.Conventions.Enums.NameTranslator.ShouldNotBeNull();
         options.Conventions.Enums.NameTranslator.MemberNameCaseStyle.ShouldBe(CaseStyle.UpperSnakeCase);
 
         var currencyMapping = options.Conventions.Enums.ResolveMapping<Currency>();
@@ -113,7 +115,7 @@ public class S02PostgresConventionTest : IClassFixture<S02PostgresConventionTest
         {
             using var connection = options.CreateConnection();
             customers = connection.GetFromRoutine<Customer>(
-                "crm.cst_get_by_filter",
+                "crm.fun_cst_get_by_filter",
                 new
                 {
                     SearchTerm = "@example.com"
