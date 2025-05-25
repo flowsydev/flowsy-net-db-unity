@@ -27,6 +27,11 @@ public class DbEnumConvention : DbConvention
     public DbEnumNameTranslator? NameTranslator { get; internal set; } = new ();
     
     /// <summary>
+    /// The collection of mappings for enum types to their database representations.
+    /// </summary>
+    public IEnumerable<DbEnumMapping> Mappings => _mappings.Values;
+    
+    /// <summary>
     /// Adds a mapping for a specific enum type to its database representation.
     /// </summary>
     /// <param name="mapping">
