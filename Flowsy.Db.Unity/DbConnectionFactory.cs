@@ -57,6 +57,29 @@ public class DbConnectionFactory : IDbConnectionFactory
     }
 
     /// <summary>
+    /// Obtains the DbConnectionOptions for the specified connection key.
+    /// </summary>
+    /// <param name="connectionKey">
+    /// The key that identifies the configuration to use to create the connection.
+    /// </param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the connection key is not found or does not match the expected key.
+    /// </exception>
+    protected DbConnectionOptions GetConnectionOptions(string connectionKey)
+    {
+        _optionsDictionary.TryGetValue(connectionKey, out var options);
+
+        if (options is null && _optionsSnapshot is not null)
+            options = _optionsSnapshot.Get(connectionKey);
+        
+        if (options is null || options.ConnectionKey != connectionKey)
+            throw new InvalidOperationException(string.Format(Strings.InvalidConnectionKeyX, connectionKey));
+        
+        return options;
+    }
+
+    /// <summary>
     /// Obtains a database connection using the DbConnectionOptions identified by the provided connection key.
     /// </summary>
     /// <param name="connectionKey">
@@ -66,15 +89,9 @@ public class DbConnectionFactory : IDbConnectionFactory
     /// A value indicating whether the connection should be opened.
     /// </param>
     /// <returns>A database connection.</returns>
-    public IDbConnection GetConnection(string connectionKey, bool open = false)
+    public virtual IDbConnection GetConnection(string connectionKey, bool open = false)
     {
-        _optionsDictionary.TryGetValue(connectionKey, out var options);
-
-        if (options is null && _optionsSnapshot is not null)
-            options = _optionsSnapshot.Get(connectionKey);
-        
-        if (options is null || options.ConnectionKey != connectionKey)
-            throw new InvalidOperationException(string.Format(Strings.InvalidConnectionKeyX, connectionKey));
+        var options = GetConnectionOptions(connectionKey);
 
         var provider = options.Provider;
         var connection = provider.Factory?.CreateConnection();
