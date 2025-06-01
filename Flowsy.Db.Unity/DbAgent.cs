@@ -85,7 +85,11 @@ public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
     /// <returns>
     /// A task that represents the asynchronous dispose operation.
     /// </returns>
-    public ValueTask DisposeAsync() => DisposeAsync(true);
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsync(true);
+        GC.SuppressFinalize(this);
+    }
 
     /// <summary>
     /// Asynchronously releases the resources used by the <see cref="DbAgent"/> instance.
