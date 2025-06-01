@@ -7,8 +7,8 @@ public interface IDbPrimaryUnitOfWork : IDbUnitOfWork;
 
 public class DbPrimaryUnitOfWork : DbUnitOfWork, IDbPrimaryUnitOfWork
 {
-    public DbPrimaryUnitOfWork(IOptionsSnapshot<DbConnectionOptions> optionsSnapshot, IDbConnectionScope connectionScope, ILogger<DbPrimaryUnitOfWork> logger)
-        : base(optionsSnapshot.Get("Primary"), connectionScope, logger)
+    public DbPrimaryUnitOfWork(IOptionsSnapshot<DbConnectionOptions> optionsSnapshot, IDbConnectionFactory connectionFactory, ILogger<DbPrimaryUnitOfWork> logger)
+        : base(optionsSnapshot.Get("Primary"), connectionFactory, logger)
     {
     }
 }

@@ -11,7 +11,7 @@ namespace Flowsy.Db.Unity;
 /// </summary>
 public class DbUnitOfWork : IDbUnitOfWork
 {
-    private readonly IDbConnectionScope? _connectionScope;
+    private readonly IDbConnectionFactory? _connectionFactory;
     private IDbConnection? _connection;
     private readonly ILogger? _logger;
     private bool _disposed;
@@ -37,16 +37,16 @@ public class DbUnitOfWork : IDbUnitOfWork
     /// <param name="connectionOptions">
     /// The connection options to be used for the unit of work.
     /// </param>
-    /// <param name="connectionScope">
-    /// The connection scope to be used for resolving the database connection.
+    /// <param name="connectionFactory">
+    /// The connection factory to be used for creating database connections.
     /// </param>
     /// <param name="logger">
     /// The logger to be used for logging events related to the unit of work.
     /// </param>
-    public DbUnitOfWork(DbConnectionOptions connectionOptions, IDbConnectionScope connectionScope, ILogger? logger = null)
+    public DbUnitOfWork(DbConnectionOptions connectionOptions, IDbConnectionFactory connectionFactory, ILogger? logger = null)
     {
         ConnectionOptions = connectionOptions;
-        _connectionScope = connectionScope;
+        _connectionFactory = connectionFactory;
         _logger = logger;
     }
     
@@ -78,8 +78,7 @@ public class DbUnitOfWork : IDbUnitOfWork
         if (disposing)
         {
             TryRollbackTransaction();
-            if (OwnsConnection && _connection is not null)
-                _connection.Dispose();
+            _connection?.Dispose();
         }
 
         _disposed = true;
@@ -108,13 +107,10 @@ public class DbUnitOfWork : IDbUnitOfWork
         if (disposing)
         {
             await TryRollbackTransactionAsync(CancellationToken.None);
-            if (OwnsConnection)
-            {
-                if (_connection is DbConnection dbConnection)
-                    await dbConnection.DisposeAsync();
-                else
-                    _connection?.Dispose();
-            }
+            if (_connection is DbConnection dbConnection)
+                await dbConnection.DisposeAsync();
+            else
+                _connection?.Dispose();
         }
         
         _disposed = true;
@@ -138,21 +134,17 @@ public class DbUnitOfWork : IDbUnitOfWork
             if (_connection is not null)
                 return _connection;
 
-            if (_connectionScope is not null)
+            if (_connectionFactory is not null)
             {
-                _connection = _connectionScope.GetConnection(ConnectionOptions.ConnectionKey);
+                _connection = _connectionFactory.GetConnection(ConnectionOptions.ConnectionKey, true);
                 return _connection;
             }
             
             _connection = ConnectionOptions.CreateConnection();
+            _connection.Open();
             return _connection;
         }
     }
-    
-    /// <summary>
-    /// Indicates whether this service owns the connection and must dispose of it when destroyed.
-    /// </summary>
-    protected bool OwnsConnection => _connectionScope is null;
 
     /// <summary>
     /// The underlying database transaction, if any.
