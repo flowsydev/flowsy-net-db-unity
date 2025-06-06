@@ -187,7 +187,10 @@ public class DbEnumConventionBuilder : DbConventionBuilder
     public DbEnumConventionBuilder UseMappings(params DbEnumMapping[] mappings)
     {
         foreach (var mapping in mappings)
+        {
+            mapping.Conventions = Parent.Conventions;
             Parent.Conventions.Enums.AddMapping(mapping);
+        }
         
         return this;
     }

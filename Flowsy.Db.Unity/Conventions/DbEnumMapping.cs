@@ -63,6 +63,29 @@ public class DbEnumMapping
     }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="DbEnumMapping"/> class.
+    /// </summary>
+    /// <param name="runtimeType">
+    /// The runtime type of the enum. This must be an enum type.
+    /// </param>
+    /// <param name="databaseTypeName">
+    /// The fully qualified name of the database type to which the enum type will be mapped.
+    /// </param>
+    /// <param name="nameTranslator">
+    /// The translator to be used for converting enum member names to database type names. This can be null, in which case no transformation will be applied when resolving names.
+    /// </param>
+    /// <remarks>
+    /// If no database type name nor name translator is provided, the runtime names will be used with no transformation.
+    /// </remarks>
+    /// <exception cref="ArgumentException">
+    /// Thrown when the provided runtime type is not an enum type.
+    /// </exception>
+    public DbEnumMapping(Type runtimeType, DbFullyQualifiedName? databaseTypeName, DbEnumNameTranslator? nameTranslator = null)
+        : this(runtimeType, databaseTypeName, nameTranslator, DbConventionSet.Default)
+    {
+    }
+
+    /// <summary>
     /// Gets the runtime type of the enum.
     /// </summary>
     public Type RuntimeType { get; }
@@ -80,13 +103,15 @@ public class DbEnumMapping
     /// <summary>
     /// Gets the set of conventions this mapping belongs to.
     /// </summary>
-    public DbConventionSet Conventions { get; }
+    public DbConventionSet Conventions { get; internal set; }
 }
 
 /// <summary>
 /// Represents a mapping between a runtime enum type and its corresponding database type.
 /// </summary>
-/// <typeparam name="TEnum"></typeparam>
+/// <typeparam name="TEnum">
+/// The type of the enum to be mapped. This must be a struct that implements <see cref="Enum"/>.
+/// </typeparam>
 public class DbEnumMapping<TEnum> : DbEnumMapping
     where TEnum : struct, Enum
 {
