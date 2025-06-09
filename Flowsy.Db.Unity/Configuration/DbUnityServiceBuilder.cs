@@ -93,9 +93,9 @@ public class DbUnityServiceBuilder
         {
             var optionsSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<DbConnectionOptions>>();
             var options = optionsSnapshot.Get(connectionKey);
-            var connectionScope = serviceProvider.GetRequiredService<IDbConnectionScope>();
+            var connectionFactory = serviceProvider.GetRequiredService<IDbConnectionFactory>();
             var logger = serviceProvider.GetService<ILogger<IDbAgent>>();
-            return new DbAgent(options, connectionScope, logger);
+            return new DbAgent(options, connectionFactory, logger);
         });
         return this;
     }
