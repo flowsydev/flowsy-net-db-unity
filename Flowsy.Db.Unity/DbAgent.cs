@@ -90,10 +90,25 @@ public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
     {
         if (_disposed) return;
         
-        if (disposing && OwnsConnection)
+        if (disposing && _connection is not null && OwnsConnection)
         {
-            _connection?.Dispose();
+            var databaseUrl = _connection.GetDatabaseUrl();
+            var agentTypeName = GetType().Name;
+
+            _logger?.LogTrace(
+                "[ {DatabaseUrl} ] {AgentTypeName} is disposing its connection",
+                databaseUrl,
+                agentTypeName
+            );
+
+            _connection.Dispose();
             _connection = null;
+
+            _logger?.LogTrace(
+                "[ {DatabaseUrl} ] {AgentTypeName} has disposed its connection",
+                databaseUrl,
+                agentTypeName
+            );
         }
         
         _disposed = true;
@@ -121,13 +136,29 @@ public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
     {
         if (_disposed) return;
         
-        if (disposing && OwnsConnection)
+        if (disposing && _connection is not null && OwnsConnection)
         {
+            var databaseUrl = _connection.GetDatabaseUrl();
+            var agentTypeName = GetType().Name;
+
+            _logger?.LogTrace(
+                "[ {DatabaseUrl} ] {AgentTypeName} is asynchronously disposing its connection",
+                databaseUrl,
+                agentTypeName
+            );
+
             if (_connection is IAsyncDisposable asyncDisposable)
                 await asyncDisposable.DisposeAsync();
             else
-                _connection?.Dispose();
+                _connection.Dispose();
+            
             _connection = null;
+
+            _logger?.LogTrace(
+                "[ {DatabaseUrl} ] {AgentTypeName} has asynchronously disposed its connection",
+                databaseUrl,
+                agentTypeName
+            );
         }
         
         _disposed = true;

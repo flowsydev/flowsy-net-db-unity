@@ -75,10 +75,26 @@ public class DbUnitOfWork : IDbUnitOfWork
         if (_disposed)
             return;
 
-        if (disposing)
+        if (disposing && _connection is not null)
         {
             TryRollbackTransaction();
-            _connection?.Dispose();
+            
+            var databaseUrl = _connection.GetDatabaseUrl();
+            var unitOfWorkTypeName = GetType().Name;
+
+            _logger?.LogTrace(
+                "[ {DatabaseUrl} ] {UnitOfWorkTypeName} is disposing its connection",
+                databaseUrl,
+                unitOfWorkTypeName
+            );
+            
+            _connection.Dispose();
+            
+            _logger?.LogTrace(
+                "[ {DatabaseUrl} ] {UnitOfWorkTypeName} disposed its connection",
+                databaseUrl,
+                unitOfWorkTypeName
+            );
         }
 
         _disposed = true;
@@ -104,13 +120,29 @@ public class DbUnitOfWork : IDbUnitOfWork
         if (_disposed)
             return;
 
-        if (disposing)
+        if (disposing && _connection is not null)
         {
             await TryRollbackTransactionAsync(CancellationToken.None);
+            
+            var databaseUrl = _connection.GetDatabaseUrl();
+            var unitOfWorkTypeName = GetType().Name;
+
+            _logger?.LogTrace(
+                "[ {DatabaseUrl} ] {UnitOfWorkTypeName} is asynchronously disposing its connection",
+                databaseUrl,
+                unitOfWorkTypeName
+            );
+            
             if (_connection is DbConnection dbConnection)
                 await dbConnection.DisposeAsync();
             else
-                _connection?.Dispose();
+                _connection.Dispose();
+            
+            _logger?.LogTrace(
+                "[ {DatabaseUrl} ] {UnitOfWorkTypeName} asynchronously disposed its connection",
+                databaseUrl,
+                unitOfWorkTypeName
+            );
         }
         
         _disposed = true;

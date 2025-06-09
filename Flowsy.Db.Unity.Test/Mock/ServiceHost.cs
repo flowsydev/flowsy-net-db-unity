@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using MySql.Data.MySqlClient;
 using Npgsql;
 using Serilog;
+using Serilog.Events;
 using Testcontainers.MySql;
 using Testcontainers.PostgreSql;
 
@@ -68,6 +69,7 @@ public class ServiceHost : IDisposable
 
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
+            .MinimumLevel.Override("Flowsy", LogEventLevel.Verbose)
             .WriteTo.Console()
             .CreateLogger();
 
