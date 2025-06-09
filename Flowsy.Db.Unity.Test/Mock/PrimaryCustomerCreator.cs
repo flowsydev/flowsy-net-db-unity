@@ -1,9 +1,11 @@
+using Flowsy.Db.Unity.Test.Mock.Model;
+
 namespace Flowsy.Db.Unity.Test.Mock;
 
 public interface IPrimaryCustomerRepository : IDbUnitOfWorkParticipant
 {
     IDbPrimaryAgent Agent { get; }
-    Task CreateCustomerAsync(string name, string email, DateTimeOffset createdAt, CancellationToken cancellationToken = default);
+    Task CreateCustomerAsync(string name, string email, CustomerStatus status, DateTimeOffset createdAt, CancellationToken cancellationToken = default);
 }
 
 public class PrimaryCustomerRepository : DbUnitOfWorkParticipant, IPrimaryCustomerRepository
@@ -15,11 +17,12 @@ public class PrimaryCustomerRepository : DbUnitOfWorkParticipant, IPrimaryCustom
     
     public IDbPrimaryAgent Agent { get; }
 
-    public Task CreateCustomerAsync(string name, string email, DateTimeOffset createdAt, CancellationToken cancellationToken = default)
+    public Task CreateCustomerAsync(string name, string email, CustomerStatus status, DateTimeOffset createdAt, CancellationToken cancellationToken = default)
         => Agent.ExecuteRoutineAsync("crm.cst_create", new
         {
             Name = name,
             Email = email,
+            Status = status,
             CreatedAt = createdAt,
         }, cancellationToken);
 

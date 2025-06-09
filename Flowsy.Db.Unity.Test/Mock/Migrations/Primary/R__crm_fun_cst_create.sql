@@ -5,6 +5,7 @@ create function fun_cst_create
 (
     p_name varchar,
     p_email varchar,
+    p_status customer_status,
     p_created_at timestamptz
 ) returns void as 
     $$
@@ -15,12 +16,14 @@ create function fun_cst_create
         (
             name,
             email,
+            status,
             created_at
         )
         values
         (
             p_name,
             p_email,
+            p_status,
             p_created_at
         );
     end;

@@ -128,21 +128,45 @@ public class DbParameterConvention : DbConvention
         var parameterName = ResolveParameterName(runtimeName);
 
         if (runtimeType is not {IsArray: true, HasElementType: true} || !provider.SupportsArrays)
-            return runtimeType.IsEnum
-                ? BuildDescriptorForEnum(parameterName, runtimeType)
+        {
+            if (!runtimeType.IsGenericType || runtimeType.GetGenericTypeDefinition() != typeof(Nullable<>))
+                return runtimeType.IsEnum
+                    ? BuildDescriptorForEnum(parameterName, runtimeType)
+                    : new DbParameterDescriptor(
+                        provider,
+                        parameterName,
+                        runtimeType,
+                        provider.GetDatabaseType(runtimeType)
+                    );
+            
+            var underlyingType = Nullable.GetUnderlyingType(runtimeType)!;
+            return underlyingType.IsEnum 
+                ? BuildDescriptorForEnum(parameterName, underlyingType)
                 : new DbParameterDescriptor(
                     provider,
                     parameterName,
-                    runtimeType,
-                    provider.GetDatabaseType(runtimeType)
+                    underlyingType,
+                    provider.GetDatabaseType(underlyingType)
                 );
+        }
         
         var elementType = runtimeType.GetElementType();
         if (elementType is not null)
         {
-            return elementType.IsEnum 
-                ? BuildDescriptorForEnum(parameterName, elementType, true)
-                : new DbParameterDescriptor(provider, parameterName, runtimeType, provider.GetDatabaseType(elementType));
+            if (!elementType.IsGenericType || elementType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                return elementType.IsEnum
+                    ? BuildDescriptorForEnum(parameterName, elementType, true)
+                    : new DbParameterDescriptor(provider, parameterName, runtimeType, provider.GetDatabaseType(elementType));
+            
+            var underlyingType = Nullable.GetUnderlyingType(elementType)!;
+            return underlyingType.IsEnum
+                ? BuildDescriptorForEnum(parameterName, underlyingType, true)
+                : new DbParameterDescriptor(
+                    provider,
+                    parameterName,
+                    runtimeType,
+                    provider.GetDatabaseType(underlyingType)
+                );
         }
 
         return runtimeType.IsEnum 

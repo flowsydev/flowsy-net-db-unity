@@ -55,6 +55,7 @@ public class S02PostgresConventionTest : IClassFixture<S02PostgresConventionTest
             .UsePrefix("p_")
             .ForEnums()
             .UseNames(CaseStyle.UpperSnakeCase)
+            .UseMapping<CustomerStatus>("crm.customer_status")
             .UseMapping<Currency>("kernel.currency")
             .Build();
         
@@ -118,7 +119,8 @@ public class S02PostgresConventionTest : IClassFixture<S02PostgresConventionTest
                 "crm.fun_cst_get_by_filter",
                 new
                 {
-                    SearchTerm = "@example.com"
+                    SearchTerm = "@example.com",
+                    Status = null as CustomerStatus?
                 }, 
                 null,
                 options.Conventions,

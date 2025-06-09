@@ -1,3 +1,4 @@
+using Flowsy.Core;
 using Flowsy.Db.Unity.Test.Extensions;
 using Flowsy.Db.Unity.Test.Mock;
 using Flowsy.Db.Unity.Test.Mock.Model;
@@ -29,6 +30,9 @@ public class S05PrimaryAgentTest
         using var scope = _serviceHost.ServiceProvider.CreateScope();
         var agent = scope.ServiceProvider.GetRequiredService<IDbPrimaryAgent>();
         _output.Subscribe(agent);
+        
+        var searchTerm = "@example.com";
+        CustomerStatus? status = CustomerStatus.Active;
 
         // Act
         Customer[]? customers = null;
@@ -37,7 +41,11 @@ public class S05PrimaryAgentTest
         {
             customers = agent.GetFromRoutine<Customer>(
                 "crm.cst_get_by_filter",
-                new {SearchTerm = "@example.com"}
+                new
+                {
+                    SearchTerm = searchTerm,
+                    Status = status,
+                }
             ).ToArray();
         }
         catch (Exception ex)
@@ -64,18 +72,24 @@ public class S05PrimaryAgentTest
         Exception? exception = null;
         try
         {
+            CustomerStatus ParseCustomerStatus(string rawValue) => (CustomerStatus) Enum.Parse(typeof(CustomerStatus), rawValue, true);
+
             customers = (
                 await agent.GetFromRoutineAsync<dynamic, dynamic, CustomerAuditable>(
                     "crm.cst_get_by_filter",
                     "created_at",
                     (c, a) => new CustomerAuditable(
-                        c.customer_id, c.name, c.email,
+                        c.customer_id, c.name, c.email, ParseCustomerStatus(c.status),
                         new AuditInfo(
                             new DateTimeOffset((DateTime) a.created_at),
                             a.modified_at != null ? new DateTimeOffset((DateTime) a.modified_at) : null
                             )
                     ),
-                    new {SearchTerm = "@example.com"}
+                    new
+                    {
+                        SearchTerm = "@example.com",
+                        Status = (CustomerStatus?) CustomerStatus.Active
+                    }
                 )
             ).ToArray();
         }

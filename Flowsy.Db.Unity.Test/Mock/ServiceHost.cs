@@ -98,6 +98,7 @@ public class ServiceHost : IDisposable
                             .UseFunctions(prefix: "fun_")
                             .UseProcedureNames(prefix: "pro_")
                             .ForEnums()
+                            .UseMapping<CustomerStatus>("crm.customer_status")
                             .UseMapping<Currency>("kernel.currency");
 
                         options

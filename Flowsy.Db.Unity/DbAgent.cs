@@ -132,6 +132,14 @@ public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
         
         _disposed = true;
     }
+
+    private void DisposeConnectionIfOwned()
+    {
+        if (!OwnsConnection) return;
+        
+        _connection?.Dispose();
+        _connection = null;
+    }
     
     /// <summary>
     /// The connection options to use for database operations.
@@ -178,7 +186,7 @@ public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
     /// <summary>
     /// Indicates whether this service owns the connection and must dispose of it when destroyed.
     /// </summary>
-    protected bool OwnsConnection => !IsParticipating && _connectionScope is null && _connectionFactory is null;
+    protected bool OwnsConnection => !IsParticipating && _connectionScope is null;
     
     /// <summary>
     /// Raised when a command is about to be executed.
@@ -249,11 +257,7 @@ public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
 
     public override void Join(IDbUnitOfWork unitOfWork)
     {
-        if (OwnsConnection)
-        {
-            _connection?.Dispose();
-            _connection = null;
-        }
+        DisposeConnectionIfOwned();
         base.Join(unitOfWork);
     }
 

@@ -45,8 +45,8 @@ public class S07PrimaryUnitOfWorkTest
             unitOfWork.BeginWork();
             
             unitOfWork.Involve(customerRepository);
-            await customerRepository.CreateCustomerAsync("John Lennon", "john.lennon@thebeatles.com", DateTimeOffset.Now);
-            await customerRepository.CreateCustomerAsync("Paul McCartney", "paul.mccartney@thebeatles.com", DateTimeOffset.Now);
+            await customerRepository.CreateCustomerAsync("John Lennon", "john.lennon@thebeatles.com", CustomerStatus.Active, DateTimeOffset.Now);
+            await customerRepository.CreateCustomerAsync("Paul McCartney", "paul.mccartney@thebeatles.com", CustomerStatus.Active, DateTimeOffset.Now);
             
             await unitOfWork.InvolveAsync(async (c, t, ct) =>
             {
@@ -54,6 +54,7 @@ public class S07PrimaryUnitOfWorkTest
                     {
                         Name = "George Harrison",
                         Email = "george.harrison@thebeatles.com",
+                        Status = (CustomerStatus?) CustomerStatus.Active,
                         CreatedAt = DateTimeOffset.Now,
                     },
                     t,
@@ -65,6 +66,7 @@ public class S07PrimaryUnitOfWorkTest
                     {
                         Name = "Ringo Starr",
                         Email = "ringo.starr@thebeatles.com",
+                        Status = (CustomerStatus?) CustomerStatus.Active,
                         CreatedAt = DateTimeOffset.Now,
                     },
                     t,
@@ -101,7 +103,8 @@ public class S07PrimaryUnitOfWorkTest
                 "crm.cst_get_by_filter",
                 new
                 {
-                    SearchTerm = "@thebeatles.com"
+                    SearchTerm = "@thebeatles.com",
+                    Status = (CustomerStatus?) CustomerStatus.Active,
                 }
             )).ToList();
         }
