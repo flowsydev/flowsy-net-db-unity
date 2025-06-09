@@ -221,7 +221,7 @@ public static partial class DbConnectionExtensions
         var commandDefinition = BuildCommandDefinition(routineName, routineType, parameters as object, true, transaction, conventions, cancellationToken);
         
         onExecuting?.Invoke(commandDefinition);
-        var result = await connection.QueryFirstAsync<T?>(commandDefinition);
+        var result = await connection.QueryFirstOrDefaultAsync<T?>(commandDefinition);
         return onExecuted is not null ? await onExecuted(commandDefinition, result) : result;
     }
 }
