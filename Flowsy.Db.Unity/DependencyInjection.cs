@@ -50,9 +50,7 @@ public static class DependencyInjection
                 .AddOptions<DbConnectionOptions>(connectionOptions.ConnectionKey)
                 .Configure(o => connectionOptions.CopyTo(o));
         }
-        
-        services.AddScoped<IDbConnectionScope, DbConnectionScope>();
-        
+         
         return new DbUnityServiceBuilder(services);;
     }
 }

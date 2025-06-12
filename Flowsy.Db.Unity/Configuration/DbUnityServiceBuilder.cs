@@ -1,6 +1,4 @@
-using System.Collections.ObjectModel;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -12,7 +10,6 @@ public class DbUnityServiceBuilder
 
     internal DbUnityServiceBuilder(IServiceCollection services)
     {
-        services.TryAddSingleton<IReadOnlyCollection<ServiceDescriptor>>(new ReadOnlyCollection<ServiceDescriptor>(services));
         _services = services;
     }
 
@@ -24,10 +21,10 @@ public class DbUnityServiceBuilder
     /// <returns></returns>
     public DbUnityServiceBuilder WithDefaultConnectionFactory()
     {
-        _services.AddScoped<IDbConnectionFactory>(serviceProvider =>
+        _services.AddSingleton<IDbConnectionFactory>(serviceProvider =>
         {
-            var optionsSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<DbConnectionOptions>>();
-            return new DbConnectionFactory(optionsSnapshot);
+            var optionsMonitor = serviceProvider.GetRequiredService<IOptionsMonitor<DbConnectionOptions>>();
+            return new DbConnectionFactory(optionsMonitor);
         });
         return this;
     }
@@ -89,7 +86,7 @@ public class DbUnityServiceBuilder
     /// </returns>
     public DbUnityServiceBuilder WithDefaultAgent(string? connectionKey = null)
     {
-        _services.AddTransient<IDbAgent>(serviceProvider =>
+        _services.AddScoped<IDbAgent>(serviceProvider =>
         {
             var optionsSnapshot = serviceProvider.GetRequiredService<IOptionsSnapshot<DbConnectionOptions>>();
             var options = optionsSnapshot.Get(connectionKey);
@@ -97,6 +94,9 @@ public class DbUnityServiceBuilder
             var logger = serviceProvider.GetService<ILogger<IDbAgent>>();
             return new DbAgent(options, connectionFactory, logger);
         });
+        
+        _services.AddSingleton<IDbAgentFactory, DbAgentFactory>();
+        
         return this;
     }
     
@@ -117,7 +117,7 @@ public class DbUnityServiceBuilder
         where TService : class, IDbAgent
         where TImplementation : DbAgent, TService
     {
-        _services.AddTransient<TService, TImplementation>();
+        _services.AddScoped<TService, TImplementation>();
         return this;
     }
     
@@ -135,7 +135,7 @@ public class DbUnityServiceBuilder
     public DbUnityServiceBuilder WithAgent<TService>(Func<IServiceProvider, TService> implementationFactory)
         where TService : class, IDbAgent
     {
-        _services.AddTransient(implementationFactory);
+        _services.AddScoped(implementationFactory);
         return this;
     }
 

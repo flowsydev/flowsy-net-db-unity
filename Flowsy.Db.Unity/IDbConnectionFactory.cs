@@ -19,4 +19,15 @@ public interface IDbConnectionFactory
     /// </param>
     /// <returns>A database connection.</returns>
     IDbConnection GetConnection(string connectionKey, bool open = false);
+    
+    /// <summary>
+    /// Gets the DbConnectionOptions for the specified connection key.
+    /// </summary>
+    /// <param name="connectionKey">
+    /// The key that identifies the configuration to use to create the connection options.
+    /// </param>
+    /// <returns>
+    /// The DbConnectionOptions associated with the specified connection key.
+    /// </returns>
+    DbConnectionOptions GetConnectionOptions(string connectionKey);
 }

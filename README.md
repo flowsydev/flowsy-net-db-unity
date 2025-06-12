@@ -67,11 +67,6 @@ to get connections and execute commands that comply with the conventions of your
 The `IDbConnectionFactory` interface is used to obtain database connections identified by a unique key.
 Consumers of this service must dispose of the connections when they are no longer needed.
 
-### IDbConnectionScope
-
-The `IDbConnectionScope` interface is meant to be used in scenarios where you need to manage the lifetime of a database connection within a given scope.
-Consumers of this service do not need to dispose of the connections, as they are automatically disposed of when the scope is disposed.
-
 ### IDbAgent
 
 The `IDbAgent` interface is used to execute SQL commands and retrieve data from a database using the options defined by a given `DbConnectionOptions` instance.
@@ -79,6 +74,13 @@ This interface defines a set of methods matching the extension methods for `IDbC
 The difference is that the methods of this interface require less parameters, since they are meant to use the options defined by the associated `DbConnectionOptions` instance to execute the commands.
 
 The default implementation of this interface is `DbAgent`, which uses services such as `DbConnectionOptions` and `IDbConnectionScope` to obtain a connection and execute the commands.
+
+### IDbAgentFactory
+
+The `IDbAgentFactory` interface is used to create instances of `IDbAgent` for a given connection key.
+This interface defines a single method `CreateAgent` that takes a connection key as a parameter and returns an instance of `IDbAgent`.
+Each agent created by the factory will handle its own connection, so consumers of this service must dispose of the agents when they are no longer needed.
+Since each agent will handle its own database connection, agents created by this factory can be used to execute parallel database operations without worrying about connection conflicts. 
 
 ### IDbUnitOfWork
 
@@ -342,7 +344,9 @@ app.Run();
 #### Agent and Unit of Work for Additional Connections
 
 The options for each connection are registered using the `IOptions<T>` pattern.
-This means that you can inject the `DbConnectionOptions` service in your classes and get the options for a given connection using the key you specified.
+This means that you can inject `IOptionsMonitor<DbConnectionOptions>` or `IOptionsSnapshot<DbConnectionOptions>` services in your classes and get the options for a given connection using the key you specified.
+
+**NOTE:** `IDbAgent` services are registered as scoped services, so you should use `IOptionsMonitor<DbConnectionOptions>` to get the options for a given connection.
 
 ##### Fictitious IDbSecondaryAgent
 ```csharp
@@ -350,8 +354,8 @@ public interface IDbSecondaryAgent : IDbAgent;
 
 public class DbSecondaryAgent : DbAgent, IDbSecondaryAgent
 {
-    public DbSecondaryAgent(IOptionsSnapshot<DbConnectionOptions> optionsSnapshot, ILogger<DbSecondaryAgent> logger)
-        : base(optionsSnapshot.Get("Secondary"), logger)
+    public DbSecondaryAgent(IOptionsMonitor<DbConnectionOptions> optionsMonitor, IDbConnectionFactory connectionFactory, ILogger<DbSecondaryAgent> logger)
+        : base(optionsMonitor.Get("Secondary"), connectionFactory, logger)
     {
     }
 }
@@ -363,8 +367,8 @@ public interface IDbSecondaryUnitOfWork : IDbUnitOfWork;
 
 public class DbSecondaryUnitOfWork : DbUnitOfWork, IDbSecondaryUnitOfWork
 {
-    public DbSecondaryUnitOfWork(IOptionsSnapshot<DbConnectionOptions> optionsSnapshot, IDbConnectionScope connectionScope, ILogger<DbSecondaryUnitOfWork> logger)
-        : base(optionsSnapshot.Get("Secondary"), connectionScope, logger)
+    public DbSecondaryUnitOfWork(IOptionsMonitor<DbConnectionOptions> optionsMonitor, IDbConnectionFactory connectionFactory, ILogger<DbSecondaryUnitOfWork> logger)
+        : base(optionsMonitor.Get("Secondary"), connectionFactory, logger)
     {
     }
 }

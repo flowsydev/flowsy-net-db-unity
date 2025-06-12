@@ -11,7 +11,6 @@ namespace Flowsy.Db.Unity;
 public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
 {
     private readonly IDbConnectionFactory? _connectionFactory;
-    private readonly IDbConnectionScope? _connectionScope;
     private IDbConnection? _connection;
     private readonly ILogger? _logger;
     private bool _disposed;
@@ -49,25 +48,24 @@ public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
         _connectionFactory = connectionFactory;
         _logger = logger;
     }
-    
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="DbAgent"/> class with the specified connection options, connection scope, and optional logger.
+    /// Initializes a new instance of the <see cref="DbAgent"/> class with the specified unit of work and optional logger.
     /// </summary>
-    /// <param name="connectionOptions">
-    /// The connection options to use for database operations.
-    /// </param>
-    /// <param name="connectionScope">
-    /// The connection scope to use for managing database connections.
+    /// <param name="unitOfWork">
+    /// The unit of work to join this agent with.
     /// </param>
     /// <param name="logger">
     /// An optional logger for logging database operations.
     /// </param>
-    public DbAgent(DbConnectionOptions connectionOptions, IDbConnectionScope connectionScope, ILogger? logger = null)
+    public DbAgent(IDbUnitOfWork unitOfWork, ILogger? logger = null)
     {
-        _connectionScope = connectionScope;
-        ConnectionOptions = connectionOptions;
+        ConnectionOptions = ((DbUnitOfWork) unitOfWork).ConnectionOptions;
         _logger = logger;
+        
+        base.Join(unitOfWork);
     }
+    
 
     ~DbAgent() => Dispose(false);
 
@@ -166,9 +164,9 @@ public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
 
     private void DisposeConnectionIfOwned()
     {
-        if (!OwnsConnection) return;
+        if (OwnsConnection)
+            _connection?.Dispose();
         
-        _connection?.Dispose();
         _connection = null;
     }
     
@@ -190,26 +188,13 @@ public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
             if (_connection is not null)
                 return _connection;
             
-            if (UnitOfWork is not null)
-            {
-                _connection = UnitOfWork.Connection;
-                return _connection;
-            }
+            _connection = UnitOfWork?.Connection ??
+                          _connectionFactory?.GetConnection(ConnectionOptions.ConnectionKey, true) ??
+                          ConnectionOptions.CreateConnection();
             
-            if (_connectionScope is not null)
-            {
-                _connection = _connectionScope.GetConnection(ConnectionOptions.ConnectionKey, true);
-                return _connection;
-            }
+            if (_connection.State == ConnectionState.Closed)
+                _connection.Open();
             
-            if (_connectionFactory is not null)
-            {
-                _connection = _connectionFactory.GetConnection(ConnectionOptions.ConnectionKey, true);
-                return _connection;
-            }
-            
-            _connection = ConnectionOptions.CreateConnection();
-            _connection.Open();
             return _connection;
         }
     } 
@@ -217,7 +202,7 @@ public partial class DbAgent : DbUnitOfWorkParticipant, IDbAgent
     /// <summary>
     /// Indicates whether this service owns the connection and must dispose of it when destroyed.
     /// </summary>
-    protected bool OwnsConnection => !IsParticipating && _connectionScope is null;
+    protected bool OwnsConnection => !IsParticipating;
     
     /// <summary>
     /// Raised when a command is about to be executed.

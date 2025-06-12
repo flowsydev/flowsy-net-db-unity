@@ -151,7 +151,7 @@ public class DbUnitOfWork : IDbUnitOfWork
     /// <summary>
     /// The connection options associated with this unit of work.
     /// </summary>
-    protected DbConnectionOptions ConnectionOptions { get; }
+    protected internal DbConnectionOptions ConnectionOptions { get; }
 
     /// <summary>
     /// The database connection associated with this unit of work.

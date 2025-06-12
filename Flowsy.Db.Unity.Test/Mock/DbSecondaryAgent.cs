@@ -7,8 +7,8 @@ public interface IDbSecondaryAgent : IDbAgent;
 
 public class DbSecondaryAgent : DbAgent, IDbSecondaryAgent
 {
-    public DbSecondaryAgent(IOptionsSnapshot<DbConnectionOptions> optionsSnapshot, ILogger<DbSecondaryAgent> logger)
-        : base(optionsSnapshot.Get("Secondary"), logger)
+    public DbSecondaryAgent(IOptionsMonitor<DbConnectionOptions> optionsMonitor, IDbConnectionFactory connectionFactory, ILogger<DbSecondaryAgent> logger)
+        : base(optionsMonitor.Get("Secondary"), connectionFactory, logger)
     {
     }
 }

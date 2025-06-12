@@ -12,7 +12,7 @@ namespace Flowsy.Db.Unity;
 public class DbConnectionFactory : IDbConnectionFactory
 {
     private readonly ConcurrentDictionary<string, DbConnectionOptions> _optionsDictionary = new();
-    private readonly IOptionsSnapshot<DbConnectionOptions>? _optionsSnapshot;
+    private readonly IOptionsMonitor<DbConnectionOptions>? _optionsMonitor;
 
     protected DbConnectionFactory()
     {
@@ -33,13 +33,13 @@ public class DbConnectionFactory : IDbConnectionFactory
     /// <summary>
     /// Creates a new instance of the DbConnectionFactory class.
     /// </summary>
-    /// <param name="optionsSnapshot">
+    /// <param name="optionsMonitor">
     /// An IOptionsSnapshot of DbConnectionOptions to register with the factory.
     /// Each named option is expected to have a name matching the connection key of its corresponding DbConnectionOptions instance.
     /// </param>
-    public DbConnectionFactory(IOptionsSnapshot<DbConnectionOptions> optionsSnapshot)
+    public DbConnectionFactory(IOptionsMonitor<DbConnectionOptions> optionsMonitor)
     {
-        _optionsSnapshot = optionsSnapshot;
+        _optionsMonitor = optionsMonitor;
     }
 
     private void RegisterOptions(DbConnectionOptions options)
@@ -57,21 +57,20 @@ public class DbConnectionFactory : IDbConnectionFactory
     }
 
     /// <summary>
-    /// Obtains the DbConnectionOptions for the specified connection key.
+    /// Gets the DbConnectionOptions for the specified connection key.
     /// </summary>
     /// <param name="connectionKey">
-    /// The key that identifies the configuration to use to create the connection.
+    /// The key that identifies the configuration to use to create the connection options.
     /// </param>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown when the connection key is not found or does not match the expected key.
-    /// </exception>
-    protected DbConnectionOptions GetConnectionOptions(string connectionKey)
+    /// <returns>
+    /// The DbConnectionOptions associated with the specified connection key.
+    /// </returns>
+    public DbConnectionOptions GetConnectionOptions(string connectionKey)
     {
         _optionsDictionary.TryGetValue(connectionKey, out var options);
 
-        if (options is null && _optionsSnapshot is not null)
-            options = _optionsSnapshot.Get(connectionKey);
+        if (options is null && _optionsMonitor is not null)
+            options = _optionsMonitor.Get(connectionKey);
         
         if (options is null || options.ConnectionKey != connectionKey)
             throw new InvalidOperationException(string.Format(Strings.InvalidConnectionKeyX, connectionKey));
