@@ -1,17 +1,17 @@
 namespace Flowsy.Db.Unity;
 
 /// <summary>
-/// Available formats to handle DateTimeOffset values.
+/// Specifies the time zone format for DateTimeOffset values when stored in the database.
 /// </summary>
 public enum DbDateTimeOffsetFormat
 {
     /// <summary>
-    /// Central time zone
+    /// DateTimeOffset values are converted and stored in UTC time.
     /// </summary>
     Utc,
     
     /// <summary>
-    /// Local time zone
+    /// DateTimeOffset values are stored in local time preserving the time zone.
     /// </summary>
     Local
 }

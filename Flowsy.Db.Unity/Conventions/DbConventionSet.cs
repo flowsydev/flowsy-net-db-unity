@@ -1,150 +1,171 @@
-using Flowsy.Core;
-
 namespace Flowsy.Db.Unity.Conventions;
 
 /// <summary>
-/// Represents a set of conventions for database operations.
-/// A set of conventions defines naming preferences and other options to be used when executing database queries and commands.
+/// Represents a database convention set that defines how to interact with database objects.
 /// </summary>
-public class DbConventionSet
+public record DbConventionSet
 {
     /// <summary>
-    /// The default convention set that is used when no specific conventions are provided.
+    /// Default convention set that uses generic configurations.
     /// </summary>
-    public static DbConventionSet Default { get; set; } = new (DbProviderDescriptor.Generic);
+    public static readonly DbConventionSet Default = new();
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DbConventionSet"/> class.
+    /// Initializes a new instance of the <see cref="DbConventionSet"/> class with default values.
     /// </summary>
-    /// <param name="provider">
-    /// The database provider descriptor for which the conventions are defined.
-    /// </param>
-    internal DbConventionSet(DbProviderDescriptor provider)
+    private DbConventionSet()
     {
-        Provider = provider;
-        if (ReferenceEquals(Default, null))
-        {
-            Routines = new DbRoutineConvention(this);
-            Parameters = new DbParameterConvention(this);
-            Enums = new DbEnumConvention(this);
-            DateTime = new DbDateTimeConvention(this);
-            Commands = new DbCommandConvention(this);
-        }
-        else
-        {
-            Routines = Default.Routines.Clone(this);
-            Parameters = Default.Parameters.Clone(this);
-            Enums = Default.Enums.Clone(this);
-            DateTime = Default.DateTime.Clone(this);
-            Commands = Default.Commands.Clone(this);
-        }
+        Provider = DbProviderDescriptor.Generic;
+        Routines = DbRoutineConvention.Default with { ConventionSet = this };
+        Parameters = DbParameterConvention.Default with { ConventionSet = this };
+        Enums = DbEnumConvention.Default with { ConventionSet = this };
+        DateTime = DbDateTimeConvention.Default;
+        Commands = DbCommandConvention.Default with { ConventionSet = this };
+        DefaultCaseStyle = DbCaseStyle.None;
     }
 
-    internal DbConventionSet(
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DbConventionSet"/> class with specific configurations.
+    /// </summary>
+    /// <param name="provider">
+    /// Data provider descriptor for which these conventions apply.
+    /// </param>
+    /// <param name="routines">
+    /// Conventions for database routines (stored procedures and functions).
+    /// If <c>null</c>, default conventions are used.
+    /// </param>
+    /// <param name="parameters">
+    /// Conventions for database parameters.
+    /// If <c>null</c>, default conventions are used.
+    /// </param>
+    /// <param name="enums">
+    /// Conventions for database enum types.
+    /// If <c>null</c>, default conventions are used.
+    /// </param>
+    /// <param name="dateTime">
+    /// Conventions for DateTime and DateTimeOffset types.
+    /// If <c>null</c>, default conventions are used.
+    /// </param>
+    /// <param name="commands">
+    /// Conventions for database commands.
+    /// If <c>null</c>, default conventions are used.
+    /// </param>
+    /// <param name="defaultCaseStyle">
+    /// Default naming style to apply when no specific one is specified.
+    /// If <c>null</c>, <see cref="DbCaseStyle.None"/> is used.
+    /// </param>
+    public DbConventionSet(
         DbProviderDescriptor provider,
-        DbRoutineConvention routines,
-        DbParameterConvention parameters,
-        DbEnumConvention enums,
-        DbDateTimeConvention dateTime,
-        DbCommandConvention commands
+        DbRoutineConvention? routines = null,
+        DbParameterConvention? parameters = null,
+        DbEnumConvention? enums = null,
+        DbDateTimeConvention? dateTime = null,
+        DbCommandConvention? commands = null,
+        DbCaseStyle? defaultCaseStyle = null
         )
     {
         Provider = provider;
-        Routines = routines;
-        Parameters = parameters;
-        Enums = enums;
-        DateTime = dateTime;
-        Commands = commands;
+        Routines = (routines ?? DbRoutineConvention.Default) with { ConventionSet = this };
+        Parameters = (parameters ?? DbParameterConvention.Default) with { ConventionSet = this };
+        Enums = (enums ?? DbEnumConvention.Default) with { ConventionSet = this };
+        DateTime = (dateTime ?? DbDateTimeConvention.Default) with { ConventionSet = this };
+        Commands = (commands ?? DbCommandConvention.Default) with { ConventionSet = this };
+        DefaultCaseStyle = defaultCaseStyle ?? DbCaseStyle.None;
     }
 
     /// <summary>
-    /// Represents the database provider for which the conventions are defined.
+    /// Gets the database provider descriptor for which these conventions apply.
     /// </summary>
-    public DbProviderDescriptor Provider { get; internal set; }
+    public DbProviderDescriptor Provider { get; init; }
     
     /// <summary>
-    /// The default case style to be used for database object names.
+    /// Gets the conventions for database routines (stored procedures and functions).
     /// </summary>
-    public CaseStyle? DefaultCaseStyle { get; internal set; }
+    public DbRoutineConvention Routines { get; init; }
     
     /// <summary>
-    /// The conventions for database routines, including stored procedures and functions.
+    /// Gets the conventions for database parameters.
     /// </summary>
-    public DbRoutineConvention Routines { get; internal set; }
+    public DbParameterConvention Parameters { get; init; }
     
     /// <summary>
-    /// The conventions for database parameters.
+    /// Gets the conventions for database enum types.
     /// </summary>
-    public DbParameterConvention Parameters { get; internal set; }
+    public DbEnumConvention Enums { get; init; }
     
     /// <summary>
-    /// The conventions for enum types.
+    /// Gets the conventions for DateTime and DateTimeOffset types.
     /// </summary>
-    public DbEnumConvention Enums { get; internal set; }
+    public DbDateTimeConvention DateTime { get; init; }
     
     /// <summary>
-    /// The conventions for date and time types.
+    /// Gets the conventions for database commands.
     /// </summary>
-    public DbDateTimeConvention DateTime { get; internal set; }
+    public DbCommandConvention Commands { get; init; }
     
     /// <summary>
-    /// The conventions for executing database commands.
+    /// Gets the default naming style to apply when no specific one is specified.
     /// </summary>
-    public DbCommandConvention Commands { get; internal set; }
+    public DbCaseStyle DefaultCaseStyle { get; init; }
 
     /// <summary>
-    /// Copies the conventions from this instance to another instance of <see cref="DbConventionSet"/>.
+    /// Deconstructs the convention set into its main components for routines and commands.
     /// </summary>
-    /// <param name="other"></param>
-    public void CopyTo(DbConventionSet other)
+    /// <param name="routines">
+    /// The conventions for database routines.
+    /// </param>
+    /// <param name="commands">
+    /// The conventions for database commands.
+    /// </param>
+    public void Deconstruct(
+        out DbRoutineConvention routines,
+        out DbCommandConvention commands
+        )
     {
-        other.Provider = Provider;
-        other.DefaultCaseStyle = DefaultCaseStyle;
-        Routines.CopyTo(other.Routines);
-        Parameters.CopyTo(other.Parameters);
-        Enums.CopyTo(other.Enums);
-        DateTime.CopyTo(other.DateTime);
-        Commands.CopyTo(other.Commands);
+        routines = Routines;
+        commands = Commands;
     }
-    
+
     /// <summary>
-    /// Creates a clone of the current <see cref="DbConventionSet"/> instance.
-    /// </summary>
-    /// <returns></returns>
-    public DbConventionSet Clone()
-    {
-        var clone = new DbConventionSet(Provider);
-        CopyTo(clone);
-        return clone;
-    }
-    
-    /// <summary>
-    /// Creates a new <see cref="DbConventionSetBuilder"/> instance for configuring a set of conventions.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="DbConventionSetBuilder"/> instance for configuring the conventions.
-    /// </returns>
-    public static DbConventionSetBuilder CreateBuilder() => new (DbConventionSet.Default.Clone());
-    
-    /// <summary>
-    /// Creates a new <see cref="DbConventionSetBuilder"/> instance for configuring a set of conventions.
+    /// Deconstructs the convention set into all its components.
     /// </summary>
     /// <param name="provider">
-    /// The database provider descriptor for which the conventions are defined.
+    /// The database provider descriptor.
     /// </param>
-    /// <returns>
-    /// A <see cref="DbConventionSetBuilder"/> instance for configuring the conventions.
-    /// </returns>
-    public static DbConventionSetBuilder CreateBuilder(DbProviderDescriptor provider) => new (provider);
-    
-    /// <summary>
-    /// Creates a new <see cref="DbConventionSetBuilder"/> instance for configuring a set of conventions based on an existing convention set.
-    /// </summary>
-    /// <param name="conventions">
-    /// The existing <see cref="DbConventionSet"/> instance to be used as a base for the new builder.
+    /// <param name="routines">
+    /// The conventions for database routines.
     /// </param>
-    /// <returns>
-    /// A <see cref="DbConventionSetBuilder"/> instance for configuring the conventions.
-    /// </returns>
-    public static DbConventionSetBuilder CreateBuilder(DbConventionSet conventions) => new (conventions);
+    /// <param name="parameters">
+    /// The conventions for database parameters.
+    /// </param>
+    /// <param name="enums">
+    /// The conventions for database enum types.
+    /// </param>
+    /// <param name="dateTime">
+    /// The conventions for DateTime and DateTimeOffset types.
+    /// </param>
+    /// <param name="commands">
+    /// The conventions for database commands.
+    /// </param>
+    /// <param name="defaultCaseStyle">
+    /// The default naming style.
+    /// </param>
+    public void Deconstruct(
+        out DbProviderDescriptor provider,
+        out DbRoutineConvention routines,
+        out DbParameterConvention parameters,
+        out DbEnumConvention enums,
+        out DbDateTimeConvention dateTime,
+        out DbCommandConvention commands,
+        out DbCaseStyle defaultCaseStyle
+        )
+    {
+        provider = Provider;
+        routines = Routines;
+        parameters = Parameters;
+        enums = Enums;
+        dateTime = DateTime;
+        commands = Commands;
+        defaultCaseStyle = DefaultCaseStyle;
+    }
 }

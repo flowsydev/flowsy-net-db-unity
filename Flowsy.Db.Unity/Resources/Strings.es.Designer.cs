@@ -206,5 +206,89 @@ namespace Flowsy.Db.Unity.Resources {
                 return ResourceManager.GetString("NoMatchingConstructorFoundForTypeX", resourceCulture);
             }
         }
+        
+        internal static string FailedToCreateConnectionForProviderX {
+            get {
+                return ResourceManager.GetString("FailedToCreateConnectionForProviderX", resourceCulture);
+            }
+        }
+        
+        internal static string DatabaseProviderMustBeSet {
+            get {
+                return ResourceManager.GetString("DatabaseProviderMustBeSet", resourceCulture);
+            }
+        }
+        
+        internal static string ConnectionKeyMustBeSet {
+            get {
+                return ResourceManager.GetString("ConnectionKeyMustBeSet", resourceCulture);
+            }
+        }
+        
+        internal static string ConnectionStringMustBeSet {
+            get {
+                return ResourceManager.GetString("ConnectionStringMustBeSet", resourceCulture);
+            }
+        }
+        
+        internal static string NoConnectionConfigurationsProvided {
+            get {
+                return ResourceManager.GetString("NoConnectionConfigurationsProvided", resourceCulture);
+            }
+        }
+        
+        internal static string NoDefaultConnectionConfigurationFound {
+            get {
+                return ResourceManager.GetString("NoDefaultConnectionConfigurationFound", resourceCulture);
+            }
+        }
+        
+        internal static string CouldNotResolveDefaultConnectionConfiguration {
+            get {
+                return ResourceManager.GetString("CouldNotResolveDefaultConnectionConfiguration", resourceCulture);
+            }
+        }
+        
+        internal static string ConfigurationNotFoundForConnectionIdentifiedByX {
+            get {
+                return ResourceManager.GetString("ConfigurationNotFoundForConnectionIdentifiedByX", resourceCulture);
+            }
+        }
+        
+        internal static string SessionForConnectionXNotParticipatingInTransaction {
+            get {
+                return ResourceManager.GetString("SessionForConnectionXNotParticipatingInTransaction", resourceCulture);
+            }
+        }
+        
+        internal static string SessionForConnectionXIsAlreadyParticipatingInTransaction {
+            get {
+                return ResourceManager.GetString("SessionForConnectionXIsAlreadyParticipatingInTransaction", resourceCulture);
+            }
+        }
+        
+        internal static string ScriptXNotFound {
+            get {
+                return ResourceManager.GetString("ScriptXNotFound", resourceCulture);
+            }
+        }
+        
+        internal static string NoMigrationConfigurationProvided {
+            get {
+                return ResourceManager.GetString("NoMigrationConfigurationProvided", resourceCulture);
+            }
+        }
+        
+        internal static string DirectoryXNotFound {
+            get {
+                return ResourceManager.GetString("DirectoryXNotFound", resourceCulture);
+            }
+        }
+        
+        internal static string ConnectionXIsNotDbConnection {
+            get {
+                return ResourceManager.GetString("ConnectionXIsNotDbConnection", resourceCulture);
+            }
+        }
     }
 }

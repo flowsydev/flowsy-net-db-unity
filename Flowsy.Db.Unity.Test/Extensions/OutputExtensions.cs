@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Reflection;
 using Dapper;
-using Flowsy.Db.Unity.Extensions;
 using Xunit.Abstractions;
 
 namespace Flowsy.Db.Unity.Test.Extensions;
@@ -68,75 +67,6 @@ public static class OutputExtensions
         }
     }
 
-    public static void WriteFullPath(this ITestOutputHelper outputHelper, DbFullyQualifiedName fullyQualifiedName)
-    {
-        var root = fullyQualifiedName;
-        while (root.Parent is not null)
-            root = root.Parent;
-
-        outputHelper.Write(root);
-    }
-
-    public static void Write(this ITestOutputHelper outputHelper, DbFullyQualifiedName fullyQualifiedName)
-    {
-        var next = fullyQualifiedName;
-        while (true)
-        {
-            outputHelper.WriteHeader(next.ToString());
-
-            foreach (var part in next.Parts)
-                outputHelper.WriteLine("Part: {0}", part);
-
-            if (next.Child is null) return;
-
-            outputHelper.WriteEmptyLine();
-            next = next.Child;
-        }
-    }
-
-    public static void Write(this ITestOutputHelper outputHelper, DbRoutineDescriptor routineDescriptor)
-    {
-        outputHelper.WriteHeader("Routine Description");
-        outputHelper.WriteLine("Provider: {0}", routineDescriptor.Provider.Family);
-        outputHelper.WriteLine("Name: {0}", routineDescriptor.FullyQualifiedName);
-        outputHelper.WriteLine("Type: {0}", routineDescriptor.Type);
-        outputHelper.WriteLine("Is Procedure: {0}", routineDescriptor.IsProcedure);
-        outputHelper.WriteLine("Is Function: {0}", routineDescriptor.IsFunction);
-        outputHelper.WriteLine("Command Text: {0}", routineDescriptor.CommandText);
-        outputHelper.WriteLine("Command Type: {0}", routineDescriptor.CommandType);
-        outputHelper.WriteLine("Returns Table: {0}", routineDescriptor.ReturnsTable);
-        outputHelper.Write(routineDescriptor.Parameters);
-        outputHelper.WriteEmptyLine();
-    }
-
-    public static void Write(this ITestOutputHelper outputHelper, IEnumerable<DbParameterDescriptor> parameterDescriptors)
-    {
-        var parameters = parameterDescriptors.ToArray();
-        outputHelper.WriteLine("Parameters ({0}):", parameters.Length);
-        foreach (var parameter in parameters)
-            Write(outputHelper, parameter, false, 2);
-        
-        outputHelper.WriteEmptyLine();
-    }
-    
-    public static void Write(this ITestOutputHelper outputHelper, DbParameterDescriptor parameterDescriptor, bool includeHeader = false, int indent = 0)
-    {
-        if (includeHeader)
-            outputHelper.WriteHeader("Parameter Description");
-        
-        var indentation = new string(' ', indent);
-        outputHelper.WriteLine("{0}Provider: {1}", indentation, parameterDescriptor.Provider.Family);
-        outputHelper.WriteLine("{0}Name: {1}", indentation, parameterDescriptor.Name);
-        outputHelper.WriteLine("{0}Runtime Type: {1}", indentation, parameterDescriptor.RuntimeType.Name);
-        outputHelper.WriteLine("{0}Database Type: {1}", indentation, parameterDescriptor.DatabaseType);
-        outputHelper.WriteLine("{0}Custom Type: {1}", indentation, parameterDescriptor.CustomType);
-        outputHelper.WriteLine("{0}Direction: {1}", indentation, parameterDescriptor.Direction);
-        outputHelper.WriteLine("{0}Size: {1}", indentation, parameterDescriptor.Size);
-        outputHelper.WriteLine("{0}Precision: {1}", indentation, parameterDescriptor.Precision);
-        outputHelper.WriteLine("{0}Scale: {1}", indentation, parameterDescriptor.Scale);
-        outputHelper.WriteEmptyLine();
-    }
-
     public static void Write(this ITestOutputHelper outputHelper, CommandDefinition commandDefinition, object? result = null, string? header = null)
     {
         outputHelper.WriteHeader(header ?? "Command Definition");
@@ -200,45 +130,5 @@ public static class OutputExtensions
     {
         outputHelper.Write(commandDefinition, result as object, header);
         return result;
-    }
-
-    public static void Subscribe(this ITestOutputHelper outputHelper, IDbAgent dbAgent)
-    {
-        dbAgent.CommandExecuting += (sender, e) =>
-        {
-            outputHelper.Write(e.CommandDefinition, null, "Command Executing");
-        };
-        
-        dbAgent.CommandExecuted += (sender, e) =>
-        {
-            outputHelper.Write(e.CommandDefinition, e.Result, "Command Executed");
-        };
-    }
-
-    public static void Subscribe(this ITestOutputHelper outputHelper, IDbUnitOfWork unitOfWork)
-    {
-        unitOfWork.WorkBegun += (sender, e) =>
-        {
-            var uow = (IDbUnitOfWork)sender!;
-            outputHelper.WriteHeader("Unit of Work Begun");
-            outputHelper.WriteLine("Database: {0}", uow.Connection.GetDatabaseUrl());
-            outputHelper.WriteEmptyLine();
-        };
-        
-        unitOfWork.WorkCompleted += (sender, e) =>
-        {
-            var uow = (IDbUnitOfWork)sender!;
-            outputHelper.WriteHeader("Unit of Work Completed");
-            outputHelper.WriteLine("Database: {0}", uow.Connection.GetDatabaseUrl());
-            outputHelper.WriteEmptyLine();
-        };
-        
-        unitOfWork.WorkDiscarded += (sender, e) =>
-        {
-            var uow = (IDbUnitOfWork)sender!;
-            outputHelper.WriteHeader("Unit of Work Discarded");
-            outputHelper.WriteLine("Database: {0}", uow.Connection.GetDatabaseUrl());
-            outputHelper.WriteEmptyLine();
-        };
     }
 }

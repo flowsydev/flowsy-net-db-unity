@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Global", "Global", "{A56B13
 		publish.sh = publish.sh
 		README.md = README.md
 		CHANGELOG.md = CHANGELOG.md
+		COPILOT.md = COPILOT.md
 	EndProjectSection
 EndProject
 Global

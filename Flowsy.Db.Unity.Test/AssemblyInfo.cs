@@ -11,5 +11,3 @@ using Xunit.Extensions.Ordering;
 [assembly: TestCaseOrderer("Xunit.Extensions.Ordering.TestCaseOrderer", "Xunit.Extensions.Ordering")]
 
 [assembly: AssemblyFixture(typeof(ServiceHost))]
-
-[assembly: AssemblyFixture(typeof(GlobalModel))]

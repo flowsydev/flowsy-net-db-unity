@@ -1,12 +1,5 @@
-using System.Reflection;
-using Flowsy.Core;
-using Flowsy.Db.Unity.Test.Mock.Model;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using MySql.Data.MySqlClient;
 using Npgsql;
 using Serilog;
 using Serilog.Events;
@@ -57,7 +50,7 @@ public class ServiceHost : IDisposable
         PostgresConnectionString = postgresConnectionStringBuilder.ToString();
         MySqlConnectionString = _mySqlContainer.GetConnectionString();
 
-        {
+        /*{
             using var connection = new NpgsqlConnection(PostgresConnectionString);
             connection.Migrate(Path.Combine("Mock", "Migrations", "Primary"));
         }
@@ -65,7 +58,7 @@ public class ServiceHost : IDisposable
         {
             using var connection = new MySqlConnection(MySqlConnectionString);
             connection.Migrate(Path.Combine("Mock", "Migrations", "Secondary"));
-        }
+        }*/
 
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
@@ -76,61 +69,7 @@ public class ServiceHost : IDisposable
         _host = Host.CreateDefaultBuilder()
             .ConfigureServices(services =>
             {
-                services
-                    .AddDbUnity(options =>
-                    {
-                        options.UseDefaultConventions(conventions =>
-                        {
-                            conventions
-                                .UseDefaultCaseStyle(CaseStyle.LowerSnakeCase)
-                                .ForParameters()
-                                .UsePrefix("p_")
-                                .ForEnums()
-                                .UseValueFormat(DbEnumFormat.Name)
-                                .UseNames(CaseStyle.UpperSnakeCase);
-                        });
-                        
-                        options
-                            .UseConnection("Primary")
-                            .AsDefault()
-                            .WithProvider(DbProviderFamily.Postgres, "Npgsql", NpgsqlFactory.Instance)
-                            .WithConnectionString(postgresConnectionStringBuilder.ToString())
-                            .WithConventions()
-                            .ForRoutines()
-                            .UseFunctions(prefix: "fun_")
-                            .UseProcedureNames(prefix: "pro_")
-                            .ForEnums()
-                            .UseMapping<CustomerStatus>("crm.customer_status")
-                            .UseMapping<Currency>("kernel.currency");
-
-                        options
-                            .UseConnection("Secondary")
-                            .WithProvider(DbProviderFamily.MySql, "MySql.Data.MySqlClient", MySqlClientFactory.Instance)
-                            .WithConnectionString(MySqlConnectionString)
-                            .WithConventions()
-                            .ForRoutines()
-                            .UseProcedures(prefix: "pro_");
-                        
-                        options.MapTypes(o =>
-                        {
-                            var readModelInterfaceType = typeof(IReadModel);
-                            var readModelTypes = Assembly.GetExecutingAssembly()
-                                .GetTypes()
-                                .Where(t => readModelInterfaceType.IsAssignableFrom(t) && t is {IsAbstract: false, IsInterface: false});
-                            
-                            o.AddTypeGroup(CaseStyle.LowerSnakeCase, readModelTypes.ToArray());
-                            o.StrictMode = false;
-                        });
-                    })
-                    .WithDefaultConnectionFactory()
-                    .WithDefaultAgent()
-                    .WithDefaultUnitOfWork()
-                    .WithAgent<IDbPrimaryAgent, DbPrimaryAgent>()
-                    .WithUnitOfWork<IDbPrimaryUnitOfWork, DbPrimaryUnitOfWork>()
-                    .WithAgent<IDbSecondaryAgent, DbSecondaryAgent>()
-                    .WithUnitOfWork<IDbSecondaryUnitOfWork, DbSecondaryUnitOfWork>();
                 
-                services.AddScoped<IPrimaryCustomerRepository, PrimaryCustomerRepository>();
             })
             .UseSerilog()
             .Build();

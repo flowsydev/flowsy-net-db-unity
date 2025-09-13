@@ -99,4 +99,46 @@
     <data name="NoMatchingConstructorFoundForTypeX" xml:space="preserve">
         <value>No se encontró un constructor apropiado para el tipo {0}.</value>
     </data>
+    <data name="FailedToCreateConnectionForProviderX" xml:space="preserve">
+        <value>Error al crear conexión para el proveedor {0}.</value>
+    </data>
+    <data name="DatabaseProviderMustBeSet" xml:space="preserve">
+        <value>Debe establecerse el proveedor de base de datos.</value>
+    </data>
+    <data name="ConnectionKeyMustBeSet" xml:space="preserve">
+        <value>Debe establecerse la clave de conexión.</value>
+    </data>
+    <data name="ConnectionStringMustBeSet" xml:space="preserve">
+        <value>Debe establecerse la cadena de conexión.</value>
+    </data>
+    <data name="NoConnectionConfigurationsProvided" xml:space="preserve">
+        <value>No se proporcionaron configuraciones de conexiones.</value>
+    </data>
+    <data name="NoDefaultConnectionConfigurationFound" xml:space="preserve">
+        <value>No se encontró la configuración de conexión predeterminada.</value>
+    </data>
+    <data name="CouldNotResolveDefaultConnectionConfiguration" xml:space="preserve">
+        <value>No se pudo resolver la configuración de conexión predeterminada.</value>
+    </data>
+    <data name="ConfigurationNotFoundForConnectionIdentifiedByX" xml:space="preserve">
+        <value>Configuración no encontrada para la conexión identificada por {0}.</value>
+    </data>
+    <data name="SessionForConnectionXNotParticipatingInTransaction" xml:space="preserve">
+        <value>La sesión para la conexión {0} no está participando en una transacción.</value>
+    </data>
+    <data name="SessionForConnectionXIsAlreadyParticipatingInTransaction" xml:space="preserve">
+        <value>La sesión para la conexión {0} ya está participando en una transacción.</value>
+    </data>
+    <data name="ScriptXNotFound" xml:space="preserve">
+        <value>Script {0} no encontrado.</value>
+    </data>
+    <data name="NoMigrationConfigurationProvided" xml:space="preserve">
+        <value>No se proporcionó una configuración de migraciones.</value>
+    </data>
+    <data name="DirectoryXNotFound" xml:space="preserve">
+        <value>Directorio {0} no encontrado.</value>
+    </data>
+    <data name="ConnectionXIsNotDbConnection" xml:space="preserve">
+        <value>La conexión {0} no es una instancia de DbConnection.</value>
+    </data>
 </root>

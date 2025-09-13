@@ -6,100 +6,113 @@ using Microsoft.Extensions.Options;
 namespace Flowsy.Db.Unity;
 
 /// <summary>
-/// Obtains database connections based on the provided configuration.
-/// Consumers of this service must dispose of the connections when no longer needed.
+/// Represents a database connection factory.
 /// </summary>
 public class DbConnectionFactory : IDbConnectionFactory
 {
-    private readonly ConcurrentDictionary<string, DbConnectionOptions> _optionsDictionary = new();
-    private readonly IOptionsMonitor<DbConnectionOptions>? _optionsMonitor;
+    private readonly IOptionsMonitor<DbConnectionConfiguration>? _optionsMonitor;
+    private readonly ConcurrentDictionary<string, DbConnectionConfiguration> _configurations = [];
 
-    protected DbConnectionFactory()
-    {
-    }
-    
     /// <summary>
     /// Creates a new instance of the DbConnectionFactory class.
     /// </summary>
-    /// <param name="optionsList">
-    /// A list of DbConnectionOptions to register with the factory.
+    /// <param name="configurations">
+    /// An array of <see cref="DbConnectionConfiguration"/> to register with the factory.
     /// </param>
-    public DbConnectionFactory(IEnumerable<DbConnectionOptions> optionsList)
+    /// <exception cref="InvalidOperationException">
+    /// Throws an exception if no connection configurations are provided.
+    /// </exception>
+    public DbConnectionFactory(params DbConnectionConfiguration[] configurations)
     {
-        foreach (var options in optionsList)
-            RegisterOptions(options);
+        if (configurations.Length == 0)
+            throw new InvalidOperationException(Strings.NoConnectionConfigurationsProvided);
+        
+        foreach (var config in configurations)
+            _configurations[config.ConnectionKey] = config;
     }
-    
+
     /// <summary>
     /// Creates a new instance of the DbConnectionFactory class.
     /// </summary>
     /// <param name="optionsMonitor">
-    /// An IOptionsSnapshot of DbConnectionOptions to register with the factory.
-    /// Each named option is expected to have a name matching the connection key of its corresponding DbConnectionOptions instance.
+    /// An IOptionsMonitor of DbConnectionConfiguration to register with the factory.
     /// </param>
-    public DbConnectionFactory(IOptionsMonitor<DbConnectionOptions> optionsMonitor)
+    public DbConnectionFactory(IOptionsMonitor<DbConnectionConfiguration> optionsMonitor)
     {
         _optionsMonitor = optionsMonitor;
     }
 
-    private void RegisterOptions(DbConnectionOptions options)
+    /// <summary>
+    /// Gets the default connection key used by the factory.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Throws an exception if no default connection configuration is found.
+    /// </exception>
+    public virtual string DefaultConnectionKey
     {
-        if (string.IsNullOrWhiteSpace(options.ConnectionKey))
-            throw new InvalidOperationException(Strings.ConnectionKeyCannotBeNullOrWhiteSpace);
-        
-        if (_optionsDictionary.ContainsKey(options.ConnectionKey))
-            throw new InvalidOperationException(string.Format(Strings.ConnecionKeyXAlreadyExists, options.ConnectionKey));
+        get
+        {
+            if (_optionsMonitor != null)
+                return _optionsMonitor.CurrentValue.ConnectionKey;
             
-        if (string.IsNullOrWhiteSpace(options.ConnectionString))
-            throw new InvalidOperationException(Strings.ConnectionStringCannotBeNullOrWhiteSpace);
+            return _configurations.Values.FirstOrDefault(c => c.Default)?.ConnectionKey 
+                   ?? throw new InvalidOperationException(Strings.NoDefaultConnectionConfigurationFound);
+        }
+    } 
         
-        _optionsDictionary[options.ConnectionKey] = options;
-    }
 
     /// <summary>
-    /// Gets the DbConnectionOptions for the specified connection key.
+    /// Gets the connection configuration for a specific connection key.
+    /// If no key is provided, the default connection key is used.
     /// </summary>
     /// <param name="connectionKey">
-    /// The key that identifies the configuration to use to create the connection options.
+    /// The connection key for which the configuration is desired.
     /// </param>
     /// <returns>
-    /// The DbConnectionOptions associated with the specified connection key.
+    /// An instance of <see cref="DbConnectionConfiguration"/> that contains the connection configuration.
     /// </returns>
-    public DbConnectionOptions GetConnectionOptions(string connectionKey)
+    public virtual DbConnectionConfiguration GetConfiguration(string? connectionKey = null)
     {
-        _optionsDictionary.TryGetValue(connectionKey, out var options);
+        var configuration = _optionsMonitor?.Get(connectionKey);
+        if (configuration is not null)
+            return configuration;
 
-        if (options is null && _optionsMonitor is not null)
-            options = _optionsMonitor.Get(connectionKey);
-        
-        if (options is null || options.ConnectionKey != connectionKey)
-            throw new InvalidOperationException(string.Format(Strings.InvalidConnectionKeyX, connectionKey));
-        
-        return options;
+        if (string.IsNullOrEmpty(connectionKey))
+        {
+            configuration = _configurations.Values.FirstOrDefault(c => c.Default);
+            return configuration ?? throw new InvalidOperationException(Strings.CouldNotResolveDefaultConnectionConfiguration);
+        }
+
+        return _configurations.TryGetValue(connectionKey, out configuration)
+            ? configuration
+            : throw new KeyNotFoundException(string.Format(Strings.ConfigurationNotFoundForConnectionIdentifiedByX, connectionKey));
     }
 
     /// <summary>
-    /// Obtains a database connection using the DbConnectionOptions identified by the provided connection key.
+    /// Gets a database connection using the specified connection key.
+    /// If no key is provided, the default connection key is used.
     /// </summary>
     /// <param name="connectionKey">
-    /// The key that identifies the configuration to use to create the connection.
+    /// The connection key for which the connection is desired.
     /// </param>
     /// <param name="open">
-    /// A value indicating whether the connection should be opened.
+    /// Indicates whether the connection should be opened immediately after being created.
     /// </param>
-    /// <returns>A database connection.</returns>
-    public virtual IDbConnection GetConnection(string connectionKey, bool open = false)
+    /// <returns>
+    /// An instance of <see cref="IDbConnection"/> that represents the database connection.
+    /// </returns>
+    public virtual IDbConnection GetConnection(string? connectionKey = null, bool open = false)
     {
-        var options = GetConnectionOptions(connectionKey);
-
-        var provider = options.Provider;
+        var configuration = GetConfiguration(connectionKey);
+        
+        var provider = configuration.Provider;
         var connection = provider.Factory?.CreateConnection();
         if (connection == null)
-            throw new InvalidOperationException(string.Format(Strings.FailedToCreateConnectionUsingProviderX, provider.InvariantName ?? provider.Family.ToString()));
+            throw new InvalidOperationException(string.Format(Strings.FailedToCreateConnectionForProviderX, provider.InvariantName ?? provider.Family.ToString()));
         
-        connection.ConnectionString = options.ConnectionString;
+        connection.ConnectionString = configuration.ConnectionString;
         
-        if (open)
+        if (open && connection.State == ConnectionState.Closed)
             connection.Open();
         
         return connection;

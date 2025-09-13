@@ -5,9 +5,9 @@ using Flowsy.Db.Unity.Conventions;
 namespace Flowsy.Db.Unity;
 
 /// <summary>
-/// Describes a database parameter.
+/// Represents a database parameter.
 /// </summary>
-public sealed class DbParameterDescriptor : DbObjectDescriptor
+public class DbParameterDescriptor : DbObjectDescriptor
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DbParameterDescriptor"/> class.
@@ -19,28 +19,28 @@ public sealed class DbParameterDescriptor : DbObjectDescriptor
     /// The parameter name.
     /// </param>
     /// <param name="runtimeType">
-    /// The parameter runtime type.
+    /// The parameter type within the .NET runtime engine.
     /// </param>
     /// <param name="databaseType">
-    /// The parameter database type.
+    /// The parameter type within the database engine.
     /// </param>
     /// <param name="customType">
-    /// The parameter custom type.
+    /// The custom parameter type, if applicable.
     /// </param>
     /// <param name="valueExpression">
-    /// The parameter value expression.
+    /// The value expression to use for the parameter.
     /// </param>
     /// <param name="direction">
-    /// The parameter direction.
+    /// The parameter direction (input, output, etc.).
     /// </param>
     /// <param name="size">
-    /// The parameter size.
+    /// The parameter size, if applicable.
     /// </param>
     /// <param name="precision">
-    /// The parameter precision.
+    /// The parameter precision, if applicable.
     /// </param>
     /// <param name="scale">
-    /// The parameter scale.
+    /// The parameter scale, if applicable.
     /// </param>
     public DbParameterDescriptor(
         DbProviderDescriptor provider,
@@ -53,7 +53,7 @@ public sealed class DbParameterDescriptor : DbObjectDescriptor
         int? size = null,
         byte? precision = null,
         byte? scale = null
-        ) : base(provider.ParseObjectName(name))
+    ) : base(provider.ParseObjectName(name))
     {
         Name = name;
         RuntimeType = runtimeType;
@@ -72,53 +72,56 @@ public sealed class DbParameterDescriptor : DbObjectDescriptor
     public string Name { get; }
     
     /// <summary>
-    /// The parameter value expression.
+    /// The value expression to use for the parameter.
     /// </summary>
     public DbValueExpression ValueExpression { get; }
     
     /// <summary>
-    /// The parameter runtime type.
+    /// The parameter type within the .NET runtime engine.
     /// </summary>
     public Type RuntimeType { get; }
     
     /// <summary>
-    /// The parameter database type.
+    /// The parameter type within the database engine.
     /// </summary>
     public DbType? DatabaseType { get; }
     
+    /// <summary>
+    /// The custom parameter type, if applicable.
+    /// </summary>
     public string? CustomType { get; }
     
     /// <summary>
-    /// The parameter direction.
+    /// The parameter direction (input, output, etc.).
     /// </summary>
     public ParameterDirection? Direction { get; }
     
     /// <summary>
-    /// The parameter size.
+    /// The parameter size, if applicable.
     /// </summary>
     public int? Size { get; }
     
     /// <summary>
-    /// The parameter precision.
+    /// The parameter precision, if applicable.
     /// </summary>
     public byte? Precision { get; }
     
     /// <summary>
-    /// The parameter scale.
+    /// The parameter scale, if applicable.
     /// </summary>
     public byte? Scale { get; }
 
     /// <summary>
-    /// Transforms the runtime value to value that can be used in database operations.
+    /// Resolves the database value for the parameter based on the runtime value and conventions.
     /// </summary>
     /// <param name="runtimeValue">
-    /// The runtime value.
+    /// The runtime value to convert to a database value.
     /// </param>
     /// <param name="conventions">
-    /// The database conventions used to resolve the database value.
+    /// Optional conventions to use for value conversion. If null, default conversion rules apply.
     /// </param>
     /// <returns>
-    /// A value that can be used in database operations.
+    /// The converted database value, or null if the runtime value is null.
     /// </returns>
     public object? ResolveDatabaseValue(object? runtimeValue, DbConventionSet? conventions = null)
     {

@@ -99,4 +99,46 @@
     <data name="NoMatchingConstructorFoundForTypeX" xml:space="preserve">
         <value>No matching constructor found for type {0}.</value>
     </data>
+    <data name="FailedToCreateConnectionForProviderX" xml:space="preserve">
+        <value>Failed to create connection for provider {0}.</value>
+    </data>
+    <data name="DatabaseProviderMustBeSet" xml:space="preserve">
+        <value>Database provider must be set.</value>
+    </data>
+    <data name="ConnectionKeyMustBeSet" xml:space="preserve">
+        <value>Connection key must be set.</value>
+    </data>
+    <data name="ConnectionStringMustBeSet" xml:space="preserve">
+        <value>Connection string must be set.</value>
+    </data>
+    <data name="NoConnectionConfigurationsProvided" xml:space="preserve">
+        <value>No connection configurations provided.</value>
+    </data>
+    <data name="NoDefaultConnectionConfigurationFound" xml:space="preserve">
+        <value>No default connection configuration found.</value>
+    </data>
+    <data name="CouldNotResolveDefaultConnectionConfiguration" xml:space="preserve">
+        <value>Could not resolve default connection configuration.</value>
+    </data>
+    <data name="ConfigurationNotFoundForConnectionIdentifiedByX" xml:space="preserve">
+        <value>Configuration not found for connection identified by {0}.</value>
+    </data>
+    <data name="SessionForConnectionXNotParticipatingInTransaction" xml:space="preserve">
+        <value>Session for connection {0} not participating in transaction.</value>
+    </data>
+    <data name="SessionForConnectionXIsAlreadyParticipatingInTransaction" xml:space="preserve">
+        <value>Session for connection {0} is already participating in transaction.</value>
+    </data>
+    <data name="ScriptXNotFound" xml:space="preserve">
+        <value>Script {0} not found.</value>
+    </data>
+    <data name="NoMigrationConfigurationProvided" xml:space="preserve">
+        <value>No migration configuration provided.</value>
+    </data>
+    <data name="DirectoryXNotFound" xml:space="preserve">
+        <value>Directory {0} not found.</value>
+    </data>
+    <data name="ConnectionXIsNotDbConnection" xml:space="preserve">
+        <value>Connection {0} is not an instance of DbConnection.</value>
+    </data>
 </root>

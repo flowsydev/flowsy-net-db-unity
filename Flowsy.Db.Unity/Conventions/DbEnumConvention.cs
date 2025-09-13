@@ -1,73 +1,67 @@
 using System.Collections.Concurrent;
 using System.Data;
-using Flowsy.Core;
 using Flowsy.Db.Unity.Resources;
 
 namespace Flowsy.Db.Unity.Conventions;
 
 /// <summary>
-/// Represents a convention for handling enumerations in database operations.
+/// Represents conventions for database enum types.
 /// </summary>
-public class DbEnumConvention : DbConvention
+/// <param name="ValueFormat">The format to use for enum values in the database.</param>
+/// <param name="NameTranslator">Optional name translator for enum types and members.</param>
+/// <param name="Mappings">Optional specific mappings for enum types.</param>
+public record DbEnumConvention(
+    DbEnumValueFormat ValueFormat,
+    DbEnumNameTranslator? NameTranslator = null,
+    IEnumerable<DbEnumMapping>? Mappings = null
+) : DbConvention
 {
-    private readonly ConcurrentDictionary<Type, DbEnumMapping> _mappings = [];
+    /// <summary>
+    /// Default enum convention that uses name format for enum values.
+    /// </summary>
+    public static readonly DbEnumConvention Default = new(DbEnumValueFormat.Name, null);
     
-    internal DbEnumConvention(DbConventionSet conventions) : base(conventions)
+    private ConcurrentDictionary<Type, DbEnumMapping>? _dictionary;
+    /// <summary>
+    /// Gets a dictionary that caches enum mappings for performance.
+    /// </summary>
+    private ConcurrentDictionary<Type, DbEnumMapping> Dictionary
     {
-    }
-
-    /// <summary>
-    /// The format used to pass enum values to the database.
-    /// </summary>
-    public DbEnumFormat ValueFormat { get; internal set; }
-    
-    /// <summary>
-    /// The translator used to convert runtime names to database names for enum types and their members.
-    /// </summary>
-    public DbEnumNameTranslator? NameTranslator { get; internal set; } = new ();
-    
-    /// <summary>
-    /// The collection of mappings for enum types to their database representations.
-    /// </summary>
-    public IEnumerable<DbEnumMapping> Mappings => _mappings.Values;
-    
-    /// <summary>
-    /// Adds a mapping for a specific enum type to its database representation.
-    /// </summary>
-    /// <param name="mapping">
-    /// The mapping to be added.
-    /// </param>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if a mapping for the specified enum type already exists in the collection.
-    /// </exception>
-    internal void AddMapping(DbEnumMapping mapping)
-    {
-        if (!_mappings.TryAdd(mapping.RuntimeType, mapping))
-            throw new InvalidOperationException(string.Format(Strings.MappingForEnumTypeXAlreadyExists, mapping.RuntimeType));
+        get
+        {
+            if (_dictionary is not null)
+                return _dictionary;
+            
+            var d = new ConcurrentDictionary<Type, DbEnumMapping>();
+            foreach (var mapping in Mappings ?? [])
+            {
+                if (!d.TryAdd(mapping.RuntimeType, mapping))
+                    throw new InvalidOperationException(string.Format(Strings.MappingForEnumTypeXAlreadyExists, mapping.RuntimeType));
+            }
+            _dictionary = d;
+            return _dictionary;
+        }
     }
     
     /// <summary>
-    /// Resolves the mapping for a specific enum type.
+    /// Resolves the mapping for the specified enum type.
     /// </summary>
-    /// <param name="runtimeType">
-    /// The runtime type of the enum for which to resolve the mapping.
-    /// </param>
-    /// <returns>
-    /// The mapping for the specified enum type, or null if no mapping exists.
-    /// </returns>
-    public DbEnumMapping? ResolveMapping(Type runtimeType) => _mappings.GetValueOrDefault(runtimeType);
+    /// <param name="runtimeType">The enum type to resolve mapping for.</param>
+    /// <returns>The enum mapping if found; otherwise, null.</returns>
+    public DbEnumMapping? ResolveMapping(Type runtimeType) => Dictionary.GetValueOrDefault(runtimeType);
     
     /// <summary>
-    /// Resolves the mapping for a specific enum type.
+    /// Resolves the mapping for the specified enum type.
     /// </summary>
-    /// <typeparam name="TEnum">
-    /// The enum type for which to resolve the mapping.
-    /// </typeparam>
-    /// <returns>
-    /// The mapping for the specified enum type, or null if no mapping exists.
-    /// </returns>
+    /// <typeparam name="TEnum">The enum type to resolve mapping for.</typeparam>
+    /// <returns>The enum mapping if found; otherwise, null.</returns>
     public DbEnumMapping? ResolveMapping<TEnum>() where TEnum : struct, Enum => ResolveMapping(typeof(TEnum));
     
+    /// <summary>
+    /// Resolves the database type for an enum when using ordinal format.
+    /// </summary>
+    /// <param name="e">The enum value to resolve type for.</param>
+    /// <returns>The corresponding DbType for the enum's underlying type.</returns>
     private DbType ResolveOrdinalType(Enum e)
         => e.GetTypeCode() switch
         {
@@ -77,6 +71,11 @@ public class DbEnumConvention : DbConvention
             _ => DbType.Int32
         };
 
+    /// <summary>
+    /// Resolves the database value for an enum when using ordinal format.
+    /// </summary>
+    /// <param name="e">The enum value to resolve value for.</param>
+    /// <returns>The ordinal value of the enum converted to its underlying type.</returns>
     private object ResolveOrdinalValue(Enum e)
         => e.GetTypeCode() switch
         {
@@ -87,28 +86,18 @@ public class DbEnumConvention : DbConvention
         };
 
     /// <summary>
-    /// Maps an enum type to its database representation.
+    /// Maps an enum type to its database representation, determining the database type, custom type name, and mapping configuration.
     /// </summary>
-    /// <param name="enumType">
-    /// The type of the enum to be mapped.
-    /// </param>
-    /// <param name="databaseType">
-    /// The database type to which the enum type is mapped.
-    /// This will be <see cref="DbType.String"/> if the convention is set to <see cref="DbEnumFormat.Name"/>, or the underlying type of the enum if the convention is set to <see cref="DbEnumFormat.Ordinal"/>.
-    /// </param>
-    /// <param name="customType">
-    /// The custom type name for the database representation of the enum type.
-    /// The custom type name will be resolved using the registered mapping's custom name, its name translator or the default name translator, in that order.
-    /// </param>
-    /// <param name="mapping">
-    /// The mapping for the enum type, if it exists.
-    /// </param>
+    /// <param name="enumType">The enum type to map.</param>
+    /// <param name="databaseType">When this method returns, contains the database type for the enum.</param>
+    /// <param name="customType">When this method returns, contains the custom database type name if applicable; otherwise, null.</param>
+    /// <param name="mapping">When this method returns, contains the enum mapping if found; otherwise, null.</param>
     public void Map(Type enumType, out DbType databaseType, out string? customType, out DbEnumMapping? mapping)
     {
         mapping = ResolveMapping(enumType);
         customType = null;
         
-        if (ValueFormat == DbEnumFormat.Ordinal)
+        if (ValueFormat == DbEnumValueFormat.Ordinal)
         {
             var enumValues = Enum.GetValues(enumType);
             var firstValueAsObject = enumValues.Length > 0 ? enumValues.GetValue(0) : null;
@@ -136,22 +125,12 @@ public class DbEnumConvention : DbConvention
     }
 
     /// <summary>
-    /// Maps an enum value to its database representation.
+    /// Maps an enum value to its database representation, determining the database type, custom type name, and the actual database value.
     /// </summary>
-    /// <param name="enum">
-    /// The enum value to be mapped.
-    /// </param>
-    /// <param name="databaseType">
-    /// The database type to which the enum type is mapped.
-    /// This will be <see cref="DbType.String"/> if the convention is set to <see cref="DbEnumFormat.Name"/>, or the underlying type of the enum if the convention is set to <see cref="DbEnumFormat.Ordinal"/>.
-    /// </param>
-    /// <param name="customType">
-    /// The custom type name for the database representation of the enum type.
-    /// The custom type name will be resolved using the registered mapping's custom name, its name translator or the default name translator, in that order.
-    /// </param>
-    /// <param name="enumValue">
-    /// The value of the enum as it should be passed to the database.
-    /// </param>
+    /// <param name="enum">The enum value to map.</param>
+    /// <param name="databaseType">When this method returns, contains the database type for the enum.</param>
+    /// <param name="customType">When this method returns, contains the custom database type name if applicable; otherwise, null.</param>
+    /// <param name="enumValue">When this method returns, contains the database value for the enum.</param>
     public void Map(Enum @enum, out DbType databaseType, out string? customType, out object enumValue)
     {
         Map(@enum.GetType(), out databaseType, out customType, out var mapping);
@@ -162,45 +141,11 @@ public class DbEnumConvention : DbConvention
             enumValue = nameTranslator.TranslateMemberName(enumStringValue);
         else
         {
-            var defaultCaseStyle = Conventions.DefaultCaseStyle;
-            if (defaultCaseStyle.HasValue && !enumStringValue.MatchesCaseStyle(defaultCaseStyle.Value))
-                enumValue = enumStringValue.ApplyCaseStyle(defaultCaseStyle.Value);
+            var defaultCaseStyle = ConventionSet?.DefaultCaseStyle;
+            if (defaultCaseStyle.HasValue && defaultCaseStyle.Value != DbCaseStyle.None)
+                enumValue = defaultCaseStyle.Value.Apply(enumStringValue);
             else
                 enumValue = enumStringValue;
         }
-    }
-
-    /// <summary>
-    /// Copies the properties of this <see cref="DbEnumConvention"/> instance to another instance.
-    /// </summary>
-    /// <param name="other">
-    /// The other <see cref="DbEnumConvention"/> instance to copy properties to.
-    /// </param>
-    public void CopyTo(DbEnumConvention other)
-    {
-        other.ValueFormat = ValueFormat;
-        other.NameTranslator = NameTranslator;
-        
-        foreach (var mapping in _mappings.Values)
-        {
-            var newMapping = new DbEnumMapping(mapping.RuntimeType, mapping.DatabaseTypeName, mapping.NameTranslator, Conventions);
-            other.AddMapping(newMapping);
-        }
-    }
-
-    /// <summary>
-    /// Creates a clone of this <see cref="DbEnumConvention"/> instance.
-    /// </summary>
-    /// <param name="parentConventions">
-    /// The parent <see cref="DbConventionSet"/> to which the cloned convention will belong.
-    /// </param>
-    /// <returns>
-    /// A new instance of <see cref="DbEnumConvention"/> with the same properties as this instance.
-    /// </returns>
-    public DbEnumConvention Clone(DbConventionSet parentConventions)
-    {
-        var clone = new DbEnumConvention(parentConventions);
-        CopyTo(clone);
-        return clone;
     }
 }

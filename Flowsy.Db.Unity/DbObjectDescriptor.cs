@@ -1,12 +1,12 @@
 namespace Flowsy.Db.Unity;
 
 /// <summary>
-/// Abstract representation of a database object descriptor.
+/// Represents a database object, such as a table, view, routine, parameter, etc.
 /// </summary>
 public abstract class DbObjectDescriptor
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DbObjectDescriptor"/> class with the specified fully qualified name.
+    /// Creates an instance of <see cref="DbObjectDescriptor"/> with the fully qualified name of the database object.
     /// </summary>
     /// <param name="fullyQualifiedName">
     /// The fully qualified name of the database object.
@@ -17,7 +17,7 @@ public abstract class DbObjectDescriptor
     }
     
     /// <summary>
-    /// The provider descriptor for the database object.
+    /// The database provider for the object.
     /// </summary>
     public DbProviderDescriptor Provider => FullyQualifiedName.Provider;
     

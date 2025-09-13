@@ -3,31 +3,39 @@ using System.Data;
 namespace Flowsy.Db.Unity;
 
 /// <summary>
-/// Obtains database connections based on the provided configuration.
-/// Consumers of this service must dispose of the connections when no longer needed.
+/// Represents a service that creates database connections.
 /// </summary>
 public interface IDbConnectionFactory
 {
     /// <summary>
-    /// Obtains a database connection using the DbConnectionOptions identified by the provided connection key.
+    /// Gets the default connection key used by the factory.
     /// </summary>
-    /// <param name="connectionKey">
-    /// The key that identifies the configuration to use to create the connection.
-    /// </param>
-    /// <param name="open">
-    /// A value indicating whether the connection should be opened.
-    /// </param>
-    /// <returns>A database connection.</returns>
-    IDbConnection GetConnection(string connectionKey, bool open = false);
+    string DefaultConnectionKey { get; }
     
     /// <summary>
-    /// Gets the DbConnectionOptions for the specified connection key.
+    /// Gets the connection configuration for a specific connection key.
+    /// If no key is provided, the default connection key is used.
     /// </summary>
     /// <param name="connectionKey">
-    /// The key that identifies the configuration to use to create the connection options.
+    /// The connection key for which the configuration is desired.
     /// </param>
     /// <returns>
-    /// The DbConnectionOptions associated with the specified connection key.
+    /// An instance of <see cref="DbConnectionConfiguration"/> that contains the connection configuration.
     /// </returns>
-    DbConnectionOptions GetConnectionOptions(string connectionKey);
+    public DbConnectionConfiguration GetConfiguration(string? connectionKey = null);
+
+    /// <summary>
+    /// Gets a database connection using the specified connection key.
+    /// If no key is provided, the default connection key is used.
+    /// </summary>
+    /// <param name="connectionKey">
+    /// The connection key for which the connection is desired.
+    /// </param>
+    /// <param name="open">
+    /// Indicates whether the connection should be opened immediately after being created.
+    /// </param>
+    /// <returns>
+    /// An instance of <see cref="IDbConnection"/> that represents the database connection.
+    /// </returns>
+    public IDbConnection GetConnection(string? connectionKey = null, bool open = false);
 }

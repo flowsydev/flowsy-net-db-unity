@@ -1,21 +1,12 @@
 namespace Flowsy.Db.Unity.Conventions;
 
 /// <summary>
-/// Base class for defining database conventions.
+/// Represents the abstract base class for all database conventions.
 /// </summary>
-public abstract class DbConvention
+public abstract record DbConvention
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DbConvention"/> class.
+    /// Gets or initializes the convention set to which this convention belongs.
     /// </summary>
-    /// <param name="conventions"></param>
-    protected DbConvention(DbConventionSet conventions)
-    {
-        Conventions = conventions;
-    }
-
-    /// <summary>
-    /// Gets the set of conventions to which this convention belongs.
-    /// </summary>
-    public DbConventionSet Conventions { get; }
+    public DbConventionSet? ConventionSet { get; init; }
 }

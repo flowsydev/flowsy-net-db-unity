@@ -1,17 +1,17 @@
 namespace Flowsy.Db.Unity;
 
 /// <summary>
-/// Represents the type of a database routine.
+/// Represents the type of database routine.
 /// </summary>
 public enum DbRoutineType
 {
     /// <summary>
-    ///  A stored procedure.
+    /// Stored procedure.
     /// </summary>
     StoredProcedure,
     
     /// <summary>
-    ///  A stored function.
+    /// Stored function.
     /// </summary>
-    StoredFunction
+    StoredFunction,
 }
