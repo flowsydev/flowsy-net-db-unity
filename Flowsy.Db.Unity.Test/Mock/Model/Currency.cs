@@ -5,5 +5,4 @@ public enum Currency
     Mxn,
     Usd,
     Eur,
-    Gbp,
 }

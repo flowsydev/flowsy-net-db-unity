@@ -4,12 +4,12 @@ namespace Flowsy.Db.Unity.Test.Scenarios;
 
 public static class Collections
 {
-    public const string ConventionSet = "ConventionSet";
-    public const string DependencyInjection = "DependencyInjection";
+    public const string Postgres = "Postgres";
+    public const string MySql = "MySql";
 }
 
-[CollectionDefinition(Collections.ConventionSet), Order(1)]
-public sealed class ConventionSetCollection;
+[CollectionDefinition(Collections.Postgres), Order(1)]
+public sealed class PostgresCollection;
 
-[CollectionDefinition(Collections.DependencyInjection), Order(99)]
-public sealed class DependencyInjectionCollection;
+[CollectionDefinition(Collections.MySql), Order(2)]
+public sealed class MySqlCollection;

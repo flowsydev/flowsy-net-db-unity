@@ -37,10 +37,7 @@
     
     <ItemGroup>
         <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
-        <None Include="Mock/Migrations/**/*" CopyToOutputDirectory="Always" />
-        <None Update="Mock\Migrations\Secondary\R__crm_fun_cst_get_by_filter.sql">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
+        <None Include="Mock/Infrastructure/Database/Scripts/**/*.*" CopyToOutputDirectory="Always" />
     </ItemGroup>
 
     <ItemGroup>
@@ -49,6 +46,13 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Flowsy.Db.Unity\Flowsy.Db.Unity.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Mock\Infrastructure\Database\Scripts\MySql\Migrations\Versioned\" />
+      <Folder Include="Mock\Infrastructure\Database\Scripts\MySql\Operations\" />
+      <Folder Include="Mock\Infrastructure\Database\Scripts\Postgres\Operations\" />
+      <Folder Include="Scenarios\MySql\" />
     </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@ using Flowsy.Db.Unity.Test.Mock;
 using Flowsy.Db.Unity.Test.Scenarios;
 using Xunit.Extensions.Ordering;
 
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+[assembly: CollectionBehavior(DisableTestParallelization = false)]
 
 [assembly: TestFramework("Xunit.Extensions.Ordering.TestFramework", "Xunit.Extensions.Ordering")]
 
