@@ -59,8 +59,8 @@ public class ServiceHost : IDisposable, IAsyncDisposable
                         .UseConnection(DbConnections.Postgres, _postgresContainer.GetConnectionString())
                         .AsDefault()
                         .WithProvider(DbProviderFamily.Postgres, "Npgsql", NpgsqlFactory.Instance)
-                        .WithLogLevel(LogLevel.Debug)
-                        .WithMigrations("/path/to/migrations")
+                        .WithLogLevel(LogLevel.Information)
+                        .WithMigrations(Path.Combine("Mock", "Infrastructure", "Database", "Scripts", DbConnections.Postgres, "Migrations"))
                         .WithConventions()
                         .ForRoutines(DbRoutineType.StoredFunction)
                         .ForParameters(prefix: "p_", useNamedParameters: true)
@@ -70,7 +70,7 @@ public class ServiceHost : IDisposable, IAsyncDisposable
                             mappings:
                             [
                                 new DbEnumMapping(typeof(ShoppingCartStatus), "shopping.shopping_cart_status"),
-                                new DbEnumMapping(typeof(UserAccountStatus), "accounts.user_status")
+                                new DbEnumMapping(typeof(UserAccountStatus), "security.user_status")
                             ]
                         )
                         .WithDefault(DbCaseStyle.LowerSnakeCase);
@@ -80,6 +80,7 @@ public class ServiceHost : IDisposable, IAsyncDisposable
                         .UseConnection(DbConnections.MySql, _mySqlContainer.GetConnectionString())
                         .WithProvider(DbProviderFamily.SqlServer, "MySqlConnector", MySqlConnectorFactory.Instance)
                         .WithLogLevel(LogLevel.Information)
+                        .WithMigrations(Path.Combine("Mock", "Infrastructure", "Database", "Scripts", DbConnections.MySql, "Migrations"))
                         .WithConventions()
                         .ForParameters(prefix: "p_", useNamedParameters: true)
                         .WithDefault(DbCaseStyle.LowerSnakeCase);
@@ -128,10 +129,23 @@ public class ServiceHost : IDisposable, IAsyncDisposable
             
             foreach (var connectionKey in DbConnections.All)
             {
-                var migrationPath = Path.Combine("Mock", "Infrastructure", "Database", "Scripts", connectionKey, "Migrations");
-                if (!Directory.Exists(migrationPath))
+                if (!hub.HasConfiguration(connectionKey))
                 {
-                    logger.LogWarning("Skipping migration for database '{ConnectionKey}', migration path not found: {MigrationPath}", connectionKey, migrationPath);
+                    logger.LogWarning("Skipping migration for database '{ConnectionKey}', connection not configured", connectionKey);
+                    continue;
+                }
+                
+                var config = hub.GetConfiguration(connectionKey);
+                if (config.Migrations is null)
+                {
+                    logger.LogWarning("Skipping migration for database '{ConnectionKey}', migrations not configured", connectionKey);
+                    continue;
+                }
+
+                var migrationScriptPath = config.Migrations.MigrationScriptPath;
+                if (!Directory.Exists(migrationScriptPath))
+                {
+                    logger.LogWarning("Skipping migration for database '{ConnectionKey}', migration path not found: {MigrationPath}", connectionKey, migrationScriptPath);
                     continue;
                 }
                 
@@ -151,7 +165,7 @@ public class ServiceHost : IDisposable, IAsyncDisposable
         }
     }
     
-    private Logger CreateLogger() => new LoggerConfiguration()
+    private static Logger CreateLogger() => new LoggerConfiguration()
         .MinimumLevel.Information()
         .MinimumLevel.Override("Flowsy", LogEventLevel.Debug)
         .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)

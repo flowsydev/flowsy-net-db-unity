@@ -43,6 +43,23 @@ public class DbConnectionHub : IDbConnectionHub
     }
 
     /// <summary>
+    /// Gets the default connection key used by the hub.
+    /// </summary>
+    public string DefaultConnectionKey => _connectionFactory.DefaultConnectionKey;
+
+    /// <summary>
+    /// Checks if a database connection configuration exists for the specified key.
+    /// If no key is provided, the default connection key is used.
+    /// </summary>
+    /// <param name="connectionKey">
+    /// Connection key to identify the connection configuration to check.
+    /// </param>
+    /// <returns>
+    /// True if the configuration exists; otherwise, false.
+    /// </returns>
+    public bool HasConfiguration(string? connectionKey = null) => _connectionFactory.HasConfiguration(connectionKey);
+
+    /// <summary>
     /// Gets the database connection configuration associated with the specified key.
     /// If no key is provided, the default connection key is used.
     /// </summary>

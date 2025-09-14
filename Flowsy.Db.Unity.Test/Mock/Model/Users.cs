@@ -13,6 +13,8 @@ public record UserAccountOverview(
     ) : IReadModel;
 
 public record UserAccountDetail(
-    Guid UserAccountId, string PrincipalName, string Email, string FirstName, string LastName, string Nickname,
-    string? PasswordHash, AuditTrace CreationTrace, AuditTrace? LastMutationTrace
+    Guid UserAccountId,
+    string PrincipalName, string Email, string? PasswordHash,
+    string FirstName, string LastName, string Nickname,
+    DateTimeOffset CreationInstant, DateTimeOffset? LastMutationInstant
     ) : IReadModel;

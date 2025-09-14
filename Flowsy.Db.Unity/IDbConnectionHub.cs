@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Flowsy.Db.Unity;
 
@@ -7,6 +8,23 @@ namespace Flowsy.Db.Unity;
 /// </summary>
 public interface IDbConnectionHub : IDisposable, IAsyncDisposable
 {
+    /// <summary>
+    /// Gets the default connection key used by the hub.
+    /// </summary>
+    string DefaultConnectionKey { get; }
+    
+    /// <summary>
+    /// Checks if a database connection configuration exists for the specified key.
+    /// If no key is provided, the default connection key is used.
+    /// </summary>
+    /// <param name="connectionKey">
+    /// Connection key to identify the connection configuration to check.
+    /// </param>
+    /// <returns>
+    /// True if the configuration exists; otherwise, false.
+    /// </returns>
+    bool HasConfiguration(string? connectionKey = null);
+    
     /// <summary>
     /// Gets the database connection configuration associated with the specified key.
     /// If no key is provided, the default connection key is used.

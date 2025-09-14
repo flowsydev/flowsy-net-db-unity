@@ -9,7 +9,6 @@ public enum ShoppingCartStatus
 
 public record ShoppingCartOverview(
     Guid ShoppingCartId, 
-    Guid UserAccountId, string UserAccountPrincipalName, string UserAccountEmail, string UserAccountNickname,
     int ItemCount, double TotalItemQuantity, decimal Total,
     ShoppingCartStatus Status,
     DateTimeOffset CreationInstant, DateTimeOffset? LastMutationInstant
@@ -21,12 +20,12 @@ public record ShoppingCartDetail(
     IEnumerable<ShoppingCartItemDetail> Items,
     int ItemCount, double TotalItemQuantity, decimal Total,
     ShoppingCartStatus Status,
-    AuditTrace CreationTrace, AuditTrace? LastMutationTrace
+    DateTimeOffset CreationInstant, DateTimeOffset? LastMutationInstant
     ) : IReadModel;
 
 public record ShoppingCartItemDetail(
     Guid ShoppingCartItemLineId, 
     Guid ProductId, string ProductSku, string ProductName, decimal ProductPrice, Currency ProductCurrency,
     double Quantity, decimal LineTotal,
-    AuditTrace CreationTrace, AuditTrace? LastMutationTrace
+    DateTimeOffset CreationInstant, DateTimeOffset? LastMutationInstant
     ) : IReadModel;

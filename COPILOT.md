@@ -295,106 +295,22 @@ public interface IDbSession
 - Use `ITestOutputHelper` and its extensions in `Extensions/TestOutputExtensions.cs` to log during test execution.
 - Use `Theory` and `InlineData` for parameterized tests when appropriate.
 - Apply the AAA (Arrange, Act, Assert) pattern and each method should have a single purpose and be independent.
-- Test names must comply with the following conventions:
-    - Classes: `[CollectionName]/[ScenarioName]Test.cs` (use `[X][NN]` prefix for folder and class name if order is relevant)
-    - Methods: `T[NN][Given_When_Then]`
-- Cover all supported databases:
-    - Postgres (Npgsql)
-    - SQL Server (Microsoft.Data.SqlClient)
-    - MySQL (MySqlConnector)
+- Tests must cover the following database providers:
+    - MySql (MySqlConnector)
     - Oracle (Oracle.ManagedDataAccess.Core)
-    - SQLite (Microsoft.Data.Sqlite)
-- Use `[DbProvider]ServiceHostFactory` services to create `ServiceHost` services configured with services for each database provider.
-- Use `Flowsy.Db.Unity.DependencyInjection.AddDatabases` to configure connections and map read models with desired database conventions.
+    - Postgres (Npgsql)
+    - Sqlite (Microsoft.Data.Sqlite)
+    - SqlServer (Microsoft.Data.SqlClient)
 - Use Test Collections to run tests in parallel with different database providers.
-- Use a single `ServiceHost` at assembly level
-    - Run database migrations from the `ServiceHost` after starting Testcontainers containers and before running tests.
-    - Use it in all test methods to create scopes and obtain `IDbConnectionHub` services from which to create `IDbSession` sessions.
-- Implement different test scenarios based on the simulated shopping cart domain (described below).
+- Use the `Mock/ServiceHost` class to configure a `ServiceProvider` with all necessary services for tests:
+  - Use `Flowsy.Db.Unity.DependencyInjection.AddDatabases` in `ServiceHost` to configure connections and map read models with desired database conventions.
+  - Use a single `ServiceHost` instance at assembly level
+      - Run database migrations from the `ServiceHost` after starting Testcontainers containers and before running tests.
+      - Use it in all test methods to create scopes and obtain `IDbConnectionHub` services from which to create `IDbSession` sessions.
+- Implement different test scenarios based on the simulated eCommerce domain from the `Mock` folder:
     - Use domain terminology in test class and method names.
     - Use `IDbSession` for all database operations.
-    - Use different alternatives for CRUD operations (direct SQL statements, stored procedures and functions).
-- There must be a folder called `Mock`, with the following content:
-    - Domain
-        - Contains a simple simulation of a shopping cart domain with elements like (but not limited to):
-            - ProductOverview
-            - ShoppingCartDetail
-            - ShoppingCartOverview
-            - ShoppingCartStatus
-        - Use `record` with primary constructor for:
-            - Read Models.
-            - Objects with parameters to execute SQL statements and routines through `IDbSession`.
-        - Use `enum` for cases like ShoppingCartStatus, UserStatus, etc.
-    - Database
-        - DbConnections.cs: Defines the unique keys (ConnectionKey) of the databases used in tests:
-            - Postgres
-            - MySql
-            - SqlServer
-            - Oracle
-            - Sqlite
-        - DbExtendedConnectionFactory.cs
-            - Inherits from `DbConnectionFactory`
-            - Implements `IDbConnectionFactory`
-            - When a Postgres connection is required, creates it using `NpgsqlDataSource` and maps C# `enum` types to Postgres `enum` types.
-            - For the rest of the providers, uses the base implementation of `DbConnectionFactory`.
-        - DbPostgresEnumNameTranslator.cs
-            - Implements `INpgsqlNameTranslator`
-            - Translates C# `enum` type names to Postgres `enum` type names.
-        - Migrations
-            - Includes versioned and repeatable migration scripts for databases used in tests.
-            - Each database folder must comply with the following rules:
-                - Be named with the unique database key (ConnectionKey) in `PascalCase` format.
-                    - Postgres
-                    - MySql
-                    - SqlServer
-                    - Oracle
-                    - Sqlite
-                - Naming style:
-                    - All database providers, except SqlServer:
-                        - Everything in lower_snake_case
-                        - Prefixes:
-                            - Views: vw_
-                            - Functions: fn_
-                            - Stored procedures: sp_
-                            - Function and stored procedure parameters: p_
-                    - SqlServer:
-                        - Everything in PascalCase
-                        - Prefixes:
-                            - Views: Vw_
-                            - Functions: Fn_
-                            - Stored procedures: Sp_
-                            - Function and stored procedure parameters: P_
-                - Follow `Evolve` conventions plus others defined here in `Versioned` and `Repeatable` subfolders, whether this tool is used in tests or not.
-                    - `Versioned`. Versioned migration scripts:
-                        - Name: V[NNN]__[script_description].sql.
-                        - Create schemas, tables, and indexes.
-                        - One script per schema or group of related tables.
-                        - Table names must be in singular.
-                        - All tables must include a primary key (table name + id)
-                        - Primary keys must be of UUID/GUID type.
-                        - Examples:
-                            - V001__create_sales_schema.sql
-                            - V002__create_products_table.sql
-                            - V003__create_categories_table.sql
-                            - V004__create_users_table.sql
-                    - `Repeatable`. Repeatable migration scripts:
-                        - Name: R__[script_description].sql.
-                        - Create views, stored procedures and functions.
-                        - One script per view, stored procedure or function.
-                        - In the same script, first drop (if they exist) and then create the objects.
-                        - Script names must include a prefix indicating the type of object they create:
-                            - Views: `R__vw_`
-                            - Stored procedures: `R__sp_`
-                            - Functions: `R__fn_`
-                        - Examples:
-                            - R__fn_create_shopping_cart.sql
-                            - R__sp_get_open_shopping_cart_by_user_account_id.sql
-
-## IMPORTANT!
-- Oracle tests are temporarily disabled due to Testcontainers container performance issues.
-- Investigation and resolution of these issues is required before reactivating the tests.
-- Until then, this class only contains a test that always passes to avoid CI/CD failures.
-- Although tests are disabled, Oracle continues to be considered in the implementation of all scenarios, to ensure future compatibility.
+    - Use different alternatives for CRUD operations (direct SQL statements, stored procedures and functions) according to the features provided by the `IDbSession` interface.
 
 ## CHANGELOG.md
 - Located at the root of the repository.

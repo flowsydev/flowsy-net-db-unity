@@ -38,6 +38,9 @@
     <ItemGroup>
         <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
         <None Include="Mock/Infrastructure/Database/Scripts/**/*.*" CopyToOutputDirectory="Always" />
+        <None Update="Mock\Infrastructure\Database\Scripts\Postgres\Migrations\Repeatable\R__product_category_overview_by_key.sql">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>

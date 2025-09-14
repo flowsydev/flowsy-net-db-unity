@@ -1,5 +1,4 @@
 using Flowsy.Db.Unity.Test.Mock;
-using Flowsy.Db.Unity.Test.Scenarios;
 using Xunit.Extensions.Ordering;
 
 [assembly: CollectionBehavior(DisableTestParallelization = false)]
