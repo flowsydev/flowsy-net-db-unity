@@ -54,7 +54,6 @@
     <ItemGroup>
       <Folder Include="Mock\Infrastructure\Database\Scripts\MySql\Migrations\Versioned\" />
       <Folder Include="Mock\Infrastructure\Database\Scripts\MySql\Operations\" />
-      <Folder Include="Mock\Infrastructure\Database\Scripts\Postgres\Operations\" />
       <Folder Include="Scenarios\MySql\" />
     </ItemGroup>
 

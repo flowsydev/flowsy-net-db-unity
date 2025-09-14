@@ -36,6 +36,10 @@ public class C01S01PostgresProductCategoryTest
     [InlineData("fashion", "Fashion", "Clothing and accessories")]
     [InlineData("home_kitchen", "Home & Kitchen", "Household items and kitchenware")]
     [InlineData("sports", "Sports", "Sporting goods and outdoor equipment")]
+    [InlineData("miscellaneous", "Miscellaneous", "Miscellaneous items")]
+    [InlineData("undesired_one", "Undesired One", "This will be deleted in the last test")] // This will be deleted in the last test
+    [InlineData("undesired_two", "Undesired Two", "This will be deleted in the last test")] // This will be deleted in the last test
+    [InlineData("undesired_three", "Undesired Three", "This will be deleted in the last test")] // This will be deleted in the last test
     public async Task T01_Should_Create_Product_Category(string code, string name, string description)
     {
         // Arrange
@@ -171,10 +175,9 @@ public class C01S01PostgresProductCategoryTest
     }
     
     [Theory, Order(4)]
-    [InlineData("electronics")]
-    [InlineData("fashion")]
-    [InlineData("home_kitchen")]
-    [InlineData("sports")]
+    [InlineData("undesired_one")]
+    [InlineData("undesired_two")]
+    [InlineData("undesired_three")]
     public async Task T04_Should_Delete_Product_Category(string code)
     {
         // Arrange

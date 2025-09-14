@@ -1,3 +1,4 @@
+using System.Reflection;
 using Flowsy.Db.Unity.Test.Mock.Infrastructure.Database;
 using Flowsy.Db.Unity.Test.Mock.Model;
 using Microsoft.Extensions.Configuration;
@@ -69,6 +70,7 @@ public class ServiceHost : IDisposable, IAsyncDisposable
                             memberNameCaseStyle: DbCaseStyle.PascalCase,
                             mappings:
                             [
+                                new DbEnumMapping(typeof(Currency), "shopping.currency"),
                                 new DbEnumMapping(typeof(ShoppingCartStatus), "shopping.shopping_cart_status"),
                                 new DbEnumMapping(typeof(UserAccountStatus), "security.user_status")
                             ]
@@ -85,19 +87,17 @@ public class ServiceHost : IDisposable, IAsyncDisposable
                         .ForParameters(prefix: "p_", useNamedParameters: true)
                         .WithDefault(DbCaseStyle.LowerSnakeCase);
                     
+                    var readModelBaseType = typeof(IReadModel);
+                    var readModelTypes = Assembly.GetExecutingAssembly()
+                        .GetTypes()
+                        .Where(t => t != readModelBaseType && !t.IsAbstract && readModelBaseType.IsAssignableFrom(t))
+                        .ToArray();
+                    
                     // Type mapping for queries that return fields whose names are in lower_snake_case format.
                     // Databases like PostgreSQL and MySQL typically use this format by convention.
-                    options.MapTypes(DbCaseStyle.LowerSnakeCase, types:
-                    [
-                        typeof(ProductCategoryOverview),
-                        typeof(ProductCategoryDetail),
-                        typeof(ProductOverview),
-                        typeof(ProductDetail),
-                        typeof(UserAccountOverview),
-                        typeof(UserAccountDetail),
-                        typeof(ShoppingCartOverview),
-                        typeof(ShoppingCartDetail),
-                    ]);
+                    options.MapTypes(DbCaseStyle.LowerSnakeCase, types: readModelTypes);
+
+                    options.UseConnectionFactory<DbExtendedConnectionFactory>();
                 });
             })
             .UseSerilog()
