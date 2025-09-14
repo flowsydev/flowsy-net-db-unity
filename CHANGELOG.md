@@ -6,6 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 
 ---
 
+## [4.0.0] - 2025-09-14
+
+### Changed
+- **BREAKING**: Replaced DbAgent/DbUnitOfWork with simplified DbSession architecture for improved performance and maintainability
+- Streamlined database session management with new DbSession pattern
+
+### Added
+- New DbSession class with comprehensive database operation support
+- DbSessionFactory for creating and managing database sessions
+- Enhanced connection management through DbConnectionHub and DbConnectionFactory
+- Improved database parameter handling with DbParameterBuilder
+- Support for multiple database providers with DbProviderDescriptor
+- Database migration capabilities through DbMigrationConfiguration
+- Comprehensive support for database conventions with DbConventionSet
+- New extension methods for enhanced query operations
+
+### Improved
+- Better resource management and disposal patterns
+- Enhanced error handling and logging capabilities
+- Optimized connection pooling and lifecycle management
+- Improved type mapping and parameter binding
+
+---
+
 ## [3.0.0] - 2025-06-11
 
 ### Changed
