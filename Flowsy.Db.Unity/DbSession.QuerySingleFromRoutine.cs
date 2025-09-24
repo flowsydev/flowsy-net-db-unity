@@ -86,7 +86,7 @@ public partial class DbSession
         
         _logger?.Log(
             Configuration.LogLevel,
-            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing QuerySingle routine: {RoutineCall}", 
+            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing routine for query to get a single result: {RoutineCall}", 
             SessionId,
             operationId,
             commandDefinition.CommandText
@@ -98,9 +98,10 @@ public partial class DbSession
 
             _logger?.Log(
                 Configuration.LogLevel,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] QuerySingle routine executed successfully",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Routine executed successfully for query to get a single result: {RoutineCall}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
 
             return result;
@@ -109,9 +110,10 @@ public partial class DbSession
         {
             _logger?.LogError(
                 exception,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing QuerySingle routine",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing routine for query to get a single result: {RoutineCall}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
             throw;
         }
@@ -198,7 +200,7 @@ public partial class DbSession
         
         _logger?.Log(
             Configuration.LogLevel,
-            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing QuerySingleOrDefault routine: {RoutineCall}", 
+            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing routine for query to get a single result or default: {RoutineCall}",
             SessionId,
             operationId,
             commandDefinition.CommandText
@@ -210,9 +212,10 @@ public partial class DbSession
 
             _logger?.Log(
                 Configuration.LogLevel,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] QuerySingleOrDefault routine executed successfully",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Routine executed successfully for query to get a single result or default: {RoutineCall}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
 
             return result;
@@ -221,9 +224,10 @@ public partial class DbSession
         {
             _logger?.LogError(
                 exception,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing QuerySingleOrDefault routine",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing routine for query to get a single result or default: {RoutineCall}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
             throw;
         }

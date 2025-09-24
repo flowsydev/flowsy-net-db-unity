@@ -15,8 +15,8 @@
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/flowsydev/flowsy-net-db-unity</RepositoryUrl>
 
-        <AssemblyVersion>4.0.0</AssemblyVersion>
-        <PackageVersion>4.0.0</PackageVersion>
+        <AssemblyVersion>4.0.1</AssemblyVersion>
+        <PackageVersion>4.0.1</PackageVersion>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
 

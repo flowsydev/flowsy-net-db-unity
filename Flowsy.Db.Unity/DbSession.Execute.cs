@@ -54,10 +54,11 @@ public partial class DbSession
 
             _logger?.Log(
                 Configuration.LogLevel,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Statement executed, rows affected: {RowsAffected}",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Statement executed affecting {RowsAffected}: {StatementText}",
                 SessionId,
                 operationId,
-                rowsAffected
+                rowsAffected,
+                commandDefinition.CommandText
             );
 
             return rowsAffected;
@@ -66,9 +67,10 @@ public partial class DbSession
         {
             _logger?.LogError(
                 exception,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing statement",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing statement: {StatementText}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
             throw;
         }

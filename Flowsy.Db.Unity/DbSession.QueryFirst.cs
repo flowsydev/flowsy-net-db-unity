@@ -49,7 +49,7 @@ public partial class DbSession
         
         _logger?.Log(
             Configuration.LogLevel,
-            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing QueryFirst statement: {StatementText}", 
+            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing statement for query to get first result: {StatementText}",
             SessionId,
             operationId,
             commandDefinition.CommandText
@@ -61,9 +61,10 @@ public partial class DbSession
 
             _logger?.Log(
                 Configuration.LogLevel,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] QueryFirst statement executed successfully",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Statement executed successfully for query to get first result: {StatementText}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
 
             return result;
@@ -72,9 +73,10 @@ public partial class DbSession
         {
             _logger?.LogError(
                 exception,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing QueryFirst statement",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing statement for query to get first result: {StatementText}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
             throw;
         }
@@ -119,7 +121,7 @@ public partial class DbSession
         
         _logger?.Log(
             Configuration.LogLevel,
-            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing QueryFirstOrDefault statement: {StatementText}", 
+            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing statement for query to get first result or default: {StatementText}",
             SessionId,
             operationId,
             commandDefinition.CommandText
@@ -131,9 +133,10 @@ public partial class DbSession
 
             _logger?.Log(
                 Configuration.LogLevel,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] QueryFirstOrDefault statement executed successfully",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Statement executed successfully for query to get first result or default: {StatementText}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
 
             return result;
@@ -142,9 +145,10 @@ public partial class DbSession
         {
             _logger?.LogError(
                 exception,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing QueryFirstOrDefault statement",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing statement for query to get first result or default: {StatementText}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
             throw;
         }

@@ -86,7 +86,7 @@ public partial class DbSession
         
         _logger?.Log(
             Configuration.LogLevel,
-            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing QueryFirst routine: {RoutineCall}", 
+            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing routine for query to get first result: {RoutineCall}",
             SessionId,
             operationId,
             commandDefinition.CommandText
@@ -98,9 +98,10 @@ public partial class DbSession
 
             _logger?.Log(
                 Configuration.LogLevel,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] QueryFirst routine executed successfully",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Routine executed successfully for query to get first result: {RoutineCall}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
 
             return result;
@@ -109,9 +110,10 @@ public partial class DbSession
         {
             _logger?.LogError(
                 exception,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing QueryFirst routine",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing routine for query to get first result: {RoutineCall}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
             throw;
         }
@@ -190,7 +192,7 @@ public partial class DbSession
         
         _logger?.Log(
             Configuration.LogLevel,
-            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing QueryFirstOrDefault routine: {RoutineCall}", 
+            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing routine for query to get first result or default: {RoutineCall}",
             SessionId,
             operationId,
             commandDefinition.CommandText
@@ -202,9 +204,10 @@ public partial class DbSession
 
             _logger?.Log(
                 Configuration.LogLevel,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] QueryFirstOrDefault routine executed successfully",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Routine executed successfully for query to get first result or default: {RoutineCall}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
 
             return result;
@@ -213,9 +216,10 @@ public partial class DbSession
         {
             _logger?.LogError(
                 exception,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing QueryFirstOrDefault routine",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing routine for query to get first result or default: {RoutineCall}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
             throw;
         }

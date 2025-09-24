@@ -42,7 +42,7 @@ public partial class DbSession
         
         _logger?.Log(
             Configuration.LogLevel,
-            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing QueryMultiple statement: {StatementText}", 
+            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing statement for query to get multiple result sets: {StatementText}",
             SessionId,
             operationId,
             commandDefinition.CommandText
@@ -54,9 +54,10 @@ public partial class DbSession
 
             _logger?.Log(
                 Configuration.LogLevel,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] QueryMultiple statement executed successfully",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Statement executed successfully for query to get multiple result sets: {StatementText}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
 
             return result;
@@ -65,9 +66,10 @@ public partial class DbSession
         {
             _logger?.LogError(
                 exception,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing QueryMultiple statement",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing statement for query to get multiple result sets: {StatementText}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
             throw;
         }

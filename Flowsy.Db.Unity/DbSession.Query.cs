@@ -64,7 +64,7 @@ public partial class DbSession
         
         _logger?.Log(
             Configuration.LogLevel,
-            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing statement: {StatementText}", 
+            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing statement for query with multiple results: {StatementText}",
             SessionId,
             operationId,
             commandDefinition.CommandText
@@ -76,9 +76,10 @@ public partial class DbSession
 
             _logger?.Log(
                 Configuration.LogLevel,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Statement executed",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Statement executed for query with multiple results: {StatementText}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
 
             return results;
@@ -87,9 +88,10 @@ public partial class DbSession
         {
             _logger?.LogError(
                 exception,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing statement",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing statement for query with multiple results: {StatementText}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
             throw;
         }
@@ -209,7 +211,7 @@ public partial class DbSession
         
         _logger?.Log(
             Configuration.LogLevel,
-            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing routine: {RoutineCall}",
+            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing routine for query with multiple results: {RoutineCall}",
             SessionId,
             operationId,
             commandDefinition.CommandText
@@ -221,9 +223,10 @@ public partial class DbSession
 
             _logger?.Log(
                 Configuration.LogLevel,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Routine executed",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Routine executed for query with multiple results: {RoutineCall}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
                 );
 
             return results;
@@ -232,9 +235,10 @@ public partial class DbSession
         {
             _logger?.LogError(
                 exception,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing routine",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing routine for query with multiple results: {RoutineCall}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
                 );
             
             throw;

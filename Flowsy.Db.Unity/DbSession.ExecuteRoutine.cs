@@ -49,9 +49,11 @@ public partial class DbSession
 
             _logger?.Log(
                 Configuration.LogLevel,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Routine executed",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Routine executed affecting {RowsAffected}: {RoutineCall}",
                 SessionId,
-                operationId
+                operationId,
+                result,
+                commandDefinition.CommandText
             );
             
             return result;
@@ -60,9 +62,10 @@ public partial class DbSession
         {
             _logger?.LogError(
                 exception,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing routine",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing routine: {RoutineCall}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
             throw;
         }

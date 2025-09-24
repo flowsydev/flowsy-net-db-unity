@@ -49,7 +49,7 @@ public partial class DbSession
         
         _logger?.Log(
             Configuration.LogLevel,
-            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing QuerySingle statement: {StatementText}", 
+            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing statement for query to get a single result: {StatementText}",
             SessionId,
             operationId,
             commandDefinition.CommandText
@@ -61,9 +61,10 @@ public partial class DbSession
 
             _logger?.Log(
                 Configuration.LogLevel,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] QuerySingle statement executed successfully",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Statement executed successfully for query to get a single result: {StatementText}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
 
             return result;
@@ -72,9 +73,10 @@ public partial class DbSession
         {
             _logger?.LogError(
                 exception,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing QuerySingle statement",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing statement for query to get a single result: {StatementText}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
             throw;
         }
