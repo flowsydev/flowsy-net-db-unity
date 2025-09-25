@@ -33,7 +33,7 @@ public partial class DbSession
         dynamic? parameters = null,
         CancellationToken cancellationToken = default
     )
-        => QuerySingleFromRoutineAsync<T>(routineName, Configuration.Conventions.Routines.RoutineType, parameters, cancellationToken);
+        => QuerySingleFromRoutineAsync<T>(routineName, Configuration.Conventions.Routines.RoutineType, parameters as object, cancellationToken);
 
     /// <summary>
     /// Performs a query to a stored procedure or function in the database and returns exactly one result.
@@ -147,7 +147,7 @@ public partial class DbSession
         dynamic? parameters = null,
         CancellationToken cancellationToken = default
     )
-        => QuerySingleOrDefaultFromRoutineAsync<T>(routineName, Configuration.Conventions.Routines.RoutineType, parameters, cancellationToken);
+        => QuerySingleOrDefaultFromRoutineAsync<T>(routineName, Configuration.Conventions.Routines.RoutineType, parameters as object, cancellationToken);
 
     /// <summary>
     /// Performs a query to a stored procedure or function in the database and returns exactly one result, or the default value if no results are found.

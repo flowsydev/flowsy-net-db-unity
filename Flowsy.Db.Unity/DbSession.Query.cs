@@ -138,7 +138,7 @@ public partial class DbSession
         dynamic? parameters,
         CancellationToken cancellationToken = default
         )
-        => QueryFromRoutineAsync<T>(routineName, Configuration.Conventions.Routines.RoutineType, parameters, cancellationToken);
+        => QueryFromRoutineAsync<T>(routineName, Configuration.Conventions.Routines.RoutineType, parameters as object, cancellationToken);
 
     /// <summary>
     /// Performs a query to a stored procedure or function in the database and returns an enumerable of results.

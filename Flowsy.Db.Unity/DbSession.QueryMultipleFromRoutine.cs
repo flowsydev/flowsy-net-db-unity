@@ -26,7 +26,7 @@ public partial class DbSession
         dynamic? parameters = null,
         CancellationToken cancellationToken = default
     )
-        => QueryMultipleFromRoutineAsync(routineName, Configuration.Conventions.Routines.RoutineType, parameters, cancellationToken);
+        => QueryMultipleFromRoutineAsync(routineName, Configuration.Conventions.Routines.RoutineType, parameters as object, cancellationToken);
 
     /// <summary>
     /// Performs a query to a stored procedure or function in the database that can return multiple result sets.

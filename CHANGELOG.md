@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 
 ---
 
+## [4.0.2] - 2025-09-24
+### Fixed
+- Add casting for dynamic parameters in DbSession to prevent runtime errors
+
+---
+
 ## [4.0.1] - 2025-09-24
 ### Changed
 - Added log details for database operations in DbSession class
