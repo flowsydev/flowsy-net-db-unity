@@ -125,7 +125,7 @@ public partial class DbSession
         
         _logger?.Log(
             Configuration.LogLevel,
-            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing QuerySingleOrDefault statement: {StatementText}", 
+            "[ SESSION:{SessionId} > OP:{OperationId} ] Executing statement to get a single result or default: {StatementText}",
             SessionId,
             operationId,
             commandDefinition.CommandText
@@ -137,9 +137,10 @@ public partial class DbSession
 
             _logger?.Log(
                 Configuration.LogLevel,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] QuerySingleOrDefault statement executed successfully",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Statement executed successfully to get a single result or default: {StatementText}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
 
             return result;
@@ -148,9 +149,10 @@ public partial class DbSession
         {
             _logger?.LogError(
                 exception,
-                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing QuerySingleOrDefault statement",
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Error executing statement to get a single result or default: {StatementText}",
                 SessionId,
-                operationId
+                operationId,
+                commandDefinition.CommandText
             );
             throw;
         }

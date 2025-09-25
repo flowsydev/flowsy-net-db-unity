@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 
 ---
 
+## [4.0.3] - 2025-09-25
+### Fixed
+- Fix log errors in DbSession.QuerySingleAsync and DbSession.QuerySingleOrDefaultAsync to standardize database operation details
+
+### Changed
+- Add missing XML Documetation to DbSession class methods
+
+---
+
 ## [4.0.2] - 2025-09-24
 ### Fixed
 - Add casting for dynamic parameters in DbSession to prevent runtime errors
