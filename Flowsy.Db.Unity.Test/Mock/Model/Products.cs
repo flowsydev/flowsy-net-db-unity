@@ -8,10 +8,10 @@ public record ProductCategoryDetail(
     ) : IReadModel;
 
 public record ProductOverview(
-    Guid ProductId, string Sku, string Name, decimal Price, Currency Currency, Guid ProductCategoryId
-    ) : IReadModel;
+    Guid ProductId, string Sku, string Name, decimal Price, Currency Currency, Guid ProductCategoryId, int[]? TagIds
+) : IReadModel;
 
 public record ProductDetail(
     Guid ProductId, string Sku, string Name, string? Description, decimal Price, Currency Currency, Guid ProductCategoryId,
-    DateTimeOffset CreationInstant, DateTimeOffset? LastMutationInstant
-    ) : IReadModel;
+    int[]? TagIds, DateTimeOffset CreationInstant, DateTimeOffset? LastMutationInstant
+) : IReadModel;

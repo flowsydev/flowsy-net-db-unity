@@ -135,20 +135,31 @@ public class DbParameterBuilder
         var elementType = runtimeType.GetElementType();
         if (elementType is not null)
         {
-            if (!elementType.IsGenericType || elementType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                return elementType.IsEnum
-                    ? BuildDescriptorForEnum(parameterName, elementType, true)
-                    : new DbParameterDescriptor(provider, parameterName, runtimeType, provider.InferDatabaseType(elementType));
+            // Array de enums
+            if (elementType.IsEnum)
+                return BuildDescriptorForEnum(parameterName, elementType, true);
             
-            var underlyingType = Nullable.GetUnderlyingType(elementType)!;
-            return underlyingType.IsEnum
-                ? BuildDescriptorForEnum(parameterName, underlyingType, true)
-                : new DbParameterDescriptor(
-                    provider,
-                    parameterName,
-                    runtimeType,
-                    provider.InferDatabaseType(underlyingType)
-                );
+            // Array de Nullable<T>
+            if (elementType.IsGenericType && elementType.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                var underlyingType = Nullable.GetUnderlyingType(elementType)!;
+                return underlyingType.IsEnum
+                    ? BuildDescriptorForEnum(parameterName, underlyingType, true)
+                    : new DbParameterDescriptor(
+                        provider,
+                        parameterName,
+                        runtimeType,
+                        null  // No especificar DbType para arrays, dejar que el proveedor lo infiera
+                    );
+            }
+            
+            // Array de tipos primitivos u otros tipos
+            return new DbParameterDescriptor(
+                provider,
+                parameterName,
+                runtimeType,
+                null  // No especificar DbType para arrays, dejar que el proveedor lo infiera
+            );
         }
 
         return runtimeType.IsEnum 

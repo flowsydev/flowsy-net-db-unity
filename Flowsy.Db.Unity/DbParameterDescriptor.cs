@@ -158,11 +158,21 @@ public class DbParameterDescriptor : DbObjectDescriptor
                 break;
             
             case IEnumerable enumerable:
-                databaseValue = (
-                    from object? value in enumerable
-                    select ResolveDatabaseValue(value, conventions)
-                ).ToArray();
+            {
+                // Return value as array of the underlying type
+                var elementType = RuntimeType.IsArray
+                    ? RuntimeType.GetElementType()!
+                    : RuntimeType.GenericTypeArguments.Length > 0
+                        ? RuntimeType.GenericTypeArguments[0]
+                        : typeof(object);
+                
+                var list = new ArrayList();
+                foreach (var item in enumerable)
+                    list.Add(Convert.ChangeType(item, elementType));
+               
+                databaseValue = list.ToArray(elementType);
                 break;
+            }
             
             default:
                 databaseValue = runtimeValue;

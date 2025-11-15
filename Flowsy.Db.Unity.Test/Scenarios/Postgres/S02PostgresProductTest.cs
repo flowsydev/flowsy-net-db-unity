@@ -63,12 +63,16 @@ public class S02PostgresProductTest
         Exception? exception = null;
         try
         {
-            _output.WriteLine("Creating product: {0} | {1} | {2} | {3} {4}", sku, name, description, price, currency);
+            // Generate sample tag IDs based on product category
+            var tagIds = GenerateTagIdsForCategory(categoryCode);
+            
+            _output.WriteLine("Creating product: {0} | {1} | {2} | {3} {4} | Tags: [{5}]", 
+                sku, name, description, price, currency, string.Join(", ", tagIds));
             
             await db.ExecuteAsync(
                 """
-                insert into shopping.product (product_id, sku, name, description, price, currency, product_category_id, creation_instant) 
-                values (@p_product_id, @p_sku, @p_name, @p_description, @p_price, @p_currency::shopping.currency, @p_product_category_id, @p_creation_instant)
+                insert into shopping.product (product_id, sku, name, description, price, currency, product_category_id, tag_ids, creation_instant) 
+                values (@p_product_id, @p_sku, @p_name, @p_description, @p_price, @p_currency::shopping.currency, @p_product_category_id, @p_tag_ids, @p_creation_instant)
                 """,
                 new
                 {
@@ -79,11 +83,13 @@ public class S02PostgresProductTest
                     Price = price,
                     Currency = currency,
                     productCategory.ProductCategoryId,
+                    TagIds = tagIds,
                     CreationInstant = Clock.GetTimestamp()
                 }
             );
             
-            _output.WriteLine("Product created successfully: {0} | {1} | {2} | {3} {4}", sku, name, description, price, currency);
+            _output.WriteLine("Product created successfully: {0} | {1} | {2} | {3} {4} | Tags: [{5}]", 
+                sku, name, description, price, currency, string.Join(", ", tagIds));
         }
         catch (Exception ex)
         {
@@ -123,6 +129,7 @@ public class S02PostgresProductTest
                 p.price,
                 p.currency::text,
                 p.product_category_id,
+                p.tag_ids,
                 p.creation_instant,
                 p.last_mutation_instant
             from shopping.product as p
@@ -141,8 +148,13 @@ public class S02PostgresProductTest
         existingProduct.Price.ShouldBeGreaterThan(0);
         existingProduct.Currency.ShouldBe(Currency.Usd);
         existingProduct.ProductCategoryId.ShouldNotBe(Guid.Empty);
+        existingProduct.TagIds.ShouldNotBeNull();
+        existingProduct.TagIds.ShouldNotBeEmpty();
         existingProduct.CreationInstant.ShouldNotBe(DateTimeOffset.MinValue);
         existingProduct.LastMutationInstant.ShouldBeNull();
+        
+        _output.WriteLine("Product has {0} tags: [{1}]", 
+            existingProduct.TagIds.Length, string.Join(", ", existingProduct.TagIds));
     }
     
     [Theory, Order(3)]
@@ -170,7 +182,8 @@ public class S02PostgresProductTest
                 p.name,
                 p.price,
                 p.currency::text,
-                p.product_category_id
+                p.product_category_id,
+                p.tag_ids
             from shopping.product as p
             where p.sku = @p_sku
             """,
@@ -178,7 +191,12 @@ public class S02PostgresProductTest
         );
         existingProduct.ShouldNotBeNull();
         
-        _output.WriteLine("Updating product: {0} | {1} | {2} | {3} {4}", sku, newName, newDescription, newPrice, existingProduct.Currency);
+        // Generate updated tag IDs (add new tags to existing ones)
+        var updatedTagIds = existingProduct.TagIds?.ToList() ?? new List<int>();
+        updatedTagIds.AddRange([999, 1000]); // Add some new tags
+        
+        _output.WriteLine("Updating product: {0} | {1} | {2} | {3} {4} | Tags: [{5}]", 
+            sku, newName, newDescription, newPrice, existingProduct.Currency, string.Join(", ", updatedTagIds));
             
         await db.ExecuteAsync(
             """
@@ -187,6 +205,7 @@ public class S02PostgresProductTest
                 name = @p_name,
                 description = @p_description,
                 price = @p_price,
+                tag_ids = @p_tag_ids,
                 last_mutation_instant = @p_last_mutation_instant
             where product_id = @p_product_id
             """,
@@ -196,6 +215,7 @@ public class S02PostgresProductTest
                 Name = newName,
                 Description = newDescription,
                 Price = newPrice,
+                TagIds = updatedTagIds.ToArray(),
                 LastMutationInstant = Clock.GetTimestamp()
             }
         );
@@ -212,6 +232,7 @@ public class S02PostgresProductTest
                 p.price,
                 p.currency::text,
                 p.product_category_id,
+                p.tag_ids,
                 p.creation_instant,
                 p.last_mutation_instant
             from shopping.product as p
@@ -231,9 +252,15 @@ public class S02PostgresProductTest
         updatedProduct.Price.ShouldBe(newPrice);
         updatedProduct.Currency.ShouldBe(Currency.Usd);
         updatedProduct.ProductCategoryId.ShouldNotBe(Guid.Empty);
+        updatedProduct.TagIds.ShouldNotBeNull();
+        updatedProduct.TagIds.ShouldContain(999);
+        updatedProduct.TagIds.ShouldContain(1000);
         updatedProduct.CreationInstant.ShouldNotBe(DateTimeOffset.MinValue);
         updatedProduct.LastMutationInstant.ShouldNotBeNull();
         updatedProduct.LastMutationInstant.Value.ShouldBeGreaterThan(updatedProduct.CreationInstant);
+        
+        _output.WriteLine("Updated product has {0} tags: [{1}]", 
+            updatedProduct.TagIds.Length, string.Join(", ", updatedProduct.TagIds));
     }
     
     [Theory, Order(4)]
@@ -260,7 +287,8 @@ public class S02PostgresProductTest
                 p.name,
                 p.price,
                 p.currency::text,
-                p.product_category_id
+                p.product_category_id,
+                p.tag_ids
             from shopping.product as p
             where p.sku = @p_sku
             """,
@@ -291,6 +319,7 @@ public class S02PostgresProductTest
                 p.price,
                 p.currency::text,
                 p.product_category_id,
+                p.tag_ids,
                 p.creation_instant,
                 p.last_mutation_instant
             from shopping.product as p
@@ -302,5 +331,68 @@ public class S02PostgresProductTest
         // Assert
         deletedProduct.ShouldBeNull();
         _output.WriteLine("Confirmed that product {0} no longer exists", sku);
+    }
+    
+    [Fact, Order(5)]
+    public async Task T05_Should_Search_Products_By_Tag_Ids()
+    {
+        // Arrange
+        await using var scope = _host.CreateAsyncScope();
+        
+        var connectionHub = scope.ServiceProvider.GetService<IDbConnectionHub>();
+        connectionHub.ShouldNotBeNull();
+        
+        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey);
+        
+        // Act
+        // Search for products with electronics-related tags (1, 2, 3)
+        var searchTagIds = new[] { 1, 2, 3 };
+        _output.WriteLine("Searching products with tags: [{0}]", string.Join(", ", searchTagIds));
+        
+        var products = await db.QueryAsync<ProductOverview>(
+            """
+            select
+                p.product_id,
+                p.sku,
+                p.name,
+                p.price,
+                p.currency::text,
+                p.product_category_id,
+                p.tag_ids
+            from shopping.product as p
+            where p.tag_ids && @p_tag_ids
+            order by p.name
+            """,
+            new { TagIds = searchTagIds }
+        );
+        
+        var productList = products.ToList();
+        _output.WriteLine("Found {0} products with specified tags", productList.Count);
+        
+        foreach (var product in productList)
+        {
+            _output.WriteLine("  - {0} | {1} | Tags: [{2}]", 
+                product.Sku, product.Name, string.Join(", ", product.TagIds ?? Array.Empty<int>()));
+        }
+        
+        // Assert
+        productList.ShouldNotBeEmpty();
+        productList.ShouldAllBe(p => p.TagIds != null && p.TagIds.Any(t => searchTagIds.Contains(t)));
+    }
+    
+    /// <summary>
+    /// Generates sample tag IDs based on product category code.
+    /// </summary>
+    private static int[] GenerateTagIdsForCategory(string categoryCode)
+    {
+        return categoryCode switch
+        {
+            "electronics" => [1, 2, 3, 100, 101],      // Technology, Mobile, Innovation, Premium, Latest
+            "fashion" => [4, 5, 6, 102, 103],          // Clothing, Style, Comfort, Cotton, Casual
+            "home_kitchen" => [7, 8, 9, 104, 105],     // Kitchen, Appliance, Home, Professional, High-Performance
+            "sports" => [10, 11, 12, 106, 107],        // Sports, Fitness, Outdoor, Professional, FIFA
+            "miscellaneous" => [13, 14, 15],           // Other, General, Misc
+            _ => [99]                                   // Unknown
+        };
     }
 }

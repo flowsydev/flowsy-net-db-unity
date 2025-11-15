@@ -9,6 +9,7 @@ CREATE TABLE shopping.product (
     price DECIMAL(18, 2) NOT NULL,
     currency shopping.currency NOT NULL,
     product_category_id UUID NOT NULL,
+    tag_ids INT[] NULL,
     creation_instant TIMESTAMPTZ NOT NULL,
     last_mutation_instant TIMESTAMPTZ,
     
@@ -23,3 +24,4 @@ CREATE INDEX idx_product_price ON shopping.product (price);
 CREATE INDEX idx_product_currency ON shopping.product (currency);
 CREATE INDEX idx_product_category_id ON shopping.product (product_category_id);
 CREATE INDEX idx_product_creation_instant ON shopping.product (creation_instant);
+CREATE INDEX idx_product_tag_ids ON shopping.product USING GIN (tag_ids);

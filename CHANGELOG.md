@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 
 ---
 
+## [4.0.4] - 2025-11-15
+### Fixed
+- Fix parameter construction to allow passing array-type values
+
+---
+
 ## [4.0.3] - 2025-09-25
 ### Fixed
 - Fix log errors in DbSession.QuerySingleAsync and DbSession.QuerySingleOrDefaultAsync to standardize database operation details
