@@ -1,11 +1,10 @@
+using Microsoft.Extensions.DependencyInjection;
 using Flowsy.Db.Unity.Test.Mock;
 using Flowsy.Db.Unity.Test.Mock.Infrastructure.Database;
 using Flowsy.Db.Unity.Test.Mock.Infrastructure.Time;
 using Flowsy.Db.Unity.Test.Mock.Model;
-using Microsoft.Extensions.DependencyInjection;
+using Flowsy.Db.Unity.Test.Infrastructure.Testing.Ordering;
 using Shouldly;
-using Xunit.Abstractions;
-using Xunit.Extensions.Ordering;
 
 namespace Flowsy.Db.Unity.Test.Scenarios.Postgres;
 
@@ -19,7 +18,7 @@ namespace Flowsy.Db.Unity.Test.Scenarios.Postgres;
 /// When the application connects to the database and performs CRUD operations on products
 /// Then the operations should succeed and the data should be correctly stored and retrieved
 /// </summary>
-[Collection(Collections.Postgres), Order(2)]
+[Collection(Collections.PostgresProducts), Order(2)]
 public class S02PostgresProductTest
 {
     private const string ConnectionKey = DbConnections.Postgres;
@@ -44,19 +43,21 @@ public class S02PostgresProductTest
     public async Task T01_Should_Create_Product(string sku, string name, string description, decimal price, Currency currency, string categoryCode)
     {
         // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var scope = _host.CreateAsyncScope();
         
         var connectionHub = scope.ServiceProvider.GetService<IDbConnectionHub>();
         connectionHub.ShouldNotBeNull();
         
-        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey);
+        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey, cancellationToken: cancellationToken);
         
         // Act
         // Get the product category ID by code
         _output.WriteLine("Retrieving product category by code: {0}", categoryCode);
         var productCategory = await db.QuerySingleFromRoutineAsync<ProductCategoryOverview>(
             "shopping.product_category_get_overview_by_key",
-            new { Key = categoryCode }
+            new { Key = categoryCode },
+            cancellationToken
         );
         productCategory.ShouldNotBeNull();
         
@@ -84,8 +85,9 @@ public class S02PostgresProductTest
                     Currency = currency,
                     productCategory.ProductCategoryId,
                     TagIds = tagIds,
-                    CreationInstant = Clock.GetTimestamp()
-                }
+                    CreationInstant = Clock.GetTimestamp().ToLocalTime().DateTime
+                },
+                cancellationToken
             );
             
             _output.WriteLine("Product created successfully: {0} | {1} | {2} | {3} {4} | Tags: [{5}]", 
@@ -109,12 +111,13 @@ public class S02PostgresProductTest
     public async Task T02_Should_Read_Product(string sku, string expectedName)
     {
         // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var scope = _host.CreateAsyncScope();
         
         var connectionHub = scope.ServiceProvider.GetService<IDbConnectionHub>();
         connectionHub.ShouldNotBeNull();
         
-        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey);
+        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey, cancellationToken: cancellationToken);
         
         // Act
         _output.WriteLine("Retrieving product: {0}", sku);
@@ -135,7 +138,8 @@ public class S02PostgresProductTest
             from shopping.product as p
             where p.sku = @p_sku
             """,
-            new { Sku = sku }
+            new { Sku = sku },
+            cancellationToken
         );
             
         _output.WriteLine("Product retrieved successfully: {0}{1}", Environment.NewLine, existingProduct);
@@ -165,12 +169,13 @@ public class S02PostgresProductTest
     public async Task T03_Should_Update_Product(string sku, string newName, string newDescription, decimal newPrice)
     {
         // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var scope = _host.CreateAsyncScope();
         
         var connectionHub = scope.ServiceProvider.GetService<IDbConnectionHub>();
         connectionHub.ShouldNotBeNull();
         
-        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey);
+        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey, cancellationToken: cancellationToken);
         
         // Act
         _output.WriteLine("Retrieving product by SKU: {0}", sku);
@@ -187,7 +192,8 @@ public class S02PostgresProductTest
             from shopping.product as p
             where p.sku = @p_sku
             """,
-            new { Sku = sku }
+            new { Sku = sku },
+            cancellationToken
         );
         existingProduct.ShouldNotBeNull();
         
@@ -216,8 +222,9 @@ public class S02PostgresProductTest
                 Description = newDescription,
                 Price = newPrice,
                 TagIds = updatedTagIds.ToArray(),
-                LastMutationInstant = Clock.GetTimestamp()
-            }
+                LastMutationInstant = Clock.GetTimestamp().ToLocalTime().DateTime
+            },
+            cancellationToken
         );
             
         _output.WriteLine("Product updated successfully: {0}", sku);
@@ -238,7 +245,8 @@ public class S02PostgresProductTest
             from shopping.product as p
             where p.product_id = @p_product_id
             """,
-            new { existingProduct.ProductId }
+            new { existingProduct.ProductId },
+            cancellationToken
         );
         
         _output.WriteLine("Updated product verified: {0}{1}", Environment.NewLine, updatedProduct);
@@ -270,12 +278,13 @@ public class S02PostgresProductTest
     public async Task T04_Should_Delete_Product(string sku)
     {
         // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var scope = _host.CreateAsyncScope();
         
         var connectionHub = scope.ServiceProvider.GetService<IDbConnectionHub>();
         connectionHub.ShouldNotBeNull();
         
-        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey);
+        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey, cancellationToken: cancellationToken);
         
         // Act
         _output.WriteLine("Retrieving product by SKU before deletion: {0}", sku);
@@ -292,7 +301,8 @@ public class S02PostgresProductTest
             from shopping.product as p
             where p.sku = @p_sku
             """,
-            new { Sku = sku }
+            new { Sku = sku },
+            cancellationToken
         );
         existingProduct.ShouldNotBeNull();
         
@@ -303,7 +313,8 @@ public class S02PostgresProductTest
             delete from shopping.product 
             where product_id = @p_product_id
             """,
-            new { existingProduct.ProductId }
+            new { existingProduct.ProductId },
+            cancellationToken
         );
             
         _output.WriteLine("Product deleted successfully: {0}", sku);
@@ -325,7 +336,8 @@ public class S02PostgresProductTest
             from shopping.product as p
             where p.sku = @p_sku
             """,
-            new { Sku = sku }
+            new { Sku = sku },
+            cancellationToken
         );
 
         // Assert
@@ -337,12 +349,13 @@ public class S02PostgresProductTest
     public async Task T05_Should_Search_Products_By_Tag_Ids()
     {
         // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var scope = _host.CreateAsyncScope();
         
         var connectionHub = scope.ServiceProvider.GetService<IDbConnectionHub>();
         connectionHub.ShouldNotBeNull();
         
-        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey);
+        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey, cancellationToken: cancellationToken);
         
         // Act
         // Search for products with electronics-related tags (1, 2, 3)
@@ -363,7 +376,8 @@ public class S02PostgresProductTest
             where p.tag_ids && @p_tag_ids
             order by p.name
             """,
-            new { TagIds = searchTagIds }
+            new { TagIds = searchTagIds },
+            cancellationToken
         );
         
         var productList = products.ToList();
@@ -381,7 +395,7 @@ public class S02PostgresProductTest
     }
     
     /// <summary>
-    /// Generates sample tag IDs based on product category code.
+    /// Genera un arreglo de IDs de tags basado en la categoría del producto.
     /// </summary>
     private static int[] GenerateTagIdsForCategory(string categoryCode)
     {

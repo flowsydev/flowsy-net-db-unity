@@ -141,6 +141,12 @@ public class DbParameterDescriptor : DbObjectDescriptor
                 else
                     databaseValue = e.ToString();
                 break;
+
+            case DateTime dt:
+                databaseValue = dt.Kind != DateTimeKind.Unspecified
+                    ? DateTime.SpecifyKind(dt, DateTimeKind.Unspecified)
+                    : dt;
+                break;
             
             case DateTimeOffset dto:
                 if (conventions is not null)

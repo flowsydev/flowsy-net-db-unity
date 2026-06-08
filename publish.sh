@@ -16,7 +16,7 @@ PROJECT_FILE=$(find . -type f -iname "*.csproj" | grep -v ".Test.")
 PROJECT_DIR=$(dirname "$PROJECT_FILE")
 
 PACKAGE_DIR="$PROJECT_DIR/bin/$BUILD_CONFIG"
-PACKAGE_VERSION=$(grep -oE '<PackageVersion>(.+)</PackageVersion>' "$PROJECT_FILE" | sed -nr 's/<PackageVersion>(.+)<\/PackageVersion>/\1/p')
+PACKAGE_VERSION=$(grep -oE '<Version>(.+)</Version>' "$PROJECT_FILE" | sed -nr 's/<Version>(.+)<\/Version>/\1/p')
 
 { dotnet clean --configuration "$BUILD_CONFIG" && \
   dotnet pack "$PROJECT_FILE" --configuration "$BUILD_CONFIG" --include-symbols; } \

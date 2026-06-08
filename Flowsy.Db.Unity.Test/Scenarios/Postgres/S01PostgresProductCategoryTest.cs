@@ -1,11 +1,10 @@
+using Microsoft.Extensions.DependencyInjection;
 using Flowsy.Db.Unity.Test.Mock;
 using Flowsy.Db.Unity.Test.Mock.Infrastructure.Database;
 using Flowsy.Db.Unity.Test.Mock.Infrastructure.Time;
 using Flowsy.Db.Unity.Test.Mock.Model;
-using Microsoft.Extensions.DependencyInjection;
+using Flowsy.Db.Unity.Test.Infrastructure.Testing.Ordering;
 using Shouldly;
-using Xunit.Abstractions;
-using Xunit.Extensions.Ordering;
 
 namespace Flowsy.Db.Unity.Test.Scenarios.Postgres;
 
@@ -17,7 +16,7 @@ namespace Flowsy.Db.Unity.Test.Scenarios.Postgres;
 /// When the application connects to the database and performs CRUD operations on product categories
 /// Then the operations should succeed and the data should be correctly stored and retrieved
 /// </summary>
-[Collection(Collections.Postgres), Order(1)]
+[Collection(Collections.PostgresProductCategories), Order(1)]
 public class C01S01PostgresProductCategoryTest
 {
     private const string ConnectionKey = DbConnections.Postgres;
@@ -43,12 +42,13 @@ public class C01S01PostgresProductCategoryTest
     public async Task T01_Should_Create_Product_Category(string code, string name, string description)
     {
         // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var scope = _host.CreateAsyncScope();
         
         var connectionHub = scope.ServiceProvider.GetService<IDbConnectionHub>();
         connectionHub.ShouldNotBeNull();
         
-        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey);
+        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey, cancellationToken: cancellationToken);
         
         // Act
         Exception? exception = null;
@@ -65,7 +65,8 @@ public class C01S01PostgresProductCategoryTest
                     Name = name,
                     Description = description,
                     CreationInstant = Clock.GetTimestamp()
-                }
+                },
+                cancellationToken
                 );
             
             _output.WriteLine("Product category created successfully: {0} | {1} | {2}", code, name, description);
@@ -88,19 +89,21 @@ public class C01S01PostgresProductCategoryTest
     public async Task T02_Should_Read_Product_Category(string code, string expectedName)
     {
         // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var scope = _host.CreateAsyncScope();
         
         var connectionHub = scope.ServiceProvider.GetService<IDbConnectionHub>();
         connectionHub.ShouldNotBeNull();
         
-        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey);
+        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey, cancellationToken: cancellationToken);
         
         // Act
         _output.WriteLine("Retrieving product category: {0}", code);
             
         var existingCategory = await db.QuerySingleFromRoutineAsync<ProductCategoryDetail>(
             "shopping.product_category_get_detail_by_key",
-            new { Key = code }
+            new { Key = code },
+            cancellationToken
         );
             
         _output.WriteLine("Product category retrieved successfully: {0}{1}", Environment.NewLine, existingCategory);
@@ -122,18 +125,20 @@ public class C01S01PostgresProductCategoryTest
     public async Task T03_Should_Update_Product_Category(string code, string newName, string newDescription)
     {
         // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var scope = _host.CreateAsyncScope();
         
         var connectionHub = scope.ServiceProvider.GetService<IDbConnectionHub>();
         connectionHub.ShouldNotBeNull();
         
-        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey);
+        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey, cancellationToken: cancellationToken);
         
         // Act
         _output.WriteLine("Retrieving product category by code: {0}", code);
         var existingCategory = await db.QuerySingleFromRoutineAsync<ProductCategoryOverview>(
             "shopping.product_category_get_overview_by_key",
-            new { Key = code }
+            new { Key = code },
+            cancellationToken
         );
         existingCategory.ShouldNotBeNull();
         
@@ -148,7 +153,8 @@ public class C01S01PostgresProductCategoryTest
                 Name = newName,
                 Description = newDescription,
                 LastMutationInstant = Clock.GetTimestamp()
-            }
+            },
+            cancellationToken
         );
             
         _output.WriteLine("Product category updated successfully: {0}", code);
@@ -158,7 +164,8 @@ public class C01S01PostgresProductCategoryTest
             new
             {
                 Key = existingCategory.ProductCategoryId.ToString(),
-            }
+            },
+            cancellationToken
         );
         
         _output.WriteLine("Updated category verified: {0}{1}", Environment.NewLine, updatedCategory);
@@ -181,18 +188,20 @@ public class C01S01PostgresProductCategoryTest
     public async Task T04_Should_Delete_Product_Category(string code)
     {
         // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
         await using var scope = _host.CreateAsyncScope();
         
         var connectionHub = scope.ServiceProvider.GetService<IDbConnectionHub>();
         connectionHub.ShouldNotBeNull();
         
-        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey);
+        await using var db = await connectionHub.CreateSessionAsync(ConnectionKey, cancellationToken: cancellationToken);
         
         // Act
         _output.WriteLine("Retrieving product category by code before deletion: {0}", code);
         var existingCategory = await db.QuerySingleFromRoutineAsync<ProductCategoryOverview>(
             "shopping.product_category_get_overview_by_key",
-            new { Key = code }
+            new { Key = code },
+            cancellationToken
         );
         existingCategory.ShouldNotBeNull();
         
@@ -203,7 +212,8 @@ public class C01S01PostgresProductCategoryTest
             new
             {
                 existingCategory.ProductCategoryId
-            }
+            },
+            cancellationToken
         );
             
         _output.WriteLine("Product category deleted successfully: {0}", code);
@@ -211,7 +221,8 @@ public class C01S01PostgresProductCategoryTest
         // Verify deletion by attempting to retrieve the category
         var deletedCategory = await db.QuerySingleOrDefaultFromRoutineAsync<ProductCategoryDetail>(
             "shopping.product_category_get_detail_by_key",
-            new { Key = code }
+            new { Key = code },
+            cancellationToken
         );
 
         // Assert

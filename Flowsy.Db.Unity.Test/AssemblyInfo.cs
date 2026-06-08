@@ -1,12 +1,10 @@
 using Flowsy.Db.Unity.Test.Mock;
-using Xunit.Extensions.Ordering;
+using Flowsy.Db.Unity.Test.Infrastructure.Testing.Ordering;
 
-[assembly: CollectionBehavior(DisableTestParallelization = false)]
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
-[assembly: TestFramework("Xunit.Extensions.Ordering.TestFramework", "Xunit.Extensions.Ordering")]
+[assembly: TestCollectionOrderer(typeof(OrderedTestCollectionOrderer))]
 
-[assembly: TestCollectionOrderer("Xunit.Extensions.Ordering.CollectionOrderer", "Xunit.Extensions.Ordering")]
-
-[assembly: TestCaseOrderer("Xunit.Extensions.Ordering.TestCaseOrderer", "Xunit.Extensions.Ordering")]
+[assembly: TestCaseOrderer(typeof(OrderedTestCaseOrderer))]
 
 [assembly: AssemblyFixture(typeof(ServiceHost))]

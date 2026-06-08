@@ -1,15 +1,19 @@
-using Xunit.Extensions.Ordering;
+using Flowsy.Db.Unity.Test.Infrastructure.Testing.Ordering;
 
 namespace Flowsy.Db.Unity.Test.Scenarios;
 
 public static class Collections
 {
-    public const string Postgres = "Postgres";
+    public const string PostgresProductCategories = "Postgres product categories";
+    public const string PostgresProducts = "Postgres products";
     public const string MySql = "MySql";
 }
 
-[CollectionDefinition(Collections.Postgres), Order(1)]
-public sealed class PostgresCollection;
+[CollectionDefinition(Collections.PostgresProductCategories), Order(1)]
+public sealed class PostgresProductCategoriesCollection;
 
-[CollectionDefinition(Collections.MySql), Order(2)]
+[CollectionDefinition(Collections.PostgresProducts), Order(2)]
+public sealed class PostgresProductsCollection;
+
+[CollectionDefinition(Collections.MySql), Order(3)]
 public sealed class MySqlCollection;

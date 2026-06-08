@@ -6,29 +6,75 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 
 ---
 
-## [4.0.4] - 2025-11-15
+## [Unreleased]
+
+---
+
+## [5.0.0] - 2026-06-08
+
+### Added
+
+- Add support for `net10.0`.
+- Add an English usage guide under `Docs/Usage`.
+- Add repository-level agent instructions in `AGENTS.md`.
+- Add a technical assessment of potential `DbSession` improvements under `Docs/Review`.
+
+### Changed
+
+- **BREAKING**: Change supported target frameworks from `net6.0` and `net8.0` to `net8.0` and `net10.0`.
+- Use conditional dependency versions aligned with the `net8.0` and `net10.0` targets.
+- Run the integration test project against both `net8.0` and `net10.0`.
+- Update shared dependencies to their latest stable versions.
+- Migrate the test project to xUnit v3.
+- Replace the external xUnit ordering extension with internal orderers based on public xUnit v3 APIs.
+- Run target frameworks and dependent integration-test collections sequentially for deterministic database scenarios.
+- Update Testcontainers usage for the latest stable API.
+- Use `DbType.DateTime2` for `DateTime` parameters and normalize their kind before sending them to providers.
+
 ### Fixed
+
+- Ensure dependent PostgreSQL integration scenarios execute in their required order.
+- Read the package version from `<Version>` in `publish.sh`.
+
+### Removed
+
+- Remove support for `net6.0`.
+- Remove obsolete repository and test-project Copilot instruction files.
+
+---
+
+## [4.0.4] - 2025-11-15
+
+### Fixed
+
 - Fix parameter construction to allow passing array-type values
 
 ---
 
 ## [4.0.3] - 2025-09-25
+
 ### Fixed
+
 - Fix log errors in DbSession.QuerySingleAsync and DbSession.QuerySingleOrDefaultAsync to standardize database operation details
 
 ### Changed
+
 - Add missing XML Documetation to DbSession class methods
 
 ---
 
 ## [4.0.2] - 2025-09-24
+
 ### Fixed
+
 - Add casting for dynamic parameters in DbSession to prevent runtime errors
 
 ---
 
 ## [4.0.1] - 2025-09-24
+
 ### Changed
+
 - Added log details for database operations in DbSession class
 
 ---
@@ -36,10 +82,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 ## [4.0.0] - 2025-09-14
 
 ### Changed
+
 - **BREAKING**: Replaced DbAgent/DbUnitOfWork with simplified DbSession architecture for improved performance and maintainability
 - Streamlined database session management with new DbSession pattern
 
 ### Added
+
 - New DbSession class with comprehensive database operation support
 - DbSessionFactory for creating and managing database sessions
 - Enhanced connection management through DbConnectionHub and DbConnectionFactory
@@ -50,6 +98,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 - New extension methods for enhanced query operations
 
 ### Improved
+
 - Better resource management and disposal patterns
 - Enhanced error handling and logging capabilities
 - Optimized connection pooling and lifecycle management
@@ -60,6 +109,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 ## [3.0.0] - 2025-06-11
 
 ### Changed
+
 - Database connection management improvement
 
 ---
@@ -67,6 +117,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 ## [2.0.5] - 2025-06-09
 
 ### Added
+
 - Logs when disposing connections
 
 ---
@@ -74,6 +125,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 ## [2.0.4] - 2025-06-09
 
 ### Changed
+
 - Modified creation of the default DbAgent instance to use IDbConnectionFactory instead of IDbConnectionScope
 
 ---
@@ -81,6 +133,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 ## [2.0.3] - 2025-06-09
 
 ### Fixed
+
 - GetFirstOrDefault and GetSingleOrDefault extension methods to avoid error when no results are found
 
 ---
@@ -88,6 +141,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 ## [2.0.2] - 2025-06-09
 
 ### Added
+
 - Support for Nullable types when building parameter descriptors
 
 ---
@@ -95,6 +149,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 ## [2.0.1] - 2025-06-06
 
 ### Added
+
 - Constructor for DbEnumMapping to allow creation without specifying an instance of DbConventionSet
 
 ---
@@ -102,6 +157,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 ## [2.0.0] - 2025-06-01
 
 ### Changed
+
 - Refactored DbAgent and DbUnitOfWork to improve management and disposal of the underlying IDbConnection object
 
 ---
@@ -109,6 +165,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 ## [1.2.1] - 2025-06-01
 
 ### Fixed
+
 - DbAgent.DisposeAsync method now invokes GC.SuppressFinalize
 
 ---
@@ -116,6 +173,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 ## [1.2.0] - 2025-05-24
 
 ### Added
+
 - Method to obtain the required DbConnectionOptions instance
 
 ---
@@ -123,6 +181,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 ## [1.1.0] - 2025-05-24
 
 ### Added
+
 - Property to expose the collection of enum mappings
 
 ---
@@ -130,6 +189,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 ## [1.0.0] - 2025-05-17
 
 ### Added
+
 - Initial stable release
 - Reference to README.md file in csproj file
 - Complete documentation

@@ -2,6 +2,16 @@
 
 A .NET library that provides advanced functionality for accessing SQL databases with a configurable set of conventions and options for naming and formatting objects like tables, columns, routines, and parameters.
 
+## Installation
+
+```bash
+dotnet add package Flowsy.Db.Unity
+```
+
+## Developer Documentation
+
+See the [usage guide](Docs/Usage/README.md) for focused documentation about configuration, sessions, queries, routines, conventions, type mapping, migrations, transactions, and extensibility.
+
 ## Features
 
 - **Multiple database providers**: Compatible with PostgreSQL, SQL Server, MySQL, Oracle, and SQLite
