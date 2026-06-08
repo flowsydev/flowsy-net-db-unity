@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Reflection;
 using Dapper;
-using Xunit.Abstractions;
 
 namespace Flowsy.Db.Unity.Test.Extensions;
 
@@ -71,10 +70,10 @@ public static class OutputExtensions
     {
         outputHelper.WriteHeader(header ?? "Command Definition");
         outputHelper.WriteLine("Command Text: {0}", commandDefinition.CommandText);
-        outputHelper.WriteLine("Command Type: {0}", commandDefinition.CommandType);
-        outputHelper.WriteLine("Command Timeout: {0}", commandDefinition.CommandTimeout);
+        outputHelper.WriteLine($"Command Type: {commandDefinition.CommandType}");
+        outputHelper.WriteLine($"Command Timeout: {commandDefinition.CommandTimeout}");
         outputHelper.WriteLine("Command Flags: {0}", commandDefinition.Flags);
-        outputHelper.WriteLine("Transaction: {0}", commandDefinition.Transaction);
+        outputHelper.WriteLine($"Transaction: {commandDefinition.Transaction}");
 
         var parameters = commandDefinition.Parameters;
         IDictionary<string, object?> dictionary = new Dictionary<string, object?>();

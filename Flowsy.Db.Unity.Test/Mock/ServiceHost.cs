@@ -32,16 +32,14 @@ public class ServiceHost : IDisposable, IAsyncDisposable
         Environment.SetEnvironmentVariable("DOCKER_HOST", containersConfig["DockerHost"]);
 
         var postgresContainer = containersConfig.GetRequiredSection("Postgres");
-        _postgresContainer = new PostgreSqlBuilder()
-            .WithImage(postgresContainer["Image"])
+        _postgresContainer = new PostgreSqlBuilder(postgresContainer["Image"]!)
             .WithDatabase(postgresContainer["Database"])
             .WithUsername(postgresContainer["Username"])
             .WithPassword(postgresContainer["Password"])
             .Build();
 
         var mySqlContainer = containersConfig.GetRequiredSection("MySql");
-        _mySqlContainer = new MySqlBuilder()
-            .WithImage(mySqlContainer["Image"])
+        _mySqlContainer = new MySqlBuilder(mySqlContainer["Image"]!)
             .WithDatabase(mySqlContainer["Database"])
             .WithUsername(mySqlContainer["Username"])
             .WithPassword(mySqlContainer["Password"])

@@ -6,6 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 
 ---
 
+## [Unreleased]
+
+### Added
+- Add support for `net10.0`.
+- Add an English usage guide under `Docs/Usage`.
+
+### Changed
+- Replace repository Copilot instruction files with a single repository-level `AGENTS.md`.
+- Use conditional dependency versions aligned with the `net8.0` and `net10.0` targets.
+- Run the integration test project against both `net8.0` and `net10.0`.
+- Update shared dependencies to their latest stable versions.
+- Migrate the test project to .NET 10 and xUnit v3.
+- Replace the external xUnit ordering extension with internal orderers based on public xUnit v3 APIs.
+- Use `DbType.DateTime2` for `DateTime` parameters and normalize their kind before sending them to providers.
+
+### Fixed
+- Read the package version from `<Version>` in `publish.sh`.
+
+### Removed
+- Remove support for `net6.0`.
+
+---
+
 ## [4.0.4] - 2025-11-15
 ### Fixed
 - Fix parameter construction to allow passing array-type values
