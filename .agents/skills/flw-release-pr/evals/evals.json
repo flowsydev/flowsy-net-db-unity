@@ -25,6 +25,7 @@
       "expected_output": "Validates and creates or reuses the exact promotion pull request.",
       "expectations": [
         "Validates the worktree, refs, full range, package versions, changelogs, and tests.",
+        "Requires release tags for artifact-impacting changes and inspects their tag-triggered workflow status.",
         "Creates at most one pull request with head dev and base main and never merges it."
       ]
     },

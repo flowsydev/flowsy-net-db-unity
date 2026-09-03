@@ -59,7 +59,7 @@ bash publish.sh
 
 - Each package owns its `Version`, `README.md`, `CHANGELOG.md`, and independent Semantic Versioning sequence.
 - Annotated tags use `<PackageId>/v<SemVer>`, for example `Flowsy.Db.Unity/v5.1.0` and `Flowsy.Db.Unity.Postgres/v1.0.0`.
-- Use `$flw-release-nuget` only when explicitly invoked to prepare, publish, or retry a package release; use `$flw-release-pr dev` only when explicitly invoked to promote `dev` to `main`.
+- Use `$flw-release-nuget <package>` only when explicitly invoked. In one flow it analyzes changes, proposes a version and changelog, requests approval, updates and validates files, commits, pushes `dev`, and creates and pushes the annotated release tag. After it completes, use `$flw-release-pr dev` only through a separate explicit invocation to promote `dev` to `main`.
 - When explicitly asked to prepare a package locally outside those skills, confirm developer approval before continuing. After approval, update only the selected project version and changelog and create a detailed English Conventional Commit. Do not infer a tag or push.
 - When explicitly asked to publish changes to the remote repository or package registry, confirm developer approval before running `git push`, `git push --tags`, `bash publish.sh`, or `nuget push`.
 - Do not create commits, tags, or pushes by inference. Ask when the intent is unclear.

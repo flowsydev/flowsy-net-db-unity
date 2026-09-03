@@ -36,6 +36,7 @@ jobs:
         id: metadata
         env:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          RELEASE_BRANCH: dev
           EVENT_NAME: ${{ github.event_name }}
           PUSH_RELEASE_TAG: ${{ github.ref_name }}
           REQUESTED_RELEASE_TAG: ${{ inputs.release_tag }}
@@ -74,15 +75,15 @@ jobs:
 
           TAG_REF="refs/tags/${RELEASE_TAG}"
           git fetch --force --no-tags origin "+${TAG_REF}:${TAG_REF}"
-          git fetch origin "$DEFAULT_BRANCH"
+          git fetch origin "$RELEASE_BRANCH"
           git show-ref --verify --quiet "$TAG_REF" \
             || { echo "::error::${TAG_REF} does not exist"; exit 1; }
           [ "$(git cat-file -t "$TAG_REF")" = "tag" ] \
             || { echo "::error::${RELEASE_TAG} must be an annotated tag"; exit 1; }
 
           RELEASE_COMMIT="$(git rev-parse "${TAG_REF}^{commit}")"
-          git merge-base --is-ancestor "$RELEASE_COMMIT" "origin/${DEFAULT_BRANCH}" \
-            || { echo "::error::${RELEASE_TAG} is not in ${DEFAULT_BRANCH} history"; exit 1; }
+          git merge-base --is-ancestor "$RELEASE_COMMIT" "origin/${RELEASE_BRANCH}" \
+            || { echo "::error::${RELEASE_TAG} is not in ${RELEASE_BRANCH} history"; exit 1; }
 
           PROJECT_CONTENT="$(git show "${RELEASE_COMMIT}:${PROJECT_FILE}")"
           PROJECT_VERSION="$(printf '%s\n' "$PROJECT_CONTENT" | sed -n 's:.*<Version>\([^<]*\)</Version>.*:\1:p')"

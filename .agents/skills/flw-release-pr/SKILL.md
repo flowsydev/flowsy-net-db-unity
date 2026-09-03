@@ -52,10 +52,10 @@ For each package:
 
 1. Read the current project version and top changelog entry.
 2. Resolve the newest package-qualified SemVer tag and dereference annotated tags.
-3. Determine whether the range prepares a new package version, contains support-only changes, or includes a tag whose commit is not yet in `main`.
-4. When a version exceeds the latest tag, require a matching changelog entry consistent with the changes.
-5. If Postgres depends on a new core version, state that the core package must be published first after integration.
-6. Do not block promotion solely because a tag already exists before integration. Report the anomaly and prescribe `retry` after a person merges the pull request. Never suggest moving the tag.
+3. Determine whether the range contains a released package version, support-only changes, or artifact-impacting changes without a corresponding release tag.
+4. For a released version, require a matching changelog entry and inspect the tag-triggered publication workflow by tag and commit. Do not block merely because the release commit is not yet in `main`; release before promotion is the expected order.
+5. If Postgres depends on a new core version, verify and report that the core release ran first.
+6. If artifact-impacting changes lack the expected release tag, stop and instruct the user to invoke `$flw-release-nuget <package>` explicitly before creating the pull request. Never invoke that skill, dispatch a workflow, or suggest moving a tag.
 
 ## Idempotency And Collisions
 
@@ -88,10 +88,10 @@ Write the body in English with:
 ## Publication Risks And Coordination
 ```
 
-Distinguish prepared versions, unchanged artifacts, and existing tags. Record only checks that actually ran. State the package publication order and commands that may be run only after a human merge: `$flw-release-nuget publish <package> <version>` for a new tag or `$flw-release-nuget retry <package> <version>` for an existing tag.
+Distinguish released versions from unchanged artifacts. Record only checks that actually ran. State the observed tag and publication-workflow status for every released package, including dependency order. Do not prescribe another release command after merge.
 
 After creation, query the pull request again and verify its URL, head, base, state, and commits.
 
 ## Final Report
 
-Report the pull request URL and number, examined branch commits, detected package versions, actual validation results, preexisting tags or publication dependencies, and confirm that nothing was merged, tagged, or published.
+Report the pull request URL and number, examined branch commits, detected package versions, actual validation results, release tags and publication dependencies, and confirm that this skill did not merge, tag, publish, or invoke a release skill.

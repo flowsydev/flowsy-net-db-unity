@@ -4,9 +4,9 @@
     {
       "id": 1,
       "prompt": "$flw-release-nuget",
-      "expected_output": "Shows all valid command forms and packages without operating.",
+      "expected_output": "Shows the two valid one-command forms without operating.",
       "expectations": [
-        "Shows prepare, publish, and retry forms for both supported packages.",
+        "Shows one exact form for each supported package.",
         "Does not inspect or modify the repository."
       ]
     },
@@ -16,34 +16,54 @@
       "expected_output": "The skill does not trigger implicitly.",
       "expectations": [
         "Does not treat natural language as an invocation.",
-        "Does not modify refs, files, or package registries under this skill's authority."
+        "Does not modify files, refs, workflows, or package registries under this skill's authority."
       ]
     },
     {
       "id": 3,
-      "prompt": "$flw-release-nuget prepare Flowsy.Db.Unity",
-      "expected_output": "Proposes the minimum package version without changes.",
+      "prompt": "$flw-release-nuget Flowsy.Db.Unity",
+      "expected_output": "Analyzes and presents one exact release proposal, then pauses for approval.",
       "expectations": [
-        "Analyzes the range since the latest package-qualified tag.",
-        "Proposes the minimum SemVer increment and stops with the explicit apply command."
+        "Requires a clean dev worktree and analyzes the complete range since the latest Flowsy.Db.Unity tag.",
+        "Proposes the minimum SemVer increment and exact English changelog content.",
+        "Makes no changes, commits, pushes, tags, or workflow dispatches before explicit approval."
       ]
     },
     {
       "id": 4,
-      "prompt": "$flw-release-nuget publish Flowsy.Db.Unity.Postgres 1.1.0",
-      "expected_output": "Publishes only after integration and dependency checks.",
+      "prompt": "I approve the exact Flowsy.Db.Unity release proposal you just presented.",
+      "expected_output": "Continues the approved invocation through validation, commit, branch push, annotated tag push, and workflow monitoring.",
       "expectations": [
-        "Requires exact project, changelog, dev commit, and main ancestry agreement.",
-        "Creates and pushes only Flowsy.Db.Unity.Postgres/v1.1.0 and monitors its workflow."
+        "Revalidates that the analyzed state and exact proposal have not changed.",
+        "Updates only the selected project and changelog, validates and packs it, and creates a detailed English release commit.",
+        "Pushes dev before the single package tag, monitors the tag-triggered workflow, and reports $flw-release-pr dev without invoking it."
       ]
     },
     {
       "id": 5,
-      "prompt": "$flw-release-nuget retry Flowsy.Db.Unity 5.1.0",
-      "expected_output": "Retries an existing immutable release tag once.",
+      "prompt": "$flw-release-nuget Flowsy.Db.Unity.Postgres",
+      "expected_output": "Coordinates the PostgreSQL package with its core dependency.",
       "expectations": [
-        "Validates matching local and remote annotated tags and absence of an equivalent successful run.",
-        "Dispatches one workflow and never deletes, recreates, or moves the tag."
+        "Stops if the proposed PostgreSQL package requires an unreleased Flowsy.Db.Unity version.",
+        "Does not alter or tag either package without approval of an exact eligible proposal."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "$flw-release-nuget prepare Flowsy.Db.Unity",
+      "expected_output": "Rejects the obsolete multi-command syntax.",
+      "expectations": [
+        "Shows the two valid one-command forms.",
+        "Does not inspect or modify the repository."
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "$flw-release-nuget Flowsy.Db.Unity.SqlServer",
+      "expected_output": "Rejects the unsupported package.",
+      "expectations": [
+        "Shows the supported package identifiers.",
+        "Does not inspect or modify the repository."
       ]
     }
   ]
