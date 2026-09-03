@@ -1,0 +1,180 @@
+name: Publish NuGet Package
+
+run-name: Publish ${{ inputs.release_tag || github.ref_name }} · @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing annotated tag; run the workflow from the default branch
+        required: true
+        type: string
+  push:
+    tags:
+      - "Flowsy.Db.Unity/v*"
+      - "Flowsy.Db.Unity.Postgres/v*"
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    name: Resolve Package Tag
+    runs-on: ubuntu-latest
+    outputs:
+      package_id: ${{ steps.metadata.outputs.package_id }}
+      package_version: ${{ steps.metadata.outputs.package_version }}
+      project_file: ${{ steps.metadata.outputs.project_file }}
+      release_commit: ${{ steps.metadata.outputs.release_commit }}
+      github_environment: ${{ steps.metadata.outputs.github_environment }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Validate And Resolve Tag
+        id: metadata
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          EVENT_NAME: ${{ github.event_name }}
+          PUSH_RELEASE_TAG: ${{ github.ref_name }}
+          REQUESTED_RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            RELEASE_TAG="$REQUESTED_RELEASE_TAG"
+            EXPECTED_REF="refs/heads/${DEFAULT_BRANCH}"
+            [ "$GITHUB_REF" = "$EXPECTED_REF" ] \
+              || { echo "::error::Run this workflow from ${DEFAULT_BRANCH}"; exit 1; }
+          else
+            RELEASE_TAG="$PUSH_RELEASE_TAG"
+          fi
+
+          if [[ "$RELEASE_TAG" =~ ^(Flowsy\.Db\.Unity|Flowsy\.Db\.Unity\.Postgres)/v((0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*))$ ]]; then
+            PACKAGE_ID="${BASH_REMATCH[1]}"
+            PACKAGE_VERSION="${BASH_REMATCH[2]}"
+          else
+            echo "::error::The tag must use <PackageId>/v<SemVer> with a stable version"
+            exit 1
+          fi
+
+          case "$PACKAGE_ID" in
+            Flowsy.Db.Unity)
+              PROJECT_FILE="Flowsy.Db.Unity/Flowsy.Db.Unity.csproj"
+              ;;
+            Flowsy.Db.Unity.Postgres)
+              PROJECT_FILE="Flowsy.Db.Unity.Postgres/Flowsy.Db.Unity.Postgres.csproj"
+              ;;
+            *)
+              echo "::error::Unsupported package ID: ${PACKAGE_ID}"
+              exit 1
+              ;;
+          esac
+
+          TAG_REF="refs/tags/${RELEASE_TAG}"
+          git fetch --force --no-tags origin "+${TAG_REF}:${TAG_REF}"
+          git fetch origin "$DEFAULT_BRANCH"
+          git show-ref --verify --quiet "$TAG_REF" \
+            || { echo "::error::${TAG_REF} does not exist"; exit 1; }
+          [ "$(git cat-file -t "$TAG_REF")" = "tag" ] \
+            || { echo "::error::${RELEASE_TAG} must be an annotated tag"; exit 1; }
+
+          RELEASE_COMMIT="$(git rev-parse "${TAG_REF}^{commit}")"
+          git merge-base --is-ancestor "$RELEASE_COMMIT" "origin/${DEFAULT_BRANCH}" \
+            || { echo "::error::${RELEASE_TAG} is not in ${DEFAULT_BRANCH} history"; exit 1; }
+
+          PROJECT_CONTENT="$(git show "${RELEASE_COMMIT}:${PROJECT_FILE}")"
+          PROJECT_VERSION="$(printf '%s\n' "$PROJECT_CONTENT" | sed -n 's:.*<Version>\([^<]*\)</Version>.*:\1:p')"
+          [ -n "$PROJECT_VERSION" ] \
+            || { echo "::error::Version was not found in ${PROJECT_FILE}"; exit 1; }
+          [ "$PROJECT_VERSION" = "$PACKAGE_VERSION" ] \
+            || { echo "::error::Tag version ${PACKAGE_VERSION} does not match project version ${PROJECT_VERSION}"; exit 1; }
+
+          {
+            echo "package_id=${PACKAGE_ID}"
+            echo "package_version=${PACKAGE_VERSION}"
+            echo "project_file=${PROJECT_FILE}"
+            echo "release_commit=${RELEASE_COMMIT}"
+            echo "github_environment=nuget-production"
+          } >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publish ${{ needs.resolve.outputs.package_id }}
+    needs: resolve
+    runs-on: ubuntu-latest
+    environment: ${{ needs.resolve.outputs.github_environment }}
+    timeout-minutes: 30
+    concurrency:
+      group: nuget-${{ needs.resolve.outputs.package_id }}
+      cancel-in-progress: false
+    env:
+      DOTNET_SDK_VERSION: ${{ vars.DOTNET_SDK_VERSION || '10.0.x' }}
+      NUGET_SOURCE_URL: ${{ vars.NUGET_SOURCE_URL || 'https://api.nuget.org/v3/index.json' }}
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      PACKAGE_ID: ${{ needs.resolve.outputs.package_id }}
+      PACKAGE_VERSION: ${{ needs.resolve.outputs.package_version }}
+      PROJECT_FILE: ${{ needs.resolve.outputs.project_file }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.resolve.outputs.release_commit }}
+
+      - name: Validate Publication Configuration
+        run: |
+          set -euo pipefail
+          [ -n "$NUGET_API_KEY" ] || { echo "::error::NUGET_API_KEY is missing"; exit 1; }
+          [[ "$DOTNET_SDK_VERSION" =~ ^[0-9]+\.[0-9]+\.(x|[0-9]+)$ ]] \
+            || { echo "::error::DOTNET_SDK_VERSION must identify a valid SDK"; exit 1; }
+          [[ "$NUGET_SOURCE_URL" =~ ^https://api\.nuget\.org/v3/index\.json$ ]] \
+            || { echo "::error::NUGET_SOURCE_URL must point to NuGet.org"; exit 1; }
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_SDK_VERSION }}
+
+      - name: Restore
+        run: dotnet restore Flowsy.Db.Unity.sln
+
+      - name: Build
+        run: dotnet build Flowsy.Db.Unity.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test Flowsy.Db.Unity.sln --configuration Release --no-build
+
+      - name: Pack
+        run: |
+          set -euo pipefail
+          PACKAGE_DIR="$RUNNER_TEMP/nuget"
+          mkdir -p "$PACKAGE_DIR"
+          echo "PACKAGE_DIR=$PACKAGE_DIR" >> "$GITHUB_ENV"
+          dotnet pack "$PROJECT_FILE" \
+            --configuration Release \
+            --no-build \
+            --no-restore \
+            --include-symbols \
+            --output "$PACKAGE_DIR"
+
+      - name: Validate Package
+        run: |
+          set -euo pipefail
+          PACKAGE_FILE="$PACKAGE_DIR/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg"
+          [ -f "$PACKAGE_FILE" ] \
+            || { echo "::error::${PACKAGE_FILE} was not generated"; exit 1; }
+          echo "PACKAGE_FILE=$PACKAGE_FILE" >> "$GITHUB_ENV"
+
+      - name: Upload Package Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ needs.resolve.outputs.package_id }}-${{ needs.resolve.outputs.package_version }}
+          path: ${{ runner.temp }}/nuget/*
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Push Package
+        run: |
+          dotnet nuget push "$PACKAGE_FILE" \
+            --api-key "$NUGET_API_KEY" \
+            --source "$NUGET_SOURCE_URL" \
+            --skip-duplicate

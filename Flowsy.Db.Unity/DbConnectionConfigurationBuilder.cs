@@ -19,6 +19,11 @@ public class DbConnectionConfigurationBuilder
     private DbProviderDescriptor? _provider;
     private DbMigrationConfiguration? _migrationConfiguration;
     private DbConventionSetBuilder? _conventionSetBuilder;
+    private readonly Dictionary<Type, IDbProviderConfiguration> _providerConfigurations = [];
+    private bool _requireTransactionForWrites;
+    private readonly HashSet<string> _writeTransactionExceptions = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _allowedSessionSettings = new(StringComparer.OrdinalIgnoreCase);
+    private TimeSpan? _slowOperationThreshold;
 
     /// <summary>
     /// Indicates whether this connection is the default connection.
@@ -85,6 +90,15 @@ public class DbConnectionConfigurationBuilder
         _provider = new  DbProviderDescriptor(family, invariantName, factory);
         return this;
     }
+
+    /// <summary>Attaches neutral configuration owned by a provider extension.</summary>
+    public DbConnectionConfigurationBuilder WithProviderConfiguration<TConfiguration>(TConfiguration configuration)
+        where TConfiguration : class, IDbProviderConfiguration
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        _providerConfigurations[typeof(TConfiguration)] = configuration;
+        return this;
+    }
     
     /// <summary>
     /// Specifies the logging level for operations on this connection.
@@ -98,6 +112,34 @@ public class DbConnectionConfigurationBuilder
     public DbConnectionConfigurationBuilder WithLogLevel(LogLevel logLevel)
     {
         _logLevel = logLevel;
+        return this;
+    }
+
+    /// <summary>Configures the opt-in guard for write operations outside a transaction.</summary>
+    public DbConnectionConfigurationBuilder WithWriteTransactionGuard(
+        bool required = true,
+        params string[] administrativeStatementExceptions)
+    {
+        _requireTransactionForWrites = required;
+        foreach (var exception in administrativeStatementExceptions.Where(value => !string.IsNullOrWhiteSpace(value)))
+            _writeTransactionExceptions.Add(exception.Trim());
+        return this;
+    }
+
+    /// <summary>Allows additional setting names for scoped session configuration.</summary>
+    public DbConnectionConfigurationBuilder AllowSessionSettings(params string[] names)
+    {
+        foreach (var name in names.Where(value => !string.IsNullOrWhiteSpace(value)))
+            _allowedSessionSettings.Add(name.Trim());
+        return this;
+    }
+
+    /// <summary>Configures the threshold used to log slow database operations.</summary>
+    public DbConnectionConfigurationBuilder WithSlowOperationThreshold(TimeSpan threshold)
+    {
+        if (threshold <= TimeSpan.Zero)
+            throw new ArgumentOutOfRangeException(nameof(threshold));
+        _slowOperationThreshold = threshold;
         return this;
     }
 
@@ -206,5 +248,10 @@ public class DbConnectionConfigurationBuilder
         configuration.LogLevel = _logLevel;
         configuration.Migrations = _migrationConfiguration;
         configuration.Conventions = _conventionSetBuilder?.Build() ?? DbConventionSet.Default;
+        configuration.ProviderConfigurations = new Dictionary<Type, IDbProviderConfiguration>(_providerConfigurations);
+        configuration.RequireTransactionForWrites = _requireTransactionForWrites;
+        configuration.WriteTransactionExceptions = new HashSet<string>(_writeTransactionExceptions, StringComparer.OrdinalIgnoreCase);
+        configuration.AllowedSessionSettings = new HashSet<string>(_allowedSessionSettings, StringComparer.OrdinalIgnoreCase);
+        configuration.SlowOperationThreshold = _slowOperationThreshold;
     }
 }

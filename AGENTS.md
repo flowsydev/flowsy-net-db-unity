@@ -2,7 +2,7 @@
 
 ## Repo
 
-.NET library for SQL database access with configurable conventions for names, parameters, routines, enums, date-time values, migrations, and logging. The main library lives in `Flowsy.Db.Unity/`; xUnit tests, fixtures, and database scripts live in `Flowsy.Db.Unity.Test/`.
+.NET libraries for SQL database access with configurable conventions for names, parameters, routines, enums, date-time values, migrations, and logging. The provider-neutral core lives in `Flowsy.Db.Unity/`, the opt-in PostgreSQL integration lives in `Flowsy.Db.Unity.Postgres/`, and xUnit tests, fixtures, and database scripts live in `Flowsy.Db.Unity.Test/`.
 
 Primary stack: C# with `net8.0` and `net10.0`, Dapper, Evolve, Microsoft Extensions, xUnit v3, Shouldly, and Testcontainers. Both the library and test projects target .NET 8 and .NET 10.
 
@@ -42,10 +42,11 @@ dotnet test
 
 Integration tests require Docker because they use Testcontainers.
 
-Pack the library:
+Pack the libraries:
 
 ```bash
 dotnet pack Flowsy.Db.Unity/Flowsy.Db.Unity.csproj --configuration Release --include-symbols
+dotnet pack Flowsy.Db.Unity.Postgres/Flowsy.Db.Unity.Postgres.csproj --configuration Release --include-symbols
 ```
 
 Publish the package manually, only with explicit approval and a valid API key:
@@ -56,7 +57,10 @@ bash publish.sh
 
 ## Release Preparation and Publishing
 
-- When explicitly asked to prepare the local repository for publishing, confirm developer approval before continuing. After approval, update `Version` in `Flowsy.Db.Unity/Flowsy.Db.Unity.csproj`, update `CHANGELOG.md`, create a detailed English Conventional Commit, and create the corresponding Git tag.
+- Each package owns its `Version`, `README.md`, `CHANGELOG.md`, and independent Semantic Versioning sequence.
+- Annotated tags use `<PackageId>/v<SemVer>`, for example `Flowsy.Db.Unity/v5.1.0` and `Flowsy.Db.Unity.Postgres/v1.0.0`.
+- Use `$flw-release-nuget` only when explicitly invoked to prepare, publish, or retry a package release; use `$flw-release-pr dev` only when explicitly invoked to promote `dev` to `main`.
+- When explicitly asked to prepare a package locally outside those skills, confirm developer approval before continuing. After approval, update only the selected project version and changelog and create a detailed English Conventional Commit. Do not infer a tag or push.
 - When explicitly asked to publish changes to the remote repository or package registry, confirm developer approval before running `git push`, `git push --tags`, `bash publish.sh`, or `nuget push`.
 - Do not create commits, tags, or pushes by inference. Ask when the intent is unclear.
 
@@ -64,7 +68,10 @@ bash publish.sh
 
 Read only when required by the task:
 
-- `README.md`: purpose, architecture, configuration examples, and usage overview.
+- `README.md`: repository package overview and release model.
+- `Flowsy.Db.Unity/README.md` and `Flowsy.Db.Unity/CHANGELOG.md`: core package documentation and history.
+- `Flowsy.Db.Unity.Postgres/README.md` and `Flowsy.Db.Unity.Postgres/CHANGELOG.md`: PostgreSQL package documentation and history.
+- `Docs/Adr/`: current architecture and package-versioning decisions.
 - `Docs/Usage/`: focused usage documentation.
 - `Flowsy.Db.Unity/Flowsy.Db.Unity.csproj`: target frameworks, package version, and library dependencies.
 - `Flowsy.Db.Unity.Test/Flowsy.Db.Unity.Test.csproj`: test dependencies and integration test configuration.

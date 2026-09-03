@@ -8,6 +8,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 
 ## [Unreleased]
 
+### Added
+
+- Add provider-neutral connection extensions and the opt-in `Flowsy.Db.Unity.Postgres` integration.
+- Add per-call command options, transaction helpers, progressive streaming, safe multiple-result callbacks, and controlled native connection access.
+- Add external parameter and enum value mappings, configurable Dapper type handlers, and `DateOnly` and `TimeOnly` handlers.
+- Add tracing, metrics, slow-operation warnings, write transaction guards, and scoped allowlisted session settings.
+
+### Fixed
+
+- Match constructor parameters without accepting inconsistent lengths or reading past the final parameter.
+- Preserve the requested isolation level when beginning an asynchronous transaction.
+- Append PostgreSQL array suffixes only when a custom database type is present.
+- Clean already applied session settings when applying a later setting fails.
+- Count multiple-result reader consumption as part of its command instead of as a second database command.
+- Override vulnerable transitive SQLite and SSH test dependencies with corrected releases.
+
+### Changed
+
+- Generate and package IntelliSense XML documentation, and fail builds when public APIs are undocumented or contain inconsistent parameter tags.
+- Restructure repository and package documentation as focused, provider-aware guides with package-specific READMEs.
+
 ---
 
 ## [5.0.0] - 2026-06-08
@@ -17,7 +38,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 - Add support for `net10.0`.
 - Add an English usage guide under `Docs/Usage`.
 - Add repository-level agent instructions in `AGENTS.md`.
-- Add a technical assessment of potential `DbSession` improvements under `Docs/Review`.
 
 ### Changed
 

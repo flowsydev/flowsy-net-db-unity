@@ -25,4 +25,18 @@ public partial interface IDbSession
         dynamic? parameters = null,
         CancellationToken cancellationToken = default
     );
+
+    /// <summary>Consumes all result sets in a callback and disposes the reader.</summary>
+    Task QueryMultipleAsync(
+        string statement,
+        Func<SqlMapper.GridReader, CancellationToken, Task> read,
+        dynamic? parameters = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Consumes all result sets in a callback, returns a result, and disposes the reader.</summary>
+    Task<TResult> QueryMultipleAsync<TResult>(
+        string statement,
+        Func<SqlMapper.GridReader, CancellationToken, Task<TResult>> read,
+        dynamic? parameters = null,
+        CancellationToken cancellationToken = default);
 }

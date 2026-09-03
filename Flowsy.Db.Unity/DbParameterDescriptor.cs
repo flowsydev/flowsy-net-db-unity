@@ -42,6 +42,9 @@ public class DbParameterDescriptor : DbObjectDescriptor
     /// <param name="scale">
     /// The parameter scale, if applicable.
     /// </param>
+    /// <param name="usesTypeHandler">
+    /// Indicates whether Dapper should pass the original value to a registered type handler.
+    /// </param>
     public DbParameterDescriptor(
         DbProviderDescriptor provider,
         string name,
@@ -52,7 +55,8 @@ public class DbParameterDescriptor : DbObjectDescriptor
         ParameterDirection? direction = null,
         int? size = null,
         byte? precision = null,
-        byte? scale = null
+        byte? scale = null,
+        bool usesTypeHandler = false
     ) : base(provider.ParseObjectName(name))
     {
         Name = name;
@@ -64,6 +68,7 @@ public class DbParameterDescriptor : DbObjectDescriptor
         Size = size;
         Precision = precision;
         Scale = scale;
+        UsesTypeHandler = usesTypeHandler;
     }
 
     /// <summary>
@@ -112,6 +117,11 @@ public class DbParameterDescriptor : DbObjectDescriptor
     public byte? Scale { get; }
 
     /// <summary>
+    /// Gets whether Dapper should pass the original value to a registered global type handler.
+    /// </summary>
+    public bool UsesTypeHandler { get; }
+
+    /// <summary>
     /// Resolves the database value for the parameter based on the runtime value and conventions.
     /// </summary>
     /// <param name="runtimeValue">
@@ -125,6 +135,8 @@ public class DbParameterDescriptor : DbObjectDescriptor
     /// </returns>
     public object? ResolveDatabaseValue(object? runtimeValue, DbConventionSet? conventions = null)
     {
+        if (UsesTypeHandler)
+            return runtimeValue;
         if (runtimeValue is null)
             return null;
 

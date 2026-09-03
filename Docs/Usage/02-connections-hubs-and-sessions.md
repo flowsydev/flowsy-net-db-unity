@@ -1,4 +1,4 @@
-# Connections, Hubs, and Sessions
+# Connections, Hubs, And Sessions
 
 Use `IDbConnectionHub` to create sessions and manage connection lifetimes:
 
@@ -20,3 +20,21 @@ await using var db = await hub.CreateSessionAsync(
 ```
 
 Prefer `await using` so sessions and exclusive connections are released asynchronously.
+
+## Session Concurrency
+
+A session owns one connection and its optional transaction. Do not use the same session concurrently from multiple threads or overlapping asynchronous operations. Create an exclusive session for parallel work.
+
+## Native Connection Access
+
+Use `WithConnectionAsync` when an infrastructure operation needs the session's current native connection and transaction:
+
+```csharp
+await db.WithConnectionAsync<NpgsqlConnection>(async (connection, transaction, token) =>
+{
+    // Use a provider-native API without taking ownership of either resource.
+    await Task.CompletedTask;
+}, cancellationToken);
+```
+
+The callback must not close, dispose, or complete session-owned resources.

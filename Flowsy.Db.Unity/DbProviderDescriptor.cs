@@ -10,6 +10,9 @@ namespace Flowsy.Db.Unity;
 /// </summary>
 public class DbProviderDescriptor
 {
+    /// <summary>
+    /// Gets the provider-neutral descriptor used when no database-specific provider is configured.
+    /// </summary>
     public static readonly DbProviderDescriptor Generic = new (DbProviderFamily.Generic);
     private static readonly ConcurrentDictionary<DbProviderFamily, ConcurrentDictionary<Type, DbType>> TypeMappings = [];
 
@@ -267,7 +270,9 @@ public class DbProviderDescriptor
     /// A string that represents the custom data type formatted as an array type.
     /// </returns>
     public virtual string? FormatArrayType(string? databaseCustomType)
-        => string.IsNullOrEmpty(databaseCustomType) && Family == DbProviderFamily.Postgres ? $"{databaseCustomType}[]" : databaseCustomType;
+        => !string.IsNullOrEmpty(databaseCustomType) && Family == DbProviderFamily.Postgres
+            ? $"{databaseCustomType}[]"
+            : databaseCustomType;
     
     /// <summary>
     /// Formats a SQL statement for routine (stored procedure or function) invocation.

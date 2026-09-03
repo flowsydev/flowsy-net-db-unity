@@ -73,9 +73,9 @@ public class DbParameterBuilder
             return;
 
         var properties = GetProperties((object) parameters);
-        foreach (var (propertyName, propertyType, propertyValue) in properties)
+        foreach (var (containerType, propertyName, propertyType, propertyValue) in properties)
         {
-            var descriptor = BuildDescriptor(propertyName, propertyType);
+            var descriptor = BuildDescriptor(propertyName, propertyType, containerType);
             var databaseValue = descriptor.ResolveDatabaseValue(propertyValue, _conventions);
             
             _dynamicParameters.Add(
@@ -101,13 +101,19 @@ public class DbParameterBuilder
     /// <param name="runtimeType">
     /// The runtime type of the parameter.
     /// </param>
+    /// <param name="containerType">
+    /// The optional type that declares the parameter property. It is used to resolve property-specific mappings.
+    /// </param>
     /// <returns>
     /// A <see cref="DbParameterDescriptor"/> configured for the specified parameter.
     /// </returns>
-    public DbParameterDescriptor BuildDescriptor(string runtimeName, Type runtimeType)
+    public DbParameterDescriptor BuildDescriptor(string runtimeName, Type runtimeType, Type? containerType = null)
     {
         var provider = _conventions.Provider;
-        var parameterName = _conventions.Parameters.FormatName(runtimeName);
+        var parameterName = _conventions.Parameters.ResolveName(containerType, runtimeName);
+        var handlerType = Nullable.GetUnderlyingType(runtimeType) ?? runtimeType;
+        if (!handlerType.IsEnum && SqlMapper.HasTypeHandler(handlerType))
+            return new DbParameterDescriptor(provider, parameterName, runtimeType, usesTypeHandler: true);
 
         if (runtimeType is not {IsArray: true, HasElementType: true} || !provider.SupportsArrays)
         {
@@ -135,11 +141,11 @@ public class DbParameterBuilder
         var elementType = runtimeType.GetElementType();
         if (elementType is not null)
         {
-            // Array de enums
+            // Enum array
             if (elementType.IsEnum)
                 return BuildDescriptorForEnum(parameterName, elementType, true);
             
-            // Array de Nullable<T>
+            // Nullable<T> array
             if (elementType.IsGenericType && elementType.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 var underlyingType = Nullable.GetUnderlyingType(elementType)!;
@@ -149,16 +155,16 @@ public class DbParameterBuilder
                         provider,
                         parameterName,
                         runtimeType,
-                        null  // No especificar DbType para arrays, dejar que el proveedor lo infiera
+                        null  // Let the provider infer DbType for arrays.
                     );
             }
             
-            // Array de tipos primitivos u otros tipos
+            // Primitive or other type array
             return new DbParameterDescriptor(
                 provider,
                 parameterName,
                 runtimeType,
-                null  // No especificar DbType para arrays, dejar que el proveedor lo infiera
+                null  // Let the provider infer DbType for arrays.
             );
         }
 
@@ -212,7 +218,7 @@ public class DbParameterBuilder
             );
     }
     
-    private static IEnumerable<(string Name, Type Type, object? Value)> GetProperties(object? parameters)
+    private static IEnumerable<(Type? ContainerType, string Name, Type Type, object? Value)> GetProperties(object? parameters)
     {
         if (parameters is null) yield break;
 
@@ -220,7 +226,7 @@ public class DbParameterBuilder
         if (parameters is IDictionary<string, object?> expando)
         {
             foreach (var kv in expando)
-                yield return (kv.Key, kv.Value?.GetType() ?? typeof(object), kv.Value);
+                yield return (null, kv.Key, kv.Value?.GetType() ?? typeof(object), kv.Value);
             yield break;
         }
 
@@ -231,7 +237,7 @@ public class DbParameterBuilder
             foreach (var name in meta.GetDynamicMemberNames().Distinct())
             {
                 if (TryGetDynamicMember(d, name, out var value))
-                    yield return (name, value?.GetType() ?? typeof(object), value);
+                    yield return (null, name, value?.GetType() ?? typeof(object), value);
             }
             // Don’t return; also fall back to reflection to catch any real CLR props
             // that the dynamic object might expose.
@@ -246,7 +252,7 @@ public class DbParameterBuilder
         {
             object? value = null;
             try { value = p.GetValue(parameters); } catch { /* ignore getters that throw */ }
-            yield return (p.Name, p.PropertyType, value);
+            yield return (t, p.Name, p.PropertyType, value);
         }
     }
 

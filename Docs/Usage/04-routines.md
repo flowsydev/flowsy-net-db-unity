@@ -1,4 +1,4 @@
-# Stored Procedures and Functions
+# Stored Procedures And Functions
 
 Configure the default routine type and naming conventions per connection:
 

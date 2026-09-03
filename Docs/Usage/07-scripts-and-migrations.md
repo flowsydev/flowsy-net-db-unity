@@ -1,4 +1,4 @@
-# Scripts and Migrations
+# Scripts And Migrations
 
 Execute an individual SQL file or all supported files in a directory:
 

@@ -1,25 +1,32 @@
-# Installation and Configuration
+# Installation And Configuration
 
-Install the library and the ADO.NET provider required by your database:
+Install the core library and the ADO.NET provider required by your database:
 
 ```bash
 dotnet add package Flowsy.Db.Unity
 dotnet add package Npgsql
 ```
 
-Register one or more connections through `AddDatabases`:
+For PostgreSQL, install the opt-in integration package instead of adding Npgsql directly. It includes the compatible core package and reusable data-source configuration:
+
+```bash
+dotnet add package Flowsy.Db.Unity.Postgres
+```
+
+Register PostgreSQL through its provider extension:
 
 ```csharp
 services.AddDatabases(options =>
 {
     options
-        .UseConnection("Store", configuration.GetConnectionString("Store")!)
+        .UsePostgres("Store", configuration.GetConnectionString("Store")!)
         .AsDefault()
-        .WithProvider(DbProviderFamily.Postgres, "Npgsql", NpgsqlFactory.Instance)
         .WithLogLevel(LogLevel.Information)
         .WithConventions()
         .WithDefault(DbCaseStyle.LowerSnakeCase);
 });
 ```
 
-`DbProviderFamily` supports PostgreSQL, SQL Server, MySQL, Oracle, SQLite, and generic ADO.NET providers. `AddDatabases` registers `IDbConnectionFactory` as a singleton and the session factory and connection hub as scoped services.
+For other engines, use `UseConnection(...).WithProvider(...)` with the required ADO.NET factory. `DbProviderFamily` supports PostgreSQL, SQL Server, MySQL, Oracle, SQLite, and generic ADO.NET providers.
+
+`AddDatabases` registers `IDbConnectionFactory` as a singleton and the session factory and connection hub as scoped services. Keep `IDbConnectionHub` and each `IDbSession` within their scope.

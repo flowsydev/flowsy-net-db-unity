@@ -94,7 +94,8 @@ public partial class DbSession
 
         try
         {
-            var result = await _connection.QueryFirstAsync<T>(commandDefinition);
+            var result = await ObserveOperationAsync("query_first_routine", routineName,
+                () => _connection.QueryFirstAsync<T>(commandDefinition));
 
             _logger?.Log(
                 Configuration.LogLevel,
@@ -200,7 +201,8 @@ public partial class DbSession
 
         try
         {
-            var result = await _connection.QueryFirstOrDefaultAsync<T>(commandDefinition);
+            var result = await ObserveOperationAsync("query_first_or_default_routine", routineName,
+                () => _connection.QueryFirstOrDefaultAsync<T>(commandDefinition));
 
             _logger?.Log(
                 Configuration.LogLevel,

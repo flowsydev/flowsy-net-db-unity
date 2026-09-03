@@ -6,8 +6,12 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>12</LangVersion>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <WarningsAsErrors>$(WarningsAsErrors);CS1572;CS1573;CS1591</WarningsAsErrors>
 
-        <Title>Flowsy Db Agent</Title>
+        <Title>Flowsy Db Unity</Title>
+        <Authors>Flowsy</Authors>
+        <Company>Flowsy</Company>
         <Description>
             Provides functionality to access SQL databases with a configurable set of conventions and options for naming and formatting objects like tables, columns, routines and parameters.
         </Description>
@@ -18,12 +22,13 @@
         <Version>5.0.0</Version>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>database;sql;dapper;data-access</PackageTags>
 
         <NoWarn>$(NoWarn);NU5118;NU5128</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../README.md" Pack="true" PackagePath="\" />
+        <None Include="README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <ItemGroup>

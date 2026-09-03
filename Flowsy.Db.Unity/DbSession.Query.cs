@@ -72,7 +72,8 @@ public partial class DbSession
 
         try
         {
-            var results = await _connection.QueryAsync<T>(commandDefinition);
+            var results = await ObserveOperationAsync("query", null,
+                () => _connection.QueryAsync<T>(commandDefinition));
 
             _logger?.Log(
                 Configuration.LogLevel,
@@ -219,7 +220,8 @@ public partial class DbSession
 
         try
         {
-            var results = await _connection.QueryAsync<T>(commandDefinition);
+            var results = await ObserveOperationAsync("query_routine", routineName,
+                () => _connection.QueryAsync<T>(commandDefinition));
 
             _logger?.Log(
                 Configuration.LogLevel,

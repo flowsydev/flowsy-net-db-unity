@@ -1,0 +1,50 @@
+{
+  "skill_name": "flw-release-nuget",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "$flw-release-nuget",
+      "expected_output": "Shows all valid command forms and packages without operating.",
+      "expectations": [
+        "Shows prepare, publish, and retry forms for both supported packages.",
+        "Does not inspect or modify the repository."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Prepare and publish the next Flowsy.Db.Unity version.",
+      "expected_output": "The skill does not trigger implicitly.",
+      "expectations": [
+        "Does not treat natural language as an invocation.",
+        "Does not modify refs, files, or package registries under this skill's authority."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "$flw-release-nuget prepare Flowsy.Db.Unity",
+      "expected_output": "Proposes the minimum package version without changes.",
+      "expectations": [
+        "Analyzes the range since the latest package-qualified tag.",
+        "Proposes the minimum SemVer increment and stops with the explicit apply command."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "$flw-release-nuget publish Flowsy.Db.Unity.Postgres 1.1.0",
+      "expected_output": "Publishes only after integration and dependency checks.",
+      "expectations": [
+        "Requires exact project, changelog, dev commit, and main ancestry agreement.",
+        "Creates and pushes only Flowsy.Db.Unity.Postgres/v1.1.0 and monitors its workflow."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "$flw-release-nuget retry Flowsy.Db.Unity 5.1.0",
+      "expected_output": "Retries an existing immutable release tag once.",
+      "expectations": [
+        "Validates matching local and remote annotated tags and absence of an equivalent successful run.",
+        "Dispatches one workflow and never deletes, recreates, or moves the tag."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "skill_name": "flw-release-pr",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "$flw-release-pr",
+      "expected_output": "Shows command help without repository or GitHub operations.",
+      "expectations": [
+        "Shows the exact valid form $flw-release-pr dev.",
+        "Does not inspect or modify the repository."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create the release PR from dev to main.",
+      "expected_output": "The skill does not trigger implicitly.",
+      "expectations": [
+        "Does not treat natural language as a skill invocation.",
+        "Does not create a pull request under this skill's authority."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "$flw-release-pr dev",
+      "expected_output": "Validates and creates or reuses the exact promotion pull request.",
+      "expectations": [
+        "Validates the worktree, refs, full range, package versions, changelogs, and tests.",
+        "Creates at most one pull request with head dev and base main and never merges it."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "$flw-release-pr release/5.1.0",
+      "expected_output": "Rejects the unsupported branch argument.",
+      "expectations": [
+        "States that dev is the only valid argument and shows help.",
+        "Does not inspect or modify the repository."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "$flw-release-pr dev and merge it",
+      "expected_output": "Rejects extra arguments and does not merge.",
+      "expectations": [
+        "Treats the invocation as invalid because of additional arguments.",
+        "Does not create or merge a pull request."
+      ]
+    }
+  ]
+}

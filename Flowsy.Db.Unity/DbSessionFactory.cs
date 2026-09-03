@@ -38,5 +38,11 @@ public class DbSessionFactory : IDbSessionFactory
     /// An instance of <see cref="IDbSession"/> that represents the database session created with the provided connection.
     /// </returns>
     public IDbSession CreateSession(IDbConnection connection, DbConnectionUsage usage, DbConnectionConfiguration configuration)
-        => new DbSession(connection, usage, configuration, _serviceProvider.GetService<ILogger<DbSession>>());
+        => new DbSession(
+            connection,
+            usage,
+            configuration,
+            _serviceProvider.GetService<ILogger<DbSession>>(),
+            _serviceProvider.GetService<IDbWriteOperationDetector>(),
+            _serviceProvider.GetService<IDbSessionSettingFormatter>());
 }

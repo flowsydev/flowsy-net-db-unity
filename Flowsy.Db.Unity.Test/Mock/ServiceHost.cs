@@ -1,4 +1,5 @@
 using System.Reflection;
+using Flowsy.Db.Unity.Postgres;
 using Flowsy.Db.Unity.Test.Mock.Infrastructure.Database;
 using Flowsy.Db.Unity.Test.Mock.Model;
 using Microsoft.Extensions.Configuration;
@@ -6,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
-using Npgsql;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -55,9 +55,8 @@ public class ServiceHost : IDisposable, IAsyncDisposable
                 {
                     // Configure PostgreSQL as default database
                     options
-                        .UseConnection(DbConnections.Postgres, _postgresContainer.GetConnectionString())
+                        .UsePostgres(DbConnections.Postgres, _postgresContainer.GetConnectionString())
                         .AsDefault()
-                        .WithProvider(DbProviderFamily.Postgres, "Npgsql", NpgsqlFactory.Instance)
                         .WithLogLevel(LogLevel.Information)
                         .WithMigrations(Path.Combine("Mock", "Infrastructure", "Database", "Scripts", DbConnections.Postgres, "Migrations"))
                         .WithConventions()
@@ -78,7 +77,7 @@ public class ServiceHost : IDisposable, IAsyncDisposable
                     // Configure additional SQL Server for reports
                     options
                         .UseConnection(DbConnections.MySql, _mySqlContainer.GetConnectionString())
-                        .WithProvider(DbProviderFamily.SqlServer, "MySqlConnector", MySqlConnectorFactory.Instance)
+                        .WithProvider(DbProviderFamily.MySql, "MySqlConnector", MySqlConnectorFactory.Instance)
                         .WithLogLevel(LogLevel.Information)
                         .WithMigrations(Path.Combine("Mock", "Infrastructure", "Database", "Scripts", DbConnections.MySql, "Migrations"))
                         .WithConventions()
@@ -94,8 +93,6 @@ public class ServiceHost : IDisposable, IAsyncDisposable
                     // Type mapping for queries that return fields whose names are in lower_snake_case format.
                     // Databases like PostgreSQL and MySQL typically use this format by convention.
                     options.MapTypes(DbCaseStyle.LowerSnakeCase, types: readModelTypes);
-
-                    options.UseConnectionFactory<DbExtendedConnectionFactory>();
                 });
             })
             .UseSerilog()

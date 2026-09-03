@@ -6,6 +6,33 @@ namespace Flowsy.Db.Unity;
 
 public partial class DbSession
 {
+    /// <inheritdoc />
+    public Task QueryMultipleAsync(
+        string statement,
+        Func<SqlMapper.GridReader, CancellationToken, Task> read,
+        dynamic? parameters = null,
+        CancellationToken cancellationToken = default)
+        => QueryMultipleAsync<object?>(statement, async (reader, token) =>
+        {
+            await read(reader, token);
+            return null;
+        }, parameters as object, cancellationToken);
+
+    /// <inheritdoc />
+    public async Task<TResult> QueryMultipleAsync<TResult>(
+        string statement,
+        Func<SqlMapper.GridReader, CancellationToken, Task<TResult>> read,
+        dynamic? parameters = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(read);
+        using var reader = await QueryMultipleAsync(statement, parameters as object, cancellationToken);
+        return await ObserveOperationAsync(
+            "consume_query_multiple", null,
+            () => read(reader, cancellationToken),
+            countCommand: false);
+    }
+
     /// <summary>
     /// Performs a query to the database that can return multiple result sets.
     /// </summary>
@@ -50,7 +77,8 @@ public partial class DbSession
 
         try
         {
-            var result = await _connection.QueryMultipleAsync(commandDefinition);
+            var result = await ObserveOperationAsync("query_multiple", null,
+                () => _connection.QueryMultipleAsync(commandDefinition));
 
             _logger?.Log(
                 Configuration.LogLevel,

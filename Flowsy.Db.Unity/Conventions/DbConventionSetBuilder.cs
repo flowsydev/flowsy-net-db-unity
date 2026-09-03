@@ -109,6 +109,19 @@ public class DbConventionSetBuilder
     }
 
     /// <summary>
+    /// Configures default parameter conventions and explicit property mappings.
+    /// </summary>
+    /// <param name="configure">The parameter-convention builder callback.</param>
+    /// <returns>The current builder instance.</returns>
+    public DbConventionSetBuilder ForParameters(Action<DbParameterConventionBuilder> configure)
+    {
+        ArgumentNullException.ThrowIfNull(configure);
+        var builder = new DbParameterConventionBuilder();
+        configure(builder);
+        return ForParameters(builder.Build());
+    }
+
+    /// <summary>
     /// Configures conventions for database enum types.
     /// </summary>
     /// <param name="valueFormat">
