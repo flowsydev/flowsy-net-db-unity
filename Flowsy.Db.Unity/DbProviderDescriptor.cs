@@ -76,6 +76,10 @@ public class DbProviderDescriptor
                 ParameterPrefixForStatement = ":";
                 SupportsNamedParameters = true;
                 break;
+            case DbProviderFamily.Db2:
+                DefaultPort = 50000;
+                SupportsSchemas = true;
+                break;
             case DbProviderFamily.Sqlite:
                 DefaultPort = 0;
                 DefaultDatabaseName = null;
@@ -173,6 +177,7 @@ public class DbProviderDescriptor
             DbProviderFamily.Postgres => true,
             DbProviderFamily.SqlServer => true,
             DbProviderFamily.Oracle => true,
+            DbProviderFamily.Db2 => true,
             _ => false
         };
     
@@ -240,7 +245,7 @@ public class DbProviderDescriptor
     public virtual string FormatNamedParameter(string parameterName, string valueExpression)
         => Family switch
         {
-            DbProviderFamily.Postgres => $"{parameterName} => {valueExpression}",
+            DbProviderFamily.Postgres or DbProviderFamily.Db2 => $"{parameterName} => {valueExpression}",
             DbProviderFamily.SqlServer => $"{parameterName} = {valueExpression}",
             _ => $"{ParameterPrefixForStatement}{parameterName}",
         };
@@ -354,6 +359,14 @@ public class DbProviderDescriptor
                 DbRoutineType.StoredFunction => returnsTable
                     ? $"SELECT * FROM TABLE({fullyQualifiedName}({parameterListText}))"
                     : $"SELECT {fullyQualifiedName}({parameterListText}) FROM DUAL",
+                _ => throw new NotSupportedException(unsupportedRoutineTypeMessage)
+            },
+            DbProviderFamily.Db2 => routineType switch
+            {
+                DbRoutineType.StoredProcedure => $"CALL {fullyQualifiedName}({parameterListText})",
+                DbRoutineType.StoredFunction => returnsTable
+                    ? $"SELECT * FROM TABLE({fullyQualifiedName}({parameterListText})) AS routine_result"
+                    : $"VALUES {fullyQualifiedName}({parameterListText})",
                 _ => throw new NotSupportedException(unsupportedRoutineTypeMessage)
             },
             DbProviderFamily.Sqlite => routineType switch

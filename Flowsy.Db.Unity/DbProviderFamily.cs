@@ -33,5 +33,10 @@ public enum DbProviderFamily
     /// <summary>
     /// Provider family for SQLite databases.
     /// </summary>
-    Sqlite
+    Sqlite,
+
+    /// <summary>
+    /// Provider family for IBM Db2 databases.
+    /// </summary>
+    Db2
 }

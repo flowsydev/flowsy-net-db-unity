@@ -74,7 +74,7 @@ Connections configured with `RequireTransactionForWrites` reject detected writes
 - `ExecuteAsync` and `ExecuteRoutineAsync` run commands and routines.
 - `QueryMultipleAsync` processes multiple result sets; callback overloads keep the reader lifetime safe.
 - `StreamAsync<T>` returns rows progressively as `IAsyncEnumerable<T>`.
-- `WithSettingsAsync` applies scoped session settings and restores them afterward.
+- `WithSettingsAsync` applies scoped session settings and restores their previous values afterward.
 - `WithConnectionAsync` provides controlled access to the native connection for exceptional provider-specific work.
 - `ExecuteScriptAsync` and `MigrateAsync` run scripts and Evolve migrations.
 
@@ -91,5 +91,5 @@ Operations emit structured logs with session and operation identifiers. `DbDiagn
 ## Learn More
 
 - [Complete Usage Guide](https://github.com/flowsydev/flowsy-net-db-unity/tree/main/Docs/Usage)
-- [PostgreSQL Package](https://github.com/flowsydev/flowsy-net-db-unity/tree/main/Flowsy.Db.Unity.Postgres)
-- [Changelog](https://github.com/flowsydev/flowsy-net-db-unity/blob/main/Flowsy.Db.Unity/CHANGELOG.md)
+- [PostgreSQL Package](https://github.com/flowsydev/flowsy-net-db-unity/tree/dev/Flowsy.Db.Unity.Postgres)
+- [Changelog](https://github.com/flowsydev/flowsy-net-db-unity/blob/dev/Flowsy.Db.Unity/CHANGELOG.md)

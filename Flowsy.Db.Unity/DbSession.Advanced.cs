@@ -1,4 +1,6 @@
 using System.Data;
+using System.Data.Common;
+using System.Runtime.ExceptionServices;
 using Microsoft.Extensions.Logging;
 
 namespace Flowsy.Db.Unity;
@@ -149,22 +151,89 @@ public partial class DbSession
         ArgumentNullException.ThrowIfNull(work);
         EnsureNotDisposed();
         var commands = settings.Select(x => _sessionSettingFormatter.Format(x, Configuration)).ToArray();
-        var appliedCommands = new Stack<DbSessionSettingCommand>();
+        foreach (var command in commands)
+        {
+            if ((command.ReadStatement is null) != (command.RestoreStatementFactory is null))
+                throw new InvalidOperationException("A setting command must provide both a read statement and a restoration factory.");
+        }
+        var cleanupStatements = new Stack<string>();
+        Exception? operationException = null;
         await EnsureOpenConnectionAsync(cancellationToken);
         try
         {
             foreach (var command in commands)
             {
+                var cleanup = command.ReadStatement is not null
+                    ? command.RestoreStatementFactory!(await ReadSettingValueAsync(command.ReadStatement, cancellationToken))
+                    : command.CleanupStatement;
                 await ExecuteCommandAsync(command.ApplyStatement, cancellationToken: cancellationToken);
-                appliedCommands.Push(command);
+                cleanupStatements.Push(cleanup);
             }
 
             return await work(this, cancellationToken);
         }
+        catch (Exception exception)
+        {
+            operationException = exception;
+            throw;
+        }
         finally
         {
-            while (appliedCommands.TryPop(out var command))
-                await ExecuteCommandAsync(command.CleanupStatement, cancellationToken: CancellationToken.None);
+            var cleanupExceptions = new List<Exception>();
+            while (cleanupStatements.TryPop(out var statement))
+            {
+                try
+                {
+                    await ExecuteCommandAsync(statement, cancellationToken: CancellationToken.None);
+                }
+                catch (Exception exception)
+                {
+                    cleanupExceptions.Add(exception);
+                }
+            }
+
+            if (cleanupExceptions.Count > 0)
+            {
+                if (operationException is not null)
+                    cleanupExceptions.Insert(0, operationException);
+                if (cleanupExceptions.Count == 1)
+                    ExceptionDispatchInfo.Capture(cleanupExceptions[0]).Throw();
+                throw new AggregateException("One or more session settings could not be restored.", cleanupExceptions);
+            }
+        }
+    }
+
+    private async Task<object?> ReadSettingValueAsync(string statement, CancellationToken cancellationToken)
+    {
+        using var command = _connection.CreateCommand();
+        command.CommandText = statement;
+        command.CommandType = CommandType.Text;
+        command.Transaction = _transaction;
+        if (Configuration.Conventions.Commands.Timeout is { } timeout)
+            command.CommandTimeout = timeout;
+        var operationId = CreateOperationId();
+        _logger?.Log(Configuration.LogLevel,
+            "[ SESSION:{SessionId} > OP:{OperationId} ] Reading current session setting with {Statement}",
+            SessionId, operationId, statement);
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var value = command is DbCommand dbCommand
+                ? await dbCommand.ExecuteScalarAsync(cancellationToken)
+                : command.ExecuteScalar();
+            if (value is null)
+                throw new InvalidOperationException("The session-setting query did not return a value.");
+            _logger?.Log(Configuration.LogLevel,
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Current session setting read successfully",
+                SessionId, operationId);
+            return value is DBNull ? null : value;
+        }
+        catch (Exception exception)
+        {
+            _logger?.LogError(exception,
+                "[ SESSION:{SessionId} > OP:{OperationId} ] Error reading current session setting",
+                SessionId, operationId);
+            throw;
         }
     }
 

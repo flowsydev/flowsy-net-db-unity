@@ -74,7 +74,7 @@ public class ServiceHost : IDisposable, IAsyncDisposable
                         )
                         .WithDefault(DbCaseStyle.LowerSnakeCase);
                     
-                    // Configure additional SQL Server for reports
+                    // Configure the additional MySQL connection
                     options
                         .UseConnection(DbConnections.MySql, _mySqlContainer.GetConnectionString())
                         .WithProvider(DbProviderFamily.MySql, "MySqlConnector", MySqlConnectorFactory.Instance)
@@ -155,7 +155,7 @@ public class ServiceHost : IDisposable, IAsyncDisposable
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Error durante la migración de bases de datos");
+            logger.LogError(exception, "Error migrating databases");
             throw;
         }
     }

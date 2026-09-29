@@ -30,9 +30,13 @@ public partial interface IDbSession
     Task<TResult> WithConnectionAsync<TConnection, TResult>(Func<TConnection, IDbTransaction?, CancellationToken, Task<TResult>> work, CancellationToken cancellationToken = default)
         where TConnection : class, IDbConnection;
 
-    /// <summary>Applies allowed session settings during a callback and guarantees cleanup.</summary>
+    /// <summary>Applies allowed session settings during a callback and attempts all restorations in reverse order.</summary>
+    /// <remarks>Built-in formatters restore captured values. Legacy custom commands use their cleanup statements.
+    /// If work and cleanup both fail, an AggregateException preserves all failures, with the work error first.</remarks>
     Task WithSettingsAsync(IEnumerable<DbSessionSetting> settings, Func<IDbSession, CancellationToken, Task> work, CancellationToken cancellationToken = default);
 
-    /// <summary>Applies allowed session settings during a callback that returns a result and guarantees cleanup.</summary>
+    /// <summary>Applies allowed session settings during a callback that returns a result and attempts all restorations.</summary>
+    /// <remarks>Built-in formatters restore captured values. Legacy custom commands use their cleanup statements.
+    /// If work and cleanup both fail, an AggregateException preserves all failures, with the work error first.</remarks>
     Task<TResult> WithSettingsAsync<TResult>(IEnumerable<DbSessionSetting> settings, Func<IDbSession, CancellationToken, Task<TResult>> work, CancellationToken cancellationToken = default);
 }

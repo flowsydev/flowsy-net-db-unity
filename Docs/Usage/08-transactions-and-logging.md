@@ -37,8 +37,8 @@ An opt-in guard can require an active transaction for detected write statements 
 
 ```csharp
 .WithWriteTransactionGuard(
-    enabled: true,
-    exceptions: ["VACUUM"])
+    required: true,
+    administrativeStatementExceptions: ["VACUUM"])
 ```
 
 The default detector is deliberately conservative and replaceable through `IDbWriteOperationDetector`; it is not a complete SQL parser.
@@ -54,7 +54,11 @@ await db.WithSettingsAsync(
     cancellationToken);
 ```
 
-Applied settings are cleaned in reverse order, including when a later setting or the callback fails. Add non-default names explicitly with `AllowSessionSettings`.
+Built-in formatters capture each current value before applying a setting, then restore those values in reverse order, including when a later setting, the callback, or cancellation fails. Nested scopes and repeated settings restore the value observed by each scope. Add non-default names explicitly with `AllowSessionSettings`.
+
+Cleanup uses a non-cancelable token and attempts every applied setting even if a restoration fails. A single cleanup failure is rethrown; multiple failures produce an `AggregateException`. If the callback or setting application also fails, its original exception is the first inner exception.
+
+Supported defaults include PostgreSQL configuration settings, MySQL session variables, SQLite pragmas, SQL Server `deadlock_priority` and `lock_timeout`, and Oracle or Db2 `current_schema`. Other SQL Server, Oracle, or Db2 settings require a custom formatter that can read and restore their values.
 
 Configure normal operation logging with `WithLogLevel`. Log entries include `SessionId` and `OperationId` for correlation, while failures are logged as errors.
 

@@ -49,4 +49,4 @@ var products = await db.QueryAsync<Product>(
 
 For exceptional native operations, use `WithConnectionAsync<NpgsqlConnection>` so the session retains lifecycle and transaction control.
 
-See the [complete usage guide](https://github.com/flowsydev/flowsy-net-db-unity/tree/main/Docs/Usage) and [package changelog](https://github.com/flowsydev/flowsy-net-db-unity/blob/main/Flowsy.Db.Unity.Postgres/CHANGELOG.md).
+See the [complete usage guide](https://github.com/flowsydev/flowsy-net-db-unity/tree/main/Docs/Usage) and [package changelog](https://github.com/flowsydev/flowsy-net-db-unity/blob/dev/Flowsy.Db.Unity.Postgres/CHANGELOG.md).
