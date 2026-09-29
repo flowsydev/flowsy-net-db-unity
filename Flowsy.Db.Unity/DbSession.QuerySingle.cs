@@ -57,7 +57,8 @@ public partial class DbSession
 
         try
         {
-            var result = await _connection.QuerySingleAsync<T>(commandDefinition);
+            var result = await ObserveOperationAsync("query_single", null,
+                () => _connection.QuerySingleAsync<T>(commandDefinition));
 
             _logger?.Log(
                 Configuration.LogLevel,
@@ -133,7 +134,8 @@ public partial class DbSession
 
         try
         {
-            var result = await _connection.QuerySingleOrDefaultAsync<T>(commandDefinition);
+            var result = await ObserveOperationAsync("query_single_or_default", null,
+                () => _connection.QuerySingleOrDefaultAsync<T>(commandDefinition));
 
             _logger?.Log(
                 Configuration.LogLevel,

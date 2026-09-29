@@ -1,4 +1,4 @@
-# Transactions and Logging
+# Transactions, Observability, And Guardrails
 
 Transactions belong to a session:
 
@@ -19,4 +19,47 @@ catch
 
 The default isolation level is `ReadCommitted`; overloads accept another `IsolationLevel`. Disposing a session with an active transaction rolls it back.
 
+Use the callback helper when the session should manage commit and rollback:
+
+```csharp
+await db.InTransactionAsync(async (session, token) =>
+{
+    await session.ExecuteAsync(firstStatement, firstParameters, token);
+    await session.ExecuteAsync(secondStatement, secondParameters, token);
+}, cancellationToken);
+```
+
+`InExistingOrNewTransactionAsync` joins an existing transaction and only completes one it creates.
+
+## Write Guard
+
+An opt-in guard can require an active transaction for detected write statements and routine execution:
+
+```csharp
+.WithWriteTransactionGuard(
+    required: true,
+    administrativeStatementExceptions: ["VACUUM"])
+```
+
+The default detector is deliberately conservative and replaceable through `IDbWriteOperationDetector`; it is not a complete SQL parser.
+
+## Session Settings
+
+Apply allowlisted connection settings for the duration of a callback:
+
+```csharp
+await db.WithSettingsAsync(
+    [new DbSessionSetting("statement_timeout", 30_000)],
+    (session, token) => session.ExecuteAsync(statement, parameters, token),
+    cancellationToken);
+```
+
+Built-in formatters capture each current value before applying a setting, then restore those values in reverse order, including when a later setting, the callback, or cancellation fails. Nested scopes and repeated settings restore the value observed by each scope. Add non-default names explicitly with `AllowSessionSettings`.
+
+Cleanup uses a non-cancelable token and attempts every applied setting even if a restoration fails. A single cleanup failure is rethrown; multiple failures produce an `AggregateException`. If the callback or setting application also fails, its original exception is the first inner exception.
+
+Supported defaults include PostgreSQL configuration settings, MySQL session variables, SQLite pragmas, SQL Server `deadlock_priority` and `lock_timeout`, and Oracle or Db2 `current_schema`. Other SQL Server, Oracle, or Db2 settings require a custom formatter that can read and restore their values.
+
 Configure normal operation logging with `WithLogLevel`. Log entries include `SessionId` and `OperationId` for correlation, while failures are logged as errors.
+
+`DbDiagnostics.ActivitySource` and `DbDiagnostics.Meter` expose standard tracing and metrics without recording SQL or parameter values. Use `WithSlowOperationThreshold` to emit warnings for slow operations.

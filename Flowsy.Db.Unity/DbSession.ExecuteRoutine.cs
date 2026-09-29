@@ -52,8 +52,9 @@ public partial class DbSession
         DbRoutineType routineType,
         dynamic? parameters = null,
         CancellationToken cancellationToken = default
-        )
+    )
     {
+        EnsureRoutineWriteAllowed(routineName);
         await EnsureOpenConnectionAsync(cancellationToken);
 
         var (routineConvention, commandConvention) = Configuration.Conventions;
@@ -80,7 +81,8 @@ public partial class DbSession
 
         try
         {
-            var result = await _connection.ExecuteAsync(commandDefinition);
+            var result = await ObserveOperationAsync("execute_routine", routineName,
+                () => _connection.ExecuteAsync(commandDefinition));
 
             _logger?.Log(
                 Configuration.LogLevel,

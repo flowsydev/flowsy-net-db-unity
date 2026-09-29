@@ -28,6 +28,7 @@ public partial class DbSession
         CancellationToken cancellationToken = default
     )
     {
+        EnsureWriteAllowed(statement);
         await EnsureOpenConnectionAsync(cancellationToken);
 
         var commandDefinition = BuildCommandDefinition(
@@ -50,7 +51,8 @@ public partial class DbSession
 
         try
         {
-            var rowsAffected = await _connection.ExecuteAsync(commandDefinition);
+            var rowsAffected = await ObserveOperationAsync("execute", null,
+                () => _connection.ExecuteAsync(commandDefinition));
 
             _logger?.Log(
                 Configuration.LogLevel,

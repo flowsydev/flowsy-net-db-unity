@@ -13,6 +13,7 @@ public class DbConnectionFactory : IDbConnectionFactory
 {
     private readonly IOptionsMonitor<DbConnectionConfiguration>? _optionsMonitor;
     private readonly ConcurrentDictionary<string, DbConnectionConfiguration> _configurations = [];
+    private readonly IReadOnlyList<IDbConnectionProvider> _connectionProviders = [];
 
     /// <summary>
     /// Creates a new instance of the DbConnectionFactory class.
@@ -41,6 +42,32 @@ public class DbConnectionFactory : IDbConnectionFactory
     public DbConnectionFactory(IOptionsMonitor<DbConnectionConfiguration> optionsMonitor)
     {
         _optionsMonitor = optionsMonitor;
+    }
+
+    /// <summary>Initializes a factory with registered provider extensions.</summary>
+    public DbConnectionFactory(
+        IOptionsMonitor<DbConnectionConfiguration> optionsMonitor,
+        IEnumerable<IDbConnectionProvider> connectionProviders)
+    {
+        _optionsMonitor = optionsMonitor;
+        _connectionProviders = connectionProviders.ToArray();
+    }
+
+    private IDbConnection CreateConnection(DbConnectionConfiguration configuration)
+    {
+        var specializedProvider = _connectionProviders.FirstOrDefault(provider => provider.CanHandle(configuration));
+        if (specializedProvider is not null)
+            return specializedProvider.CreateConnection(configuration);
+
+        var provider = configuration.Provider;
+        var connection = provider.Factory?.CreateConnection();
+        if (connection is null)
+            throw new InvalidOperationException(string.Format(
+                Strings.FailedToCreateConnectionForProviderX,
+                provider.InvariantName ?? provider.Family.ToString()));
+
+        connection.ConnectionString = configuration.ConnectionString;
+        return connection;
     }
 
     /// <summary>
@@ -202,12 +229,7 @@ public class DbConnectionFactory : IDbConnectionFactory
 
         try
         {
-            var provider = configuration.Provider;
-            connection = provider.Factory?.CreateConnection();
-            if (connection == null)
-                return false;
-        
-            connection.ConnectionString = configuration.ConnectionString;
+            connection = CreateConnection(configuration);
             if (open && connection.State == ConnectionState.Closed)
                 connection.Open();
         
@@ -237,12 +259,7 @@ public class DbConnectionFactory : IDbConnectionFactory
     {
         var configuration = GetConfiguration(connectionKey);
         
-        var provider = configuration.Provider;
-        var connection = provider.Factory?.CreateConnection();
-        if (connection == null)
-            throw new InvalidOperationException(string.Format(Strings.FailedToCreateConnectionForProviderX, provider.InvariantName ?? provider.Family.ToString()));
-        
-        connection.ConnectionString = configuration.ConnectionString;
+        var connection = CreateConnection(configuration);
         
         if (open && connection.State == ConnectionState.Closed)
             connection.Open();

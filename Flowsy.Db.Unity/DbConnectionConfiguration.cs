@@ -10,6 +10,8 @@ namespace Flowsy.Db.Unity;
 /// </summary>
 public record DbConnectionConfiguration
 {
+    private IReadOnlyDictionary<Type, IDbProviderConfiguration> _providerConfigurations =
+        new Dictionary<Type, IDbProviderConfiguration>();
     /// <summary>
     /// Initializes a new instance of the <see cref="DbConnectionConfiguration"/> class with default values.
     /// </summary>
@@ -89,6 +91,35 @@ public record DbConnectionConfiguration
     /// Migration configuration for this connection.
     /// </summary>
     public DbMigrationConfiguration? Migrations { get; internal set; }
+
+    /// <summary>Gets whether detected write operations require an active transaction.</summary>
+    public bool RequireTransactionForWrites { get; internal set; }
+
+    /// <summary>Gets administrative statements exempted from the transaction guard.</summary>
+    public IReadOnlySet<string> WriteTransactionExceptions { get; internal set; } =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Gets additional session settings explicitly allowed for this connection.</summary>
+    public IReadOnlySet<string> AllowedSessionSettings { get; internal set; } =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Gets the optional threshold used to classify a database operation as slow.</summary>
+    public TimeSpan? SlowOperationThreshold { get; internal set; }
+
+    /// <summary>Gets configuration objects registered by provider extensions.</summary>
+    public IReadOnlyDictionary<Type, IDbProviderConfiguration> ProviderConfigurations
+    {
+        get => _providerConfigurations;
+        internal set => _providerConfigurations = value;
+    }
+
+    /// <summary>Tries to resolve configuration registered by a provider extension.</summary>
+    public bool TryGetProviderConfiguration<TConfiguration>(out TConfiguration? configuration)
+        where TConfiguration : class, IDbProviderConfiguration
+    {
+        configuration = ProviderConfigurations.GetValueOrDefault(typeof(TConfiguration)) as TConfiguration;
+        return configuration is not null;
+    }
     
     /// <summary>
     /// Creates a connection to the database using the current configuration.

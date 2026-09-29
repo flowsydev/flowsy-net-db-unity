@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace Flowsy.Db.Unity;
@@ -24,6 +25,9 @@ public static class DependencyInjection
     {
         var options = new DbServiceCollectionOptions(services);
         configure(options);
+
+        foreach (var registration in options.GlobalTypeHandlerRegistrations)
+            registration();
 
         var validConnecitonConfigurationBuilders = options
             .ConnectionConfigurationBuilders
@@ -52,7 +56,8 @@ public static class DependencyInjection
             services.AddSingleton<IDbConnectionFactory>(serviceProvider =>
             {
                 var optionsMonitor = serviceProvider.GetRequiredService<IOptionsMonitor<DbConnectionConfiguration>>();
-                return new DbConnectionFactory(optionsMonitor);
+                var providers = serviceProvider.GetServices<IDbConnectionProvider>();
+                return new DbConnectionFactory(optionsMonitor, providers);
             });
         }
         
@@ -60,6 +65,8 @@ public static class DependencyInjection
             services.AddScoped<IDbSessionFactory, DbSessionFactory>();
         
         services.AddScoped<IDbConnectionHub, DbConnectionHub>();
+        services.TryAddSingleton<IDbWriteOperationDetector, DbWriteOperationDetector>();
+        services.TryAddSingleton<IDbSessionSettingFormatter, DbSessionSettingFormatter>();
         
         return services;
     }

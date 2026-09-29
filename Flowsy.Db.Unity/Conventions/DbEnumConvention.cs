@@ -135,6 +135,13 @@ public record DbEnumConvention(
     {
         Map(@enum.GetType(), out databaseType, out customType, out var mapping);
 
+        if (ValueFormat != DbEnumValueFormat.Ordinal
+            && mapping?.Values.TryGetValue(@enum, out var explicitValue) == true)
+        {
+            enumValue = explicitValue;
+            return;
+        }
+
         var enumStringValue = @enum.ToString();
         var nameTranslator = mapping?.NameTranslator ?? NameTranslator;
         if (nameTranslator?.MemberNameCaseStyle.HasValue ?? false)

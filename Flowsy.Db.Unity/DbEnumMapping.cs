@@ -21,10 +21,15 @@ public record DbEnumMapping
     /// Name translator to convert enum value names.
     /// Can be <c>null</c> if default translation is used.
     /// </param>
+    /// <param name="values">Explicit database values keyed by enum member.</param>
     /// <exception cref="ArgumentException">
     /// Thrown when <paramref name="runtimeType"/> is not an enum type.
     /// </exception>
-    public DbEnumMapping(Type runtimeType, string? databaseTypeName, DbEnumNameTranslator? nameTranslator = null)
+    public DbEnumMapping(
+        Type runtimeType,
+        string? databaseTypeName,
+        DbEnumNameTranslator? nameTranslator = null,
+        IReadOnlyDictionary<Enum, string>? values = null)
     {
         if (!runtimeType.IsEnum)
             throw new ArgumentException(string.Format(Strings.TypeXIsNotAnEnumType, runtimeType.FullName), nameof(runtimeType));
@@ -32,6 +37,7 @@ public record DbEnumMapping
         RuntimeType = runtimeType;
         DatabaseTypeName = databaseTypeName;
         NameTranslator = nameTranslator;
+        Values = values ?? new Dictionary<Enum, string>();
     }
 
     /// <summary>
@@ -48,6 +54,11 @@ public record DbEnumMapping
     /// Gets the name translator for converting enum value names.
     /// </summary>
     public DbEnumNameTranslator? NameTranslator { get; init; }
+
+    /// <summary>
+    /// Gets explicitly configured database values by enum member.
+    /// </summary>
+    public IReadOnlyDictionary<Enum, string> Values { get; init; }
     
     /// <summary>
     /// Deconstructs the instance into its main components.
@@ -82,6 +93,21 @@ public record DbEnumMapping<TEnum> : DbEnumMapping
     /// <param name="databaseTypeName">The name of the database type to which the enum will be mapped.</param>
     /// <param name="nameTranslator">Name translator for converting enum value names.</param>
     public DbEnumMapping(string? databaseTypeName, DbEnumNameTranslator? nameTranslator) : base(typeof(TEnum), databaseTypeName, nameTranslator)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a strongly typed mapping with explicit database values by member.
+    /// </summary>
+    public DbEnumMapping(
+        string? databaseTypeName,
+        IEnumerable<(TEnum Value, string DatabaseValue)> values,
+        DbEnumNameTranslator? nameTranslator = null)
+        : base(
+            typeof(TEnum),
+            databaseTypeName,
+            nameTranslator,
+            values.ToDictionary(pair => (Enum)(object)pair.Value, pair => pair.DatabaseValue))
     {
     }
 }

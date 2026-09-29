@@ -15,6 +15,8 @@ public class DbServiceCollectionOptions
     
     internal bool ConnectionFactoryRegistered { get; private set; }
     internal bool SessionFactoryRegistered { get; private set; }
+    internal IList<Action> GlobalTypeHandlerRegistrations { get; } = [];
+    private readonly HashSet<Type> _connectionProviderTypes = [];
 
     internal DbServiceCollectionOptions(IServiceCollection services)
     {
@@ -38,6 +40,23 @@ public class DbServiceCollectionOptions
         var connectionConfigurationBuilder = new DbConnectionConfigurationBuilder(connectionKey, connectionString);
         _connectionConfigurationBuilders.Add(connectionConfigurationBuilder);
         return connectionConfigurationBuilder;
+    }
+
+    /// <summary>Registers a connection creator supplied by a provider extension.</summary>
+    public DbServiceCollectionOptions AddConnectionProvider<TProvider>()
+        where TProvider : class, IDbConnectionProvider
+    {
+        if (_connectionProviderTypes.Add(typeof(TProvider)))
+            _services.AddSingleton<IDbConnectionProvider, TProvider>();
+        return this;
+    }
+
+    /// <summary>Registers a process-wide Dapper type handler.</summary>
+    public DbServiceCollectionOptions AddGlobalTypeHandler<T>(Dapper.SqlMapper.TypeHandler<T> handler)
+    {
+        ArgumentNullException.ThrowIfNull(handler);
+        GlobalTypeHandlerRegistrations.Add(() => Dapper.SqlMapper.AddTypeHandler(handler));
+        return this;
     }
 
     /// <summary>

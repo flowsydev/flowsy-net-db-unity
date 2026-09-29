@@ -10,6 +10,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 
 ---
 
+## [6.0.0] - 2026-09-28
+
+### Added
+
+- Add IBM Db2 provider metadata, named routine arguments, SQL generation for procedures and scalar or table functions, and scoped schema settings while preserving existing provider enum values.
+- Add provider-neutral configuration and connection-provider extension points with a generic factory fallback.
+- Add per-call command options, transaction helpers, asynchronous streaming, safe multiple-result callbacks, and controlled native connection access.
+- Add external parameter and enum value mappings, configurable Dapper type handlers, and `DateOnly` and `TimeOnly` handlers.
+- Add tracing, metrics, slow-operation warnings, opt-in write transaction guards, and allowlisted scoped session settings.
+- Add optional setting snapshot queries and restoration factories to `DbSessionSettingCommand` for custom formatters while preserving its positional constructor.
+
+### Changed
+
+- **BREAKING**: Extend `IDbSession` with required members for per-call options, transaction and connection callbacks, scoped settings, streaming, and safe multiple-result consumption. Custom implementations must implement the new members.
+- **BREAKING**: Change constructor signatures for `DbSession`, non-generic `DbEnumMapping`, `DbParameterDescriptor`, and `DbParameterConvention`, and the signature of `DbParameterBuilder.BuildDescriptor`, by adding optional parameters. Previously compiled consumers must be rebuilt.
+- **BREAKING**: Add `Mappings` to the positional `DbParameterConvention` record, replacing its generated four-value `Deconstruct` with a five-value signature. Update affected deconstruction calls. Calls to the new generic `DbEnumMapping<TEnum>` overloads with a null second argument must specify its type to avoid ambiguity.
+- Generate and package IntelliSense XML documentation, with build validation for undocumented public APIs and inconsistent parameter tags.
+- Include a focused, provider-aware package README with corrected documentation links and transaction guard examples.
+
+### Fixed
+
+- Match constructor parameters without accepting inconsistent lengths or reading past the final parameter.
+- Preserve the requested isolation level when beginning an asynchronous transaction.
+- Append PostgreSQL array suffixes only when a custom database type is present.
+- Restore captured session values in reverse order, including nested scopes and repeated settings, when work, cancellation, or a later setting fails.
+- Attempt every setting restoration and preserve callback errors together with cleanup failures.
+- Use valid SQL Server setting values, preserve PostgreSQL list values, and quote Oracle schema identifiers correctly.
+- Include multiple-result callback consumption in command duration and error reporting without counting another command.
+
+---
+
 ## [5.0.0] - 2026-06-08
 
 ### Added
@@ -17,7 +48,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 - Add support for `net10.0`.
 - Add an English usage guide under `Docs/Usage`.
 - Add repository-level agent instructions in `AGENTS.md`.
-- Add a technical assessment of potential `DbSession` improvements under `Docs/Review`.
 
 ### Changed
 

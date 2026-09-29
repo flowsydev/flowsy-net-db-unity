@@ -10,6 +10,9 @@ namespace Flowsy.Db.Unity;
 /// </summary>
 public class DbProviderDescriptor
 {
+    /// <summary>
+    /// Gets the provider-neutral descriptor used when no database-specific provider is configured.
+    /// </summary>
     public static readonly DbProviderDescriptor Generic = new (DbProviderFamily.Generic);
     private static readonly ConcurrentDictionary<DbProviderFamily, ConcurrentDictionary<Type, DbType>> TypeMappings = [];
 
@@ -72,6 +75,10 @@ public class DbProviderDescriptor
                 DefaultSchemaName = null;
                 ParameterPrefixForStatement = ":";
                 SupportsNamedParameters = true;
+                break;
+            case DbProviderFamily.Db2:
+                DefaultPort = 50000;
+                SupportsSchemas = true;
                 break;
             case DbProviderFamily.Sqlite:
                 DefaultPort = 0;
@@ -170,6 +177,7 @@ public class DbProviderDescriptor
             DbProviderFamily.Postgres => true,
             DbProviderFamily.SqlServer => true,
             DbProviderFamily.Oracle => true,
+            DbProviderFamily.Db2 => true,
             _ => false
         };
     
@@ -237,7 +245,7 @@ public class DbProviderDescriptor
     public virtual string FormatNamedParameter(string parameterName, string valueExpression)
         => Family switch
         {
-            DbProviderFamily.Postgres => $"{parameterName} => {valueExpression}",
+            DbProviderFamily.Postgres or DbProviderFamily.Db2 => $"{parameterName} => {valueExpression}",
             DbProviderFamily.SqlServer => $"{parameterName} = {valueExpression}",
             _ => $"{ParameterPrefixForStatement}{parameterName}",
         };
@@ -267,7 +275,9 @@ public class DbProviderDescriptor
     /// A string that represents the custom data type formatted as an array type.
     /// </returns>
     public virtual string? FormatArrayType(string? databaseCustomType)
-        => string.IsNullOrEmpty(databaseCustomType) && Family == DbProviderFamily.Postgres ? $"{databaseCustomType}[]" : databaseCustomType;
+        => !string.IsNullOrEmpty(databaseCustomType) && Family == DbProviderFamily.Postgres
+            ? $"{databaseCustomType}[]"
+            : databaseCustomType;
     
     /// <summary>
     /// Formats a SQL statement for routine (stored procedure or function) invocation.
@@ -349,6 +359,14 @@ public class DbProviderDescriptor
                 DbRoutineType.StoredFunction => returnsTable
                     ? $"SELECT * FROM TABLE({fullyQualifiedName}({parameterListText}))"
                     : $"SELECT {fullyQualifiedName}({parameterListText}) FROM DUAL",
+                _ => throw new NotSupportedException(unsupportedRoutineTypeMessage)
+            },
+            DbProviderFamily.Db2 => routineType switch
+            {
+                DbRoutineType.StoredProcedure => $"CALL {fullyQualifiedName}({parameterListText})",
+                DbRoutineType.StoredFunction => returnsTable
+                    ? $"SELECT * FROM TABLE({fullyQualifiedName}({parameterListText})) AS routine_result"
+                    : $"VALUES {fullyQualifiedName}({parameterListText})",
                 _ => throw new NotSupportedException(unsupportedRoutineTypeMessage)
             },
             DbProviderFamily.Sqlite => routineType switch

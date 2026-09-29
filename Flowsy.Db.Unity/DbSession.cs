@@ -1,5 +1,6 @@
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using Dapper;
 using Flowsy.Db.Unity.Conventions;
 using Flowsy.Db.Unity.Resources;
@@ -15,6 +16,9 @@ public partial class DbSession : IDbSession
     private readonly IDbConnection _connection;
     private IDbTransaction? _transaction;
     private readonly ILogger<DbSession>? _logger;
+    private readonly IDbWriteOperationDetector _writeOperationDetector;
+    private readonly IDbSessionSettingFormatter _sessionSettingFormatter;
+    private readonly AsyncLocal<DbSessionCallOptions?> _callOptions = new();
     private bool _disposed;
 
     /// <summary>
@@ -32,15 +36,32 @@ public partial class DbSession : IDbSession
     /// <param name="logger">
     /// Optional logger for logging operations.
     /// </param>
-    public DbSession(IDbConnection connection, DbConnectionUsage connectionUsage, DbConnectionConfiguration configuration, ILogger<DbSession>? logger = null)
+    /// <param name="writeOperationDetector">
+    /// Optional service that classifies SQL statements as read or write operations.
+    /// </param>
+    /// <param name="sessionSettingFormatter">
+    /// Optional service that renders provider-specific commands for session settings.
+    /// </param>
+    public DbSession(
+        IDbConnection connection,
+        DbConnectionUsage connectionUsage,
+        DbConnectionConfiguration configuration,
+        ILogger<DbSession>? logger = null,
+        IDbWriteOperationDetector? writeOperationDetector = null,
+        IDbSessionSettingFormatter? sessionSettingFormatter = null)
     {
         _connection = connection;
         ConnectionUsage = connectionUsage;
         Configuration = configuration;
         _logger = logger;
+        _writeOperationDetector = writeOperationDetector ?? new DbWriteOperationDetector();
+        _sessionSettingFormatter = sessionSettingFormatter ?? new DbSessionSettingFormatter();
         SessionId = $"{Configuration.ConnectionKey}/{Ulid.NewUlid()}";
     }
 
+    /// <summary>
+    /// Finalizes the session and releases resources still owned by it.
+    /// </summary>
     ~DbSession()
     {
         Dispose(false);
@@ -88,6 +109,8 @@ public partial class DbSession : IDbSession
         {
             _connection.Open();
 
+            DbDiagnostics.ConnectionsOpened.Add(1, CreateMetricTags("open_connection"));
+
             _logger?.Log(Configuration.LogLevel, "[ SESSION:{SessionId} > OP:{OperationId} ] Connection opened", SessionId, operationId);
         }
         catch (Exception exception)
@@ -118,6 +141,8 @@ public partial class DbSession : IDbSession
                 await dbConnection.OpenAsync(cancellationToken);
             else
                 _connection.Open();
+
+            DbDiagnostics.ConnectionsOpened.Add(1, CreateMetricTags("open_connection"));
 
             _logger?.Log(Configuration.LogLevel, "[ SESSION:{SessionId} > OP:{OperationId} ] Connection opened", SessionId, operationId);
         }
@@ -157,8 +182,9 @@ public partial class DbSession : IDbSession
         CancellationToken cancellationToken = default
         )
     {
-        var customTimeout = convention?.Timeout;
-        var customFlags = convention?.Flags;
+        var options = _callOptions.Value;
+        var customTimeout = options?.Timeout ?? convention?.Timeout;
+        var customFlags = options?.Flags ?? convention?.Flags;
 
         var (defaultTimeout, defaultFlags) = Configuration.Conventions.Commands;
 
@@ -173,10 +199,93 @@ public partial class DbSession : IDbSession
             dynamicParameters,
             _transaction, 
             customTimeout ?? defaultTimeout, 
-            commandType,
+            options?.CommandType ?? commandType,
             customFlags ?? defaultFlags,
             cancellationToken
             );
+    }
+
+    private async Task<TResult> WithCallOptionsAsync<TResult>(
+        DbSessionCallOptions options,
+        Func<Task<TResult>> operation)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        var previous = _callOptions.Value;
+        _callOptions.Value = options;
+        try
+        {
+            return await operation();
+        }
+        finally
+        {
+            _callOptions.Value = previous;
+        }
+    }
+
+    private void EnsureWriteAllowed(string statement)
+    {
+        if (!Configuration.RequireTransactionForWrites || InTransaction)
+            return;
+        if (Configuration.WriteTransactionExceptions.Any(x => statement.TrimStart().StartsWith(x, StringComparison.OrdinalIgnoreCase)))
+            return;
+        if (_writeOperationDetector.IsWriteOperation(statement))
+            throw new InvalidOperationException($"The write operation for connection '{ConnectionKey}' requires an active transaction.");
+    }
+
+    private void EnsureRoutineWriteAllowed(string routineName)
+    {
+        if (!Configuration.RequireTransactionForWrites || InTransaction
+            || Configuration.WriteTransactionExceptions.Contains(routineName))
+            return;
+        throw new InvalidOperationException(
+            $"Executing routine '{routineName}' for connection '{ConnectionKey}' requires an active transaction.");
+    }
+
+    private async Task<TResult> ObserveOperationAsync<TResult>(
+        string operation,
+        string? routine,
+        Func<Task<TResult>> execute,
+        bool countCommand = true)
+    {
+        using var activity = DbDiagnostics.ActivitySource.StartActivity($"db.{operation}", ActivityKind.Client);
+        activity?.SetTag("db.system.name", Configuration.Provider.Family.ToString());
+        activity?.SetTag("db.namespace", ConnectionKey);
+        activity?.SetTag("db.operation.name", operation);
+        activity?.SetTag("db.session.id", SessionId);
+        activity?.SetTag("db.routine.name", routine);
+        activity?.SetTag("db.operation.tag", _callOptions.Value?.SanitizedTag);
+
+        var stopwatch = Stopwatch.StartNew();
+        if (countCommand)
+            DbDiagnostics.Commands.Add(1, CreateMetricTags(operation));
+        try
+        {
+            return await execute();
+        }
+        catch (Exception exception)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, exception.GetType().Name);
+            DbDiagnostics.Errors.Add(1, CreateMetricTags(operation));
+            throw;
+        }
+        finally
+        {
+            stopwatch.Stop();
+            DbDiagnostics.Duration.Record(stopwatch.Elapsed.TotalMilliseconds, CreateMetricTags(operation));
+            if (Configuration.SlowOperationThreshold is { } threshold && stopwatch.Elapsed >= threshold)
+                _logger?.LogWarning(
+                    "[ SESSION:{SessionId} > OP:{OperationId} ] Slow database operation {Operation} took {ElapsedMilliseconds} ms",
+                    SessionId, CreateOperationId(), operation, stopwatch.Elapsed.TotalMilliseconds);
+        }
+    }
+
+    private TagList CreateMetricTags(string operation)
+    {
+        TagList tags = default;
+        tags.Add("db.system.name", Configuration.Provider.Family.ToString());
+        tags.Add("db.namespace", ConnectionKey);
+        tags.Add("db.operation.name", operation);
+        return tags;
     }
 
     /// <summary>
@@ -422,7 +531,7 @@ public partial class DbSession : IDbSession
         try
         {
             _transaction = _connection is DbConnection dbConnection 
-                ? await dbConnection.BeginTransactionAsync(cancellationToken) 
+                ? await dbConnection.BeginTransactionAsync(isolationLevel, cancellationToken)
                 : _connection.BeginTransaction(isolationLevel);
         
             _logger?.Log(Configuration.LogLevel, "[ SESSION:{SessionId} > OP:{OperationId} ] Transaction begun ({IsolationLevel})", SessionId, operationId, isolationLevel);
@@ -704,6 +813,7 @@ public partial class DbSession : IDbSession
             try
             {
                 _connection.Dispose();
+                DbDiagnostics.ConnectionsDisposed.Add(1, CreateMetricTags("dispose_connection"));
         
                 _logger?.Log(
                     Configuration.LogLevel,
@@ -735,6 +845,7 @@ public partial class DbSession : IDbSession
         try
         {
             _connection.Close();
+            DbDiagnostics.ConnectionsClosed.Add(1, CreateMetricTags("close_connection"));
         
             _logger?.Log(
                 Configuration.LogLevel,
@@ -780,6 +891,7 @@ public partial class DbSession : IDbSession
                     await dbConnection.DisposeAsync();
                 else
                     _connection.Dispose();
+                DbDiagnostics.ConnectionsDisposed.Add(1, CreateMetricTags("dispose_connection"));
         
                 _logger?.Log(
                     Configuration.LogLevel,
@@ -814,6 +926,7 @@ public partial class DbSession : IDbSession
                 await dbConnection.CloseAsync();
             else
                 _connection.Close();
+            DbDiagnostics.ConnectionsClosed.Add(1, CreateMetricTags("close_connection"));
         
             _logger?.Log(
                 Configuration.LogLevel,

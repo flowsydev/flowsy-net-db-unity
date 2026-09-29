@@ -5,6 +5,8 @@
 
 # dotenv files
 .env
+.github/environments/**/*.env
+!.github/environments/**/*.ref.env
 
 # User-specific files
 *.rsuser

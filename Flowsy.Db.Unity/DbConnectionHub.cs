@@ -37,6 +37,9 @@ public class DbConnectionHub : IDbConnectionHub
         _logger = logger;
     }
 
+    /// <summary>
+    /// Finalizes the hub and releases any connections still owned by it.
+    /// </summary>
     ~DbConnectionHub()
     {
         Dispose(false);
@@ -132,11 +135,6 @@ public class DbConnectionHub : IDbConnectionHub
     /// </summary>
     /// <param name="connectionKey">
     /// Connection key to identify the specific connection.
-    /// </param>
-    /// <param name="usage">
-    /// Indicates the connection usage, whether shared or exclusive.
-    /// If the connection is shared, the IDbConnectionHub service handles closing it when disposed (by calling Dispose or DisposeAsync).
-    /// If the connection is exclusive, the connection consumer is responsible for closing it when no longer needed.
     /// </param>
     /// <param name="cancellationToken">
     /// Cancellation token for the asynchronous operation.
@@ -435,6 +433,10 @@ public class DbConnectionHub : IDbConnectionHub
             connection.Open();
     }
     
+    /// <summary>
+    /// Gets a snapshot of the connections currently tracked by the hub, grouped by key, type, and state.
+    /// </summary>
+    /// <returns>A snapshot of shared and exclusive connection statistics.</returns>
     public DbConnectionHubStats GetStats()
     {
         var sharedConnectionGrouping = _sharedConnections
@@ -666,4 +668,3 @@ public class DbConnectionHub : IDbConnectionHub
         _disposed = true;
     }
 }
-

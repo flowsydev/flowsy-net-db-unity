@@ -176,10 +176,10 @@ public class DbConventionTypeMap : SqlMapper.ITypeMap
     private bool IsConstructorMatch(ConstructorInfo constructor, string[] names, Type[] types)
     {
         var parameters = constructor.GetParameters();
-        if (parameters.Length != names.Length && parameters.Length != types.Length)
+        if (parameters.Length != names.Length || parameters.Length != types.Length)
             return false;
         
-        for (var index = 0; index <= parameters.Length; index++)
+        for (var index = 0; index < parameters.Length; index++)
             if (!IsParameterMatch(parameters[index], names[index], types[index]))
                 return false;
 
