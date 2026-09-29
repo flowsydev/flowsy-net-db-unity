@@ -14,12 +14,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 
 ### Added
 
-- Add IBM Db2 provider metadata, schema settings, named routine arguments, and SQL generation for procedures, scalar functions, and table functions without changing existing provider enum values.
-- Add optional `ReadStatement` and `RestoreStatementFactory` properties to `DbSessionSettingCommand` for custom formatters that restore previous session values.
-- Add provider-neutral connection extensions and the opt-in `Flowsy.Db.Unity.Postgres` integration.
-- Add per-call command options, transaction helpers, progressive streaming, safe multiple-result callbacks, and controlled native connection access.
+- Add IBM Db2 provider metadata, named routine arguments, SQL generation for procedures and scalar or table functions, and scoped schema settings while preserving existing provider enum values.
+- Add provider-neutral configuration and connection-provider extension points with a generic factory fallback.
+- Add per-call command options, transaction helpers, asynchronous streaming, safe multiple-result callbacks, and controlled native connection access.
 - Add external parameter and enum value mappings, configurable Dapper type handlers, and `DateOnly` and `TimeOnly` handlers.
-- Add tracing, metrics, slow-operation warnings, write transaction guards, and scoped allowlisted session settings.
+- Add tracing, metrics, slow-operation warnings, opt-in write transaction guards, and allowlisted scoped session settings.
+- Add optional setting snapshot queries and restoration factories to `DbSessionSettingCommand` for custom formatters while preserving its positional constructor.
+
+### Changed
+
+- **BREAKING**: Extend `IDbSession` with required members for per-call options, transaction and connection callbacks, scoped settings, streaming, and safe multiple-result consumption. Custom implementations must implement the new members.
+- **BREAKING**: Change constructor signatures for `DbSession`, non-generic `DbEnumMapping`, `DbParameterDescriptor`, and `DbParameterConvention`, and the signature of `DbParameterBuilder.BuildDescriptor`, by adding optional parameters. Previously compiled consumers must be rebuilt.
+- **BREAKING**: Add `Mappings` to the positional `DbParameterConvention` record, replacing its generated four-value `Deconstruct` with a five-value signature. Update affected deconstruction calls. Calls to the new generic `DbEnumMapping<TEnum>` overloads with a null second argument must specify its type to avoid ambiguity.
+- Generate and package IntelliSense XML documentation, with build validation for undocumented public APIs and inconsistent parameter tags.
+- Include a focused, provider-aware package README with corrected documentation links and transaction guard examples.
 
 ### Fixed
 
@@ -29,16 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 - Restore captured session values in reverse order, including nested scopes and repeated settings, when work, cancellation, or a later setting fails.
 - Attempt every setting restoration and preserve callback errors together with cleanup failures.
 - Use valid SQL Server setting values, preserve PostgreSQL list values, and quote Oracle schema identifiers correctly.
-- Correct transaction guard examples and package documentation links.
-- Count multiple-result reader consumption as part of its command instead of as a second database command.
-- Override vulnerable transitive SQLite and SSH test dependencies with corrected releases.
-
-### Changed
-
-- **BREAKING**: Extend `IDbSession` with required members for per-call options, transaction and connection callbacks, scoped settings, streaming, and safe multiple-result consumption. Custom implementations must implement the new members.
-- **BREAKING**: Change the constructor signatures of `DbSession` and the non-generic `DbEnumMapping` by adding optional parameters. Existing source calls remain valid, but previously compiled consumers must be rebuilt.
-- Generate and package IntelliSense XML documentation, and fail builds when public APIs are undocumented or contain inconsistent parameter tags.
-- Restructure repository and package documentation as focused, provider-aware guides with package-specific READMEs.
+- Include multiple-result callback consumption in command duration and error reporting without counting another command.
 
 ---
 
