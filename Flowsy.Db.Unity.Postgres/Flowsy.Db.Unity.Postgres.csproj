@@ -10,7 +10,7 @@
     <Authors>Flowsy</Authors>
     <Company>Flowsy</Company>
     <Description>PostgreSQL provider integration for Flowsy.Db.Unity.</Description>
-    <Version>1.0.0</Version>
+    <Version>2.0.0</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>database;sql;postgresql;npgsql;data-access</PackageTags>

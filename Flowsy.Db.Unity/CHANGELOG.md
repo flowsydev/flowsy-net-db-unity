@@ -8,8 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 
 ## [Unreleased]
 
+---
+
+## [6.0.0] - 2026-09-28
+
 ### Added
 
+- Add IBM Db2 provider metadata, schema settings, named routine arguments, and SQL generation for procedures, scalar functions, and table functions without changing existing provider enum values.
+- Add optional `ReadStatement` and `RestoreStatementFactory` properties to `DbSessionSettingCommand` for custom formatters that restore previous session values.
 - Add provider-neutral connection extensions and the opt-in `Flowsy.Db.Unity.Postgres` integration.
 - Add per-call command options, transaction helpers, progressive streaming, safe multiple-result callbacks, and controlled native connection access.
 - Add external parameter and enum value mappings, configurable Dapper type handlers, and `DateOnly` and `TimeOnly` handlers.
@@ -20,12 +26,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 - Match constructor parameters without accepting inconsistent lengths or reading past the final parameter.
 - Preserve the requested isolation level when beginning an asynchronous transaction.
 - Append PostgreSQL array suffixes only when a custom database type is present.
-- Clean already applied session settings when applying a later setting fails.
+- Restore captured session values in reverse order, including nested scopes and repeated settings, when work, cancellation, or a later setting fails.
+- Attempt every setting restoration and preserve callback errors together with cleanup failures.
+- Use valid SQL Server setting values, preserve PostgreSQL list values, and quote Oracle schema identifiers correctly.
+- Correct transaction guard examples and package documentation links.
 - Count multiple-result reader consumption as part of its command instead of as a second database command.
 - Override vulnerable transitive SQLite and SSH test dependencies with corrected releases.
 
 ### Changed
 
+- **BREAKING**: Extend `IDbSession` with required members for per-call options, transaction and connection callbacks, scoped settings, streaming, and safe multiple-result consumption. Custom implementations must implement the new members.
+- **BREAKING**: Change the constructor signatures of `DbSession` and the non-generic `DbEnumMapping` by adding optional parameters. Existing source calls remain valid, but previously compiled consumers must be rebuilt.
 - Generate and package IntelliSense XML documentation, and fail builds when public APIs are undocumented or contain inconsistent parameter tags.
 - Restructure repository and package documentation as focused, provider-aware guides with package-specific READMEs.
 
